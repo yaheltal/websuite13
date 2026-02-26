@@ -5,7 +5,7 @@ import { insertContactSchema } from "@shared/schema";
 import { z, ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { sendOnboardingEmail } from "./email";
+import { sendOnboardingEmail, sendContactEmail } from "./email";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -115,6 +115,20 @@ export async function registerRoutes(
     try {
       const data = insertContactSchema.parse(req.body);
       const contact = await storage.createContact(data);
+
+      try {
+        await sendContactEmail({
+          name: data.name,
+          email: data.email,
+          phone: data.phone || "",
+          service: data.service || "",
+          message: data.message || "",
+        });
+        console.log(`Contact email sent for: ${data.name}`);
+      } catch (emailErr) {
+        console.error("Contact email error:", emailErr);
+      }
+
       res.status(201).json(contact);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -408,24 +422,26 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Onboarding not found" });
       }
 
-      if (onboarding.uploadedFiles && (onboarding.uploadedFiles as string[]).length > 0 && onboarding.chatHistory) {
-        const chatSummary = (onboarding.chatHistory as Array<{ role: string; parts: Array<{ text: string }> }>)
+      let chatSummary = "";
+      if (onboarding.chatHistory) {
+        chatSummary = (onboarding.chatHistory as Array<{ role: string; parts: Array<{ text: string }> }>)
           .map(h => `${h.role === "user" ? "לקוח" : "סוכן"}: ${h.parts.map(p => p.text).join(" ")}`)
           .join("\n");
+      }
 
-        try {
-          await sendOnboardingEmail({
-            clientName: onboarding.name,
-            clientEmail: onboarding.email,
-            clientPhone: onboarding.phone || "",
-            service: onboarding.service,
-            questionnaireData: onboarding.questionnaireData as Record<string, any> || {},
-            chatSummary,
-            uploadedFiles: onboarding.uploadedFiles as string[] || [],
-          });
-        } catch (emailErr) {
-          console.error("Upload email update error:", emailErr);
-        }
+      try {
+        await sendOnboardingEmail({
+          clientName: onboarding.name,
+          clientEmail: onboarding.email,
+          clientPhone: onboarding.phone || "",
+          service: onboarding.service,
+          questionnaireData: onboarding.questionnaireData as Record<string, any> || {},
+          chatSummary,
+          uploadedFiles: onboarding.uploadedFiles as string[] || [],
+        });
+        console.log(`Onboarding complete email sent for: ${onboarding.name}`);
+      } catch (emailErr) {
+        console.error("Complete email error:", emailErr);
       }
 
       res.json({ success: true });

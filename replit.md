@@ -16,7 +16,7 @@ A premium boutique web agency portfolio site with "market disruptor" branding �
 - **RTL Hebrew Support**: Full right-to-left layout with Assistant font
 - **Onboarding Funnel**: 7-step flow: Service Selection → Contact Info (lead capture) → Incentive Hook → Questionnaire → AI Chat → File Upload → Summary
 - **AI Sales Agent (Gemini)**: Short, focused sales agent that asks one question at a time, never shows code/prompts to client. Uses <<COLLECTION_COMPLETE>> marker for auto-completion
-- **Email Automation**: Auto-sends lead email (contact + questionnaire + chat summary) to WEBSUITE153@GMAIL.COM when AI finishes collecting info
+- **Email Automation**: Two email flows: (1) Contact form → sends lead details immediately, (2) Onboarding complete → sends full brief with questionnaire + AI chat + uploaded files + Replit-ready code prompt. Both to WEBSUITE153@GMAIL.COM
 - **Browser Preview Modals**: Realistic browser window mockups for each service
 - **Scroll Background**: Scattered website mockup thumbnails with parallax depth
 - **Floating Nav**: Bottom-centered capsule with "שאלון התאמה" button
