@@ -97,11 +97,11 @@ export function HeroSection() {
           <Button
             size="lg"
             variant="outline"
-            onClick={() => scrollToSection("#portfolio")}
+            onClick={() => scrollToSection("#services")}
             className="font-semibold text-base px-8 border-charcoal/15 text-charcoal"
-            data-testid="button-hero-portfolio"
+            data-testid="button-hero-services"
           >
-            צפו בעבודות שלנו
+            גלו את השירותים שלנו
           </Button>
         </motion.div>
 
