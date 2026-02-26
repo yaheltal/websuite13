@@ -13,6 +13,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen" data-testid="page-home">
+      <div className="grain-overlay" aria-hidden="true" />
       <ScrollBackground />
       <div className="relative z-10">
         <Navigation />

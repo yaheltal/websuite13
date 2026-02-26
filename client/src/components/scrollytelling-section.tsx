@@ -43,6 +43,7 @@ interface FloatingMockup {
   src: string;
   x: number;
   y: number;
+  z: number;
   scale: number;
   opacity: number;
   zIndex: number;
@@ -53,19 +54,72 @@ interface FloatingMockup {
   width: number;
 }
 
-const MOCKUPS: FloatingMockup[] = [
-  { id: 0, src: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop&q=80", x: 2, y: 5, scale: 0.95, opacity: 0.55, zIndex: 3, rotateX: -3, rotateY: 5, rotateZ: -1.5, speed: 0.6, width: 320 },
-  { id: 1, src: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=600&h=400&fit=crop&q=80", x: 58, y: 2, scale: 1.05, opacity: 0.45, zIndex: 2, rotateX: 4, rotateY: -6, rotateZ: 2, speed: 0.45, width: 340 },
-  { id: 2, src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&q=80", x: 72, y: 22, scale: 0.75, opacity: 0.35, zIndex: 1, rotateX: -5, rotateY: 8, rotateZ: -2.5, speed: 0.3, width: 260 },
-  { id: 3, src: "https://images.unsplash.com/photo-1555421689-d68471e189f2?w=600&h=400&fit=crop&q=80", x: -5, y: 35, scale: 0.85, opacity: 0.4, zIndex: 2, rotateX: 6, rotateY: -4, rotateZ: 1, speed: 0.55, width: 300 },
-  { id: 4, src: "https://images.unsplash.com/photo-1559028012-481c04fa702d?w=600&h=400&fit=crop&q=80", x: 45, y: 40, scale: 1.1, opacity: 0.5, zIndex: 4, rotateX: -2, rotateY: 3, rotateZ: -1, speed: 0.7, width: 360 },
-  { id: 5, src: "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?w=600&h=400&fit=crop&q=80", x: 80, y: 50, scale: 0.7, opacity: 0.3, zIndex: 1, rotateX: 7, rotateY: -9, rotateZ: 3, speed: 0.25, width: 240 },
-  { id: 6, src: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop&q=80", x: 15, y: 60, scale: 0.9, opacity: 0.45, zIndex: 3, rotateX: -4, rotateY: 6, rotateZ: -2, speed: 0.5, width: 310 },
-  { id: 7, src: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&h=400&fit=crop&q=80", x: 60, y: 65, scale: 0.8, opacity: 0.38, zIndex: 2, rotateX: 5, rotateY: -7, rotateZ: 1.5, speed: 0.35, width: 280 },
-  { id: 8, src: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?w=600&h=400&fit=crop&q=80", x: -2, y: 78, scale: 0.75, opacity: 0.32, zIndex: 1, rotateX: -6, rotateY: 4, rotateZ: -3, speed: 0.4, width: 250 },
-  { id: 9, src: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=600&h=400&fit=crop&q=80", x: 40, y: 82, scale: 0.95, opacity: 0.42, zIndex: 3, rotateX: 3, rotateY: -5, rotateZ: 2, speed: 0.6, width: 330 },
-  { id: 10, src: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=600&h=400&fit=crop&q=80", x: 75, y: 88, scale: 0.65, opacity: 0.28, zIndex: 1, rotateX: -8, rotateY: 10, rotateZ: -1, speed: 0.2, width: 220 },
+const UNSPLASH_IMAGES = [
+  "photo-1460925895917-afdab827c52f",
+  "photo-1547658719-da2b51169166",
+  "photo-1551288049-bebda4e38f71",
+  "photo-1555421689-d68471e189f2",
+  "photo-1559028012-481c04fa702d",
+  "photo-1517292987719-0369a794ec0f",
+  "photo-1498050108023-c5249f4df085",
+  "photo-1531403009284-440f080d1e12",
+  "photo-1522542550221-31fd19575a2d",
+  "photo-1504868584819-f8e8b4b6d7e3",
+  "photo-1488590528505-98d2b5aba04b",
+  "photo-1461749280684-dccba630e2f6",
+  "photo-1555066931-4365d14bab8c",
+  "photo-1581291518857-4e27b48ff24e",
+  "photo-1519389950473-47ba0277781c",
+  "photo-1563013544-824ae1b704d3",
+  "photo-1542744173-8e7e53415bb0",
+  "photo-1573164713988-8665fc963095",
+  "photo-1550745165-9bc0b252726f",
+  "photo-1553877522-43269d4ea984",
+  "photo-1454165804606-c3d57bc86b40",
+  "photo-1516321318423-f06f85e504b3",
+  "photo-1551434678-e076c223a692",
+  "photo-1486312338219-ce68d2c6f44d",
+  "photo-1581092795360-fd1ca04f0952",
 ];
+
+function seededRandom(seed: number) {
+  const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+function generateMockups(count: number): FloatingMockup[] {
+  return Array.from({ length: count }, (_, i) => {
+    const s1 = seededRandom(i * 3 + 1);
+    const s2 = seededRandom(i * 3 + 2);
+    const s3 = seededRandom(i * 3 + 3);
+    const s4 = seededRandom(i * 7 + 5);
+    const s5 = seededRandom(i * 11 + 7);
+
+    const depthLayer = i % 3;
+    const baseOpacity = depthLayer === 0 ? 0.2 : depthLayer === 1 ? 0.35 : 0.5;
+    const baseScale = depthLayer === 0 ? 0.5 : depthLayer === 1 ? 0.7 : 0.9;
+    const baseWidth = depthLayer === 0 ? 180 : depthLayer === 1 ? 260 : 340;
+    const baseZ = depthLayer === 0 ? -400 : depthLayer === 1 ? -150 : 0;
+
+    return {
+      id: i,
+      src: `https://images.unsplash.com/${UNSPLASH_IMAGES[i % UNSPLASH_IMAGES.length]}?w=500&h=340&fit=crop&q=75`,
+      x: -15 + s1 * 115,
+      y: s2 * 95,
+      z: baseZ + (s5 - 0.5) * 200,
+      scale: baseScale + s3 * 0.25,
+      opacity: baseOpacity + s4 * 0.15,
+      zIndex: depthLayer + 1,
+      rotateX: -8 + s1 * 16,
+      rotateY: -10 + s2 * 20,
+      rotateZ: -3 + s3 * 6,
+      speed: 0.15 + s5 * 0.55,
+      width: baseWidth + Math.floor(s4 * 60),
+    };
+  });
+}
+
+const MOCKUPS = generateMockups(25);
 
 export function ScrollytellingSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -80,32 +134,39 @@ export function ScrollytellingSection() {
     const progress = progressRef.current;
     if (!section || !gallery || !progress) return;
 
+    const isMobile = window.innerWidth < 768;
+
     const ctx = gsap.context(() => {
       mockupRefs.current.forEach((el, i) => {
         if (!el) return;
         const m = MOCKUPS[i];
         const direction = i % 2 === 0 ? -1 : 1;
-        const yTravel = window.innerHeight * (0.6 + m.speed * 0.8) * direction;
+        const yTravel = window.innerHeight * (0.5 + m.speed * 0.9) * direction;
+        const mobileFactor = isMobile ? 0.6 : 1;
+        const zDrift = (m.z * 0.3) * (i % 2 === 0 ? 1 : -1);
 
         gsap.fromTo(
           el,
           {
-            y: -yTravel * 0.3,
-            rotateX: m.rotateX * 0.5,
-            rotateY: m.rotateY * 0.5,
-            rotateZ: m.rotateZ * 0.5,
+            y: -yTravel * 0.3 * mobileFactor,
+            z: m.z,
+            rotateX: m.rotateX * 0.4,
+            rotateY: m.rotateY * 0.4,
+            rotateZ: m.rotateZ * 0.3,
           },
           {
-            y: yTravel,
-            rotateX: m.rotateX * 2.5,
-            rotateY: m.rotateY * 2.5,
-            rotateZ: m.rotateZ * 2,
+            y: yTravel * mobileFactor,
+            z: m.z + zDrift,
+            rotateX: m.rotateX * 2,
+            rotateY: m.rotateY * 2,
+            rotateZ: m.rotateZ * 1.5,
             ease: "none",
+            force3D: true,
             scrollTrigger: {
               trigger: section,
               start: "top bottom",
               end: "bottom top",
-              scrub: 1.2,
+              scrub: 1,
             },
           }
         );
@@ -212,7 +273,7 @@ export function ScrollytellingSection() {
       <div
         ref={galleryRef}
         className="absolute inset-0 pointer-events-none"
-        style={{ perspective: "1200px", perspectiveOrigin: "50% 50%" }}
+        style={{ perspective: "1400px", perspectiveOrigin: "50% 50%" }}
         aria-hidden="true"
         data-testid="floating-gallery"
       >
@@ -220,7 +281,7 @@ export function ScrollytellingSection() {
           <div
             key={m.id}
             ref={(el) => { mockupRefs.current[i] = el; }}
-            className="absolute"
+            className="absolute mockup-float-card"
             style={{
               left: `${m.x}%`,
               top: `${m.y}%`,
@@ -244,12 +305,12 @@ export function ScrollytellingSection() {
                 `,
               }}
             >
-              <div className="h-6 bg-gradient-to-b from-gray-100 to-gray-50 flex items-center px-2.5 gap-1.5 border-b border-gray-200/60">
-                <div className="w-2 h-2 rounded-full bg-red-400/70" />
-                <div className="w-2 h-2 rounded-full bg-yellow-400/70" />
-                <div className="w-2 h-2 rounded-full bg-green-400/70" />
-                <div className="flex-1 mx-2">
-                  <div className="h-3 bg-gray-200/80 rounded-full max-w-[60%] mx-auto" />
+              <div className="h-5 sm:h-6 bg-gradient-to-b from-gray-100 to-gray-50 flex items-center px-2 gap-1 sm:gap-1.5 border-b border-gray-200/60">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-400/70" />
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-yellow-400/70" />
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-400/70" />
+                <div className="flex-1 mx-1 sm:mx-2">
+                  <div className="h-2.5 sm:h-3 bg-gray-200/80 rounded-full max-w-[60%] mx-auto" />
                 </div>
               </div>
               <img
@@ -274,7 +335,7 @@ export function ScrollytellingSection() {
               style={{ willChange: "transform" }}
               data-testid={`text-story-block-${index}`}
             >
-              <div className="scrollytelling-glass-card rounded-2xl p-7 sm:p-8 border border-white/25 shadow-2xl backdrop-blur-xl">
+              <div className="scrollytelling-glass-card rounded-2xl p-7 sm:p-8 border border-white/30 shadow-2xl backdrop-blur-xl">
                 <div className="absolute inset-0 rounded-2xl pointer-events-none"
                   style={{
                     background: "linear-gradient(135deg, hsla(28, 60%, 48%, 0.04) 0%, transparent 50%)",
@@ -299,7 +360,7 @@ export function ScrollytellingSection() {
                   {splitIntoWords(block.title)}
                 </h3>
 
-                <p data-anim="body" className="text-base md:text-lg text-charcoal-light/80 leading-relaxed relative">
+                <p data-anim="body" className="text-base md:text-lg text-charcoal/75 leading-relaxed relative">
                   {block.text}
                 </p>
 

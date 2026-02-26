@@ -1,0 +1,21 @@
+We are taking this to the absolute maximum. I want this to be a sensory experience with vibrant colors, deep 3D space, and extreme visual impact. 
+
+Please radically upgrade the floating gallery and the overall aesthetics with the following advanced features:
+
+1. Continuous Ambient Hover (Zero Gravity):
+   - Even when the user is NOT scrolling, every single floating mockup card must have a continuous, randomized, gentle floating animation (moving slightly up, down, left, right, and rotating gently) using GSAP `yoyo` and `repeat: -1`. They should feel like they are suspended in liquid or space.
+
+2. Depth of Field (Cinematic Blur):
+   - Cards pushed far back in the Z-axis should be heavily blurred (`filter: blur()`). As the user scrolls down and the GSAP parallax brings these cards closer to the front, smoothly transition their blur to 0 so they come into sharp focus.
+
+3. Vibrant, Dynamic Color Shifting:
+   - Ditch the flat dark background. Create a rich, deep animated background using glowing blurred orbs or a complex mesh gradient (e.g., deep violet, midnight blue, and neon magenta accents). 
+   - Tie the background colors to the scroll progress: As the user scrolls down through different text sections, smoothly transition the background color palette to give each section a unique mood.
+
+4. Interactive Mouse Tracking:
+   - Make the entire 3D scene (or the individual cards) react to the user's mouse pointer. As the mouse moves across the screen, the cards should subtly tilt (rotateX, rotateY) and shift in the opposite direction of the cursor.
+
+5. Glass Glare & Premium Reflections:
+   - Add a dynamic "glare" or shine overlay (`::after` pseudo-element with a linear-gradient) to the website mockups. Tie this glare to the scroll progress so that as the cards rotate in 3D during the scroll, the light visually sweeps across their surface like real glass screens.
+
+Make sure the CSS and JS are highly optimized (use `will-change` and hardware acceleration) so this heavy visual load still runs smoothly on both desktop and mobile.
