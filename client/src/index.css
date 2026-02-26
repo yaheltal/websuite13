@@ -151,6 +151,21 @@
 
   html {
     scroll-behavior: auto;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
   }
 }
 

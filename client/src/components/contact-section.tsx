@@ -182,7 +182,7 @@ export function ContactSection() {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>שם מלא</FormLabel>
+                            <FormLabel>שם מלא <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
                               <Input placeholder="הזינו את שמכם" {...field} data-testid="input-name" />
                             </FormControl>
@@ -195,7 +195,7 @@ export function ContactSection() {
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>אימייל</FormLabel>
+                            <FormLabel>אימייל <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
                               <Input type="email" placeholder="name@example.com" dir="ltr" {...field} data-testid="input-email" />
                             </FormControl>
@@ -211,7 +211,7 @@ export function ContactSection() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>טלפון</FormLabel>
+                            <FormLabel>טלפון <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
                               <Input type="tel" placeholder="054-1234567" dir="ltr" {...field} value={field.value || ""} data-testid="input-phone" />
                             </FormControl>
@@ -224,7 +224,7 @@ export function ContactSection() {
                         name="service"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>שירות מבוקש</FormLabel>
+                            <FormLabel>שירות מבוקש <span className="text-red-500">*</span></FormLabel>
                             <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger data-testid="select-service">
@@ -250,7 +250,7 @@ export function ContactSection() {
                       name="message"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>ספרו לנו על הפרויקט</FormLabel>
+                          <FormLabel>ספרו לנו על הפרויקט <span className="text-red-500">*</span></FormLabel>
                           <FormControl>
                             <Textarea
                               placeholder="מה אתם מחפשים? מה חשוב לכם? כל פרט עוזר לנו להתאים את ההצעה..."

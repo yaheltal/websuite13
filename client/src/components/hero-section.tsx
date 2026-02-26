@@ -87,7 +87,7 @@ export function HeroSection() {
           <Link href="/onboarding">
             <Button
               size="lg"
-              className="bg-gradient-to-l from-copper to-copper-dark text-white font-extrabold text-base px-8 border-0 shadow-lg"
+              className="bg-gradient-to-l from-copper to-copper-dark text-white font-extrabold text-base px-8 py-3 min-h-[48px] border-0 shadow-lg w-full sm:w-auto"
               data-testid="button-hero-cta"
             >
               התחילו שאלון התאמה
@@ -97,7 +97,7 @@ export function HeroSection() {
             size="lg"
             variant="outline"
             onClick={() => scrollToSection("#services")}
-            className="font-semibold text-base px-8 border-charcoal/15 text-charcoal"
+            className="font-semibold text-base px-8 py-3 min-h-[48px] border-charcoal/15 text-charcoal w-full sm:w-auto"
             data-testid="button-hero-services"
           >
             גלו את השירותים שלנו

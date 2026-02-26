@@ -158,7 +158,7 @@ export function Navigation() {
                     <button
                       key={item.href}
                       onClick={() => scrollToSection(item.href)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all min-h-[44px] ${
                         isActive
                           ? "bg-copper/10 text-copper"
                           : "text-charcoal-light"
@@ -174,7 +174,7 @@ export function Navigation() {
               <div className="mt-3 pt-3 border-t border-border/40">
                 <Link href="/onboarding">
                   <button
-                    className="w-full bg-gradient-to-l from-copper to-copper-dark text-white font-bold text-sm py-2.5 rounded-xl flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-l from-copper to-copper-dark text-white font-bold text-sm py-3 rounded-xl flex items-center justify-center gap-2 min-h-[48px]"
                     data-testid="button-mobile-questionnaire"
                   >
                     <ClipboardList className="w-4 h-4" />
@@ -198,7 +198,7 @@ export function Navigation() {
                   <button
                     key={item.href}
                     onClick={() => scrollToSection(item.href)}
-                    className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+                    className={`relative w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
                       isActive ? "bg-copper/10 text-copper" : "text-charcoal-light"
                     }`}
                     data-testid={`link-mobile-icon-${item.href.replace("#", "")}`}
@@ -216,7 +216,7 @@ export function Navigation() {
               })}
               <button
                 onClick={() => setIsMobileExpanded(true)}
-                className="w-10 h-10 rounded-full bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center"
+                className="w-11 h-11 rounded-full bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center"
                 data-testid="button-mobile-menu"
               >
                 <span className="text-[10px] font-extrabold text-white">13</span>

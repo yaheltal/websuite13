@@ -111,7 +111,7 @@ function getQuestionsForService(service: string) {
 const contactSchema = z.object({
   name: z.string().min(2, "שם חייב להכיל לפחות 2 תווים"),
   email: z.string().email("אנא הזן כתובת אימייל תקינה"),
-  phone: z.string().optional(),
+  phone: z.string().min(9, "אנא הזן מספר טלפון תקין (*)"),
 });
 
 interface ChatMessage {
@@ -243,7 +243,7 @@ export default function Onboarding() {
       const response = await apiRequest("POST", "/api/onboarding/start", {
         name: contactValues.name,
         email: contactValues.email,
-        phone: contactValues.phone || null,
+        phone: contactValues.phone,
         service: selectedService,
         questionnaireData,
       });
@@ -461,8 +461,8 @@ export default function Onboarding() {
                     )} />
                     <FormField control={contactForm.control} name="phone" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>טלפון</FormLabel>
-                        <FormControl><Input {...field} data-testid="input-contact-phone" /></FormControl>
+                        <FormLabel>טלפון <span className="text-red-500">*</span></FormLabel>
+                        <FormControl><Input type="tel" placeholder="054-1234567" dir="ltr" {...field} data-testid="input-contact-phone" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -471,11 +471,11 @@ export default function Onboarding() {
               </div>
 
               <div className="flex items-center justify-between mt-6 max-w-lg mx-auto">
-                <Button variant="outline" onClick={() => { setStep(0); setSelectedService(""); }} data-testid="button-back">
+                <Button variant="outline" onClick={() => { setStep(0); setSelectedService(""); }} className="min-h-[44px]" data-testid="button-back">
                   <ArrowRight className="w-4 h-4 ml-2" />
                   חזרה
                 </Button>
-                <Button onClick={handleContactSubmit} className="bg-gradient-to-l from-copper to-copper-dark text-white" data-testid="button-submit-contact">
+                <Button onClick={handleContactSubmit} className="bg-gradient-to-l from-copper to-copper-dark text-white min-h-[44px]" data-testid="button-submit-contact">
                   המשך
                   <ArrowLeft className="w-4 h-4 mr-2" />
                 </Button>
@@ -623,7 +623,7 @@ export default function Onboarding() {
                 <p className="text-sm text-charcoal-light">הסוכן שלנו ישאל כמה שאלות קצרות כדי להבין את הצרכים שלך</p>
               </div>
 
-              <div className="bg-card rounded-2xl border border-border/60 overflow-hidden flex flex-col" style={{ height: "500px" }}>
+              <div className="bg-card rounded-2xl border border-border/60 overflow-hidden flex flex-col" style={{ height: "min(500px, calc(100dvh - 200px))" }}>
                 <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-l from-copper to-copper-dark text-white">
                   <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
                     <Bot className="w-5 h-5" />
