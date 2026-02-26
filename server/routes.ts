@@ -211,8 +211,25 @@ export async function registerRoutes(
 
       const chat = model.startChat({ history: historyForChat });
 
-      const result = await chat.sendMessage(message);
-      const reply = result.response.text();
+      let reply = "";
+      const MAX_RETRIES = 2;
+      for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          const result = await chat.sendMessage(message);
+          reply = result.response.text();
+          break;
+        } catch (retryErr: any) {
+          if (retryErr?.status === 429 && attempt < MAX_RETRIES) {
+            const retryMatch = retryErr?.message?.match(/retry in (\d+)/i);
+            const waitSec = retryMatch ? Math.min(parseInt(retryMatch[1]), 40) : 10;
+            await new Promise(r => setTimeout(r, (waitSec + 2) * 1000));
+            continue;
+          }
+          throw retryErr;
+        }
+      }
+
+      reply = reply.replace(/THOUGHT[\s\S]*?(?=\n[^\n])/g, "").trim();
 
       session.history.push(
         { role: "user", parts: [{ text: message }] },
@@ -255,9 +272,13 @@ export async function registerRoutes(
       }
 
       res.json({ reply: cleanReply, sessionId: sid, isComplete });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Chat error:", error);
-      res.status(500).json({ message: "שגיאה בשירות ה-AI, נסה שוב" });
+      if (error?.status === 429) {
+        res.status(429).json({ message: "שירות ה-AI עמוס כרגע. אנא נסה שוב בעוד כמה דקות." });
+      } else {
+        res.status(500).json({ message: "שגיאה בשירות ה-AI, נסה שוב" });
+      }
     }
   });
 

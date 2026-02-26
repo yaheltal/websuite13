@@ -14,7 +14,7 @@ A premium boutique web agency portfolio site with "market disruptor" branding �
 ## Key Features
 - **Boutique Aesthetic**: Soft Sand, Muted Sage, Warm Off-White with Charcoal text and Copper accents
 - **RTL Hebrew Support**: Full right-to-left layout with Assistant font
-- **Onboarding Funnel**: 5-step flow: Service Selection → Dynamic Questionnaire → AI Chat → File Upload → Summary/Email
+- **Onboarding Funnel**: 7-step flow: Service Selection → Contact Info (lead capture) → Incentive Hook → Questionnaire → AI Chat → File Upload → Summary
 - **AI Sales Agent (Gemini)**: Short, focused sales agent that asks one question at a time, never shows code/prompts to client. Uses <<COLLECTION_COMPLETE>> marker for auto-completion
 - **Email Automation**: Auto-sends lead email (contact + questionnaire + chat summary) to WEBSUITE153@GMAIL.COM when AI finishes collecting info
 - **Browser Preview Modals**: Realistic browser window mockups for each service

@@ -28,14 +28,13 @@ import {
   Send,
   Upload,
   FileImage,
-  X,
   Check,
   CheckCircle2,
   Loader2,
-  ChevronRight,
+  Clock,
+  Zap,
+  FileText,
 } from "lucide-react";
-
-const stepLabels = ["בחירת שירות", "שאלון", "שיחה עם AI", "העלאת קבצים", "סיכום"];
 
 const services = [
   {
@@ -143,25 +142,29 @@ function formatChatMessage(text: string) {
   });
 }
 
-function StepIndicator({ currentStep, labels }: { currentStep: number; labels: string[] }) {
+function ProgressBar({ stepsRemaining }: { stepsRemaining: number }) {
+  const totalSteps = 3;
+  const completed = totalSteps - stepsRemaining;
+  const percentage = Math.round((completed / totalSteps) * 100);
+
   return (
-    <div className="flex items-center justify-center gap-2 mb-8" data-testid="step-indicator">
-      {labels.map((label, i) => (
-        <div key={i} className="flex items-center gap-2">
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
-            i < currentStep ? "bg-copper/15 text-copper" :
-            i === currentStep ? "bg-copper text-white shadow-md" :
-            "bg-muted/50 text-muted-foreground"
-          }`}>
-            {i < currentStep ? <Check className="w-3 h-3" /> : null}
-            <span className="hidden sm:inline">{label}</span>
-            <span className="sm:hidden">{i + 1}</span>
-          </div>
-          {i < labels.length - 1 && (
-            <ChevronRight className="w-3 h-3 text-muted-foreground/40" />
-          )}
-        </div>
-      ))}
+    <div className="mb-8" data-testid="progress-bar">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm font-medium text-charcoal">
+          {stepsRemaining > 0
+            ? `${stepsRemaining} צעדים להצעת מחיר מקצועית`
+            : "סיימת! ההצעה בדרך אליך"}
+        </span>
+        <span className="text-sm font-bold text-copper">{percentage}%</span>
+      </div>
+      <div className="w-full h-2.5 bg-muted/50 rounded-full overflow-hidden">
+        <motion.div
+          className="h-full bg-gradient-to-l from-copper to-copper-dark rounded-full"
+          initial={{ width: 0 }}
+          animate={{ width: `${percentage}%` }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        />
+      </div>
     </div>
   );
 }
@@ -198,6 +201,16 @@ export default function Onboarding() {
     setStep(1);
   };
 
+  const handleContactSubmit = async () => {
+    const isValid = await contactForm.trigger();
+    if (!isValid) return;
+    setStep(2);
+  };
+
+  const handleStartQuestionnaire = () => {
+    setStep(3);
+  };
+
   const handleQuestionnaireSubmit = async () => {
     const questions = getQuestionsForService(selectedService);
     const required = questions.filter(q => q.required);
@@ -208,8 +221,6 @@ export default function Onboarding() {
     }
 
     const contactValues = contactForm.getValues();
-    const isValid = await contactForm.trigger();
-    if (!isValid) return;
 
     try {
       const response = await apiRequest("POST", "/api/onboarding/start", {
@@ -222,7 +233,7 @@ export default function Onboarding() {
       const data = await response.json();
       const newId = data.id;
       setOnboardingId(newId);
-      setStep(2);
+      setStep(4);
       startAiChat(newId);
     } catch {
       toast({ title: "שגיאה", description: "משהו השתבש, נסה שוב", variant: "destructive" });
@@ -316,6 +327,13 @@ export default function Onboarding() {
     setCompleting(false);
   };
 
+  const getStepsRemaining = () => {
+    if (step <= 2) return 3;
+    if (step === 3) return 2;
+    if (step === 4) return 1;
+    return 0;
+  };
+
   return (
     <div className="min-h-screen bg-background" dir="rtl" data-testid="page-onboarding">
       <div className="sticky top-0 z-40 bg-card/90 backdrop-blur-md border-b border-border/40">
@@ -337,7 +355,9 @@ export default function Onboarding() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <StepIndicator currentStep={step} labels={stepLabels} />
+        {step >= 2 && step <= 5 && !completed && (
+          <ProgressBar stepsRemaining={getStepsRemaining()} />
+        )}
 
         <AnimatePresence mode="wait">
           {step === 0 && (
@@ -373,18 +393,18 @@ export default function Onboarding() {
             <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
-                  ספר לנו על הפרויקט
+                  פרטי התקשרות
                 </h2>
-                <p className="text-charcoal-light">מלא את השאלון וניצור לך הצעה מותאמת</p>
+                <p className="text-charcoal-light">השאר פרטים ונחזור אליך עם הצעה מותאמת</p>
               </div>
 
-              <div className="bg-card rounded-2xl border border-border/60 p-6 mb-6">
+              <div className="bg-card rounded-2xl border border-border/60 p-6 max-w-lg mx-auto">
                 <h3 className="text-lg font-bold text-charcoal mb-4 flex items-center gap-2">
                   <User className="w-5 h-5 text-copper" />
                   פרטי קשר
                 </h3>
                 <Form {...contactForm}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     <FormField control={contactForm.control} name="name" render={({ field }) => (
                       <FormItem>
                         <FormLabel>שם מלא *</FormLabel>
@@ -408,6 +428,85 @@ export default function Onboarding() {
                     )} />
                   </div>
                 </Form>
+              </div>
+
+              <div className="flex items-center justify-between mt-6 max-w-lg mx-auto">
+                <Button variant="outline" onClick={() => { setStep(0); setSelectedService(""); }} data-testid="button-back">
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                  חזרה
+                </Button>
+                <Button onClick={handleContactSubmit} className="bg-gradient-to-l from-copper to-copper-dark text-white" data-testid="button-submit-contact">
+                  המשך
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 2 && (
+            <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+              <div className="max-w-xl mx-auto text-center">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1, type: "spring", damping: 15 }}
+                  className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6"
+                >
+                  <CheckCircle2 className="w-10 h-10 text-green-600" />
+                </motion.div>
+
+                <h2 className="text-2xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
+                  מעולה! קיבלנו את הפרטים שלך
+                </h2>
+                <p className="text-charcoal-light mb-8 leading-relaxed">
+                  כדי לדלג על שיחות הכרות ארוכות ולקבל הצעת מחיר מותאמת תוך 24 שעות,
+                  מלא את השאלון הדיגיטלי שלנו — זה לוקח פחות מ-2 דקות.
+                </p>
+
+                <div className="bg-card rounded-2xl border border-border/60 p-6 mb-8 text-right">
+                  <h3 className="text-base font-bold text-charcoal mb-4">למה כדאי למלא עכשיו?</h3>
+                  <div className="space-y-3">
+                    {[
+                      { icon: Clock, text: "הצעת מחיר תוך 24 שעות — בלי שיחות מיותרות" },
+                      { icon: Zap, text: "הצוות שלנו מגיע מוכן עם פתרונות ספציפיים לעסק שלך" },
+                      { icon: FileText, text: "שאלון קצר ומדויק — פחות מ-2 דקות" },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-copper/10 flex items-center justify-center flex-shrink-0">
+                          <item.icon className="w-4 h-4 text-copper" />
+                        </div>
+                        <span className="text-sm text-charcoal">{item.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Button
+                    onClick={handleStartQuestionnaire}
+                    className="bg-gradient-to-l from-copper to-copper-dark text-white px-8 py-3 text-base"
+                    data-testid="button-start-questionnaire"
+                  >
+                    כן, בואו נתחיל!
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                  </Button>
+                  <Link href="/">
+                    <Button variant="outline" className="text-sm" data-testid="button-skip-home">
+                      לא עכשיו, חזרה לדף הבית
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 3 && (
+            <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
+                  ספר לנו על הפרויקט
+                </h2>
+                <p className="text-charcoal-light">מלא את השאלון וניצור לך הצעה מותאמת</p>
               </div>
 
               <div className="bg-card rounded-2xl border border-border/60 p-6">
@@ -445,20 +544,20 @@ export default function Onboarding() {
               </div>
 
               <div className="flex items-center justify-between mt-6">
-                <Button variant="outline" onClick={() => { setStep(0); setSelectedService(""); }} data-testid="button-back">
+                <Button variant="outline" onClick={() => setStep(2)} data-testid="button-back">
                   <ArrowRight className="w-4 h-4 ml-2" />
                   חזרה
                 </Button>
                 <Button onClick={handleQuestionnaireSubmit} className="bg-gradient-to-l from-copper to-copper-dark text-white" data-testid="button-next-to-chat">
-                  המשך לשיחה עם AI
+                  המשך לשיחה עם הסוכן
                   <ArrowLeft className="w-4 h-4 mr-2" />
                 </Button>
               </div>
             </motion.div>
           )}
 
-          {step === 2 && (
-            <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+          {step === 4 && (
+            <motion.div key="step4" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-extrabold text-charcoal mb-2" data-testid="text-step-title">
                   שיחה עם הסוכן AI
@@ -536,14 +635,14 @@ export default function Onboarding() {
 
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 flex items-center justify-between">
                 {chatMessages.length >= 4 && !chatComplete && (
-                  <Button variant="outline" onClick={() => setStep(3)} className="text-sm" data-testid="button-skip-to-upload">
+                  <Button variant="outline" onClick={() => setStep(5)} className="text-sm" data-testid="button-skip-to-upload">
                     דלג להעלאת קבצים
                     <ArrowLeft className="w-4 h-4 mr-2" />
                   </Button>
                 )}
                 {!chatMessages.length && !chatComplete && <div />}
                 {chatComplete && (
-                  <Button onClick={() => setStep(3)} className="bg-gradient-to-l from-copper to-copper-dark text-white mr-auto" data-testid="button-next-to-upload">
+                  <Button onClick={() => setStep(5)} className="bg-gradient-to-l from-copper to-copper-dark text-white mr-auto" data-testid="button-next-to-upload">
                     המשך להעלאת קבצים
                     <ArrowLeft className="w-4 h-4 mr-2" />
                   </Button>
@@ -552,13 +651,13 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {step === 3 && (
-            <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+          {step === 5 && (
+            <motion.div key="step5" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
                   העלאת קבצים
                 </h2>
-                <p className="text-charcoal-light">העלה לוגו, תמונות, ונכסי מותג (אופציונלי)</p>
+                <p className="text-charcoal-light">העלאת לוגו ותמונות היא צעד קריטי למיתוג מקצועי</p>
               </div>
 
               <div className="bg-card rounded-2xl border border-border/60 p-8">
@@ -605,11 +704,11 @@ export default function Onboarding() {
               </div>
 
               <div className="flex items-center justify-between mt-6">
-                <Button variant="outline" onClick={() => setStep(2)} data-testid="button-back-to-chat">
+                <Button variant="outline" onClick={() => setStep(4)} data-testid="button-back-to-chat">
                   <ArrowRight className="w-4 h-4 ml-2" />
                   חזרה לשיחה
                 </Button>
-                <Button onClick={() => setStep(4)} className="bg-gradient-to-l from-copper to-copper-dark text-white" data-testid="button-next-to-summary">
+                <Button onClick={() => setStep(6)} className="bg-gradient-to-l from-copper to-copper-dark text-white" data-testid="button-next-to-summary">
                   המשך לסיכום
                   <ArrowLeft className="w-4 h-4 mr-2" />
                 </Button>
@@ -617,8 +716,8 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {step === 4 && !completed && (
-            <motion.div key="step4" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+          {step === 6 && !completed && (
+            <motion.div key="step6" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
                   סיכום ושליחה
@@ -662,7 +761,7 @@ export default function Onboarding() {
               </div>
 
               <div className="flex items-center justify-between">
-                <Button variant="outline" onClick={() => setStep(3)} data-testid="button-back-to-upload">
+                <Button variant="outline" onClick={() => setStep(5)} data-testid="button-back-to-upload">
                   <ArrowRight className="w-4 h-4 ml-2" />
                   חזרה
                 </Button>
