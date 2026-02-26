@@ -184,6 +184,7 @@ export default function Onboarding() {
   const [completing, setCompleting] = useState(false);
   const [completed, setCompleted] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -194,7 +195,10 @@ export default function Onboarding() {
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages]);
+    if (step === 4) {
+      setTimeout(() => chatInputRef.current?.focus(), 50);
+    }
+  }, [chatMessages, chatLoading]);
 
   const handleServiceSelect = (serviceId: string) => {
     setSelectedService(serviceId);
@@ -640,13 +644,13 @@ export default function Onboarding() {
                 <div className="px-3 py-3 border-t border-border/40" dir="rtl">
                   <div className="flex gap-2 items-center">
                     <input
+                      ref={chatInputRef}
                       type="text"
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
                       onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChatMessage(); } }}
                       placeholder="כתוב הודעה..."
-                      disabled={chatLoading}
-                      className="flex-1 bg-muted/40 border border-border/40 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper/40 transition-all disabled:opacity-50"
+                      className="flex-1 bg-muted/40 border border-border/40 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper/40 transition-all"
                       data-testid="input-chat-message"
                     />
                     <Button onClick={sendChatMessage} disabled={!chatInput.trim() || chatLoading} size="icon" className="rounded-xl bg-copper hover:bg-copper-dark text-white h-10 w-10" data-testid="button-send-chat">

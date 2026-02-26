@@ -99,7 +99,10 @@ export function AiChatWidget() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }, [messages, isLoading]);
 
   useEffect(() => {
     if (isOpen && !hasGreeted) {
@@ -283,8 +286,7 @@ export function AiChatWidget() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="כתוב הודעה..."
-                  disabled={isLoading}
-                  className="flex-1 bg-muted/40 border border-border/40 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper/40 transition-all disabled:opacity-50"
+                  className="flex-1 bg-muted/40 border border-border/40 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper/40 transition-all"
                   data-testid="input-chat-message"
                 />
                 <Button
