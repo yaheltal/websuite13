@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Sparkles, Zap, Palette, Rocket, Shield } from "lucide-react";
@@ -52,6 +52,11 @@ interface FloatingMockup {
   rotateZ: number;
   speed: number;
   width: number;
+  blurBase: number;
+  hoverDx: number;
+  hoverDy: number;
+  hoverDur: number;
+  hoverRotZ: number;
 }
 
 const UNSPLASH_IMAGES = [
@@ -94,19 +99,21 @@ function generateMockups(count: number): FloatingMockup[] {
     const s3 = seededRandom(i * 3 + 3);
     const s4 = seededRandom(i * 7 + 5);
     const s5 = seededRandom(i * 11 + 7);
+    const s6 = seededRandom(i * 13 + 11);
 
     const depthLayer = i % 3;
-    const baseOpacity = depthLayer === 0 ? 0.2 : depthLayer === 1 ? 0.35 : 0.5;
+    const baseOpacity = depthLayer === 0 ? 0.25 : depthLayer === 1 ? 0.4 : 0.6;
     const baseScale = depthLayer === 0 ? 0.5 : depthLayer === 1 ? 0.7 : 0.9;
     const baseWidth = depthLayer === 0 ? 180 : depthLayer === 1 ? 260 : 340;
-    const baseZ = depthLayer === 0 ? -400 : depthLayer === 1 ? -150 : 0;
+    const baseZ = depthLayer === 0 ? -500 : depthLayer === 1 ? -200 : 0;
+    const blurBase = depthLayer === 0 ? 10 : depthLayer === 1 ? 4 : 0;
 
     return {
       id: i,
       src: `https://images.unsplash.com/${UNSPLASH_IMAGES[i % UNSPLASH_IMAGES.length]}?w=500&h=340&fit=crop&q=75`,
       x: -15 + s1 * 115,
       y: s2 * 95,
-      z: baseZ + (s5 - 0.5) * 200,
+      z: baseZ + (s5 - 0.5) * 250,
       scale: baseScale + s3 * 0.25,
       opacity: baseOpacity + s4 * 0.15,
       zIndex: depthLayer + 1,
@@ -115,18 +122,40 @@ function generateMockups(count: number): FloatingMockup[] {
       rotateZ: -3 + s3 * 6,
       speed: 0.15 + s5 * 0.55,
       width: baseWidth + Math.floor(s4 * 60),
+      blurBase,
+      hoverDx: 8 + s6 * 20,
+      hoverDy: 6 + s3 * 18,
+      hoverDur: 3 + s4 * 5,
+      hoverRotZ: 1 + s6 * 3,
     };
   });
 }
 
 const MOCKUPS = generateMockups(25);
 
+const BG_COLORS = [
+  { r: 15, g: 10, b: 40 },
+  { r: 25, g: 8, b: 55 },
+  { r: 10, g: 18, b: 50 },
+  { r: 30, g: 5, b: 45 },
+  { r: 12, g: 15, b: 48 },
+];
+
 export function ScrollytellingSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
+  const orbRefs = useRef<(HTMLDivElement | null)[]>([]);
   const blockRefs = useRef<(HTMLDivElement | null)[]>([]);
   const mockupRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const glareRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const mouseRef = useRef({ x: 0.5, y: 0.5 });
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    mouseRef.current.x = e.clientX / window.innerWidth;
+    mouseRef.current.y = e.clientY / window.innerHeight;
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -136,16 +165,34 @@ export function ScrollytellingSection() {
 
     const isMobile = window.innerWidth < 768;
 
+    if (!isMobile) {
+      window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    }
+
     const ctx = gsap.context(() => {
       mockupRefs.current.forEach((el, i) => {
         if (!el) return;
         const m = MOCKUPS[i];
+        const innerCard = el.querySelector("[data-card-inner]") as HTMLElement;
+        if (!innerCard) return;
+
+        gsap.to(innerCard, {
+          x: `+=${m.hoverDx * (i % 2 === 0 ? 1 : -1)}`,
+          y: `+=${m.hoverDy * (i % 2 === 0 ? -1 : 1)}`,
+          rotateZ: `+=${m.hoverRotZ * (i % 2 === 0 ? 1 : -1)}`,
+          duration: m.hoverDur,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+          force3D: true,
+        });
+
         const direction = i % 2 === 0 ? -1 : 1;
         const yTravel = window.innerHeight * (0.5 + m.speed * 0.9) * direction;
-        const mobileFactor = isMobile ? 0.6 : 1;
+        const mobileFactor = isMobile ? 0.5 : 1;
         const zDrift = (m.z * 0.3) * (i % 2 === 0 ? 1 : -1);
 
-        gsap.fromTo(
+        const scrollTween = gsap.fromTo(
           el,
           {
             y: -yTravel * 0.3 * mobileFactor,
@@ -167,9 +214,50 @@ export function ScrollytellingSection() {
               start: "top bottom",
               end: "bottom top",
               scrub: 1,
+              onUpdate: (self) => {
+                const prog = self.progress;
+                const focusFactor = 1 - Math.abs(prog - 0.5) * 2;
+                const blur = m.blurBase * (1 - focusFactor * 0.9);
+                if (innerCard) {
+                  innerCard.style.filter = `blur(${blur}px)`;
+                }
+                const glare = glareRefs.current[i];
+                if (glare) {
+                  const angle = 120 + prog * 120;
+                  glare.style.background = `linear-gradient(${angle}deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)`;
+                }
+              },
             },
           }
         );
+      });
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true,
+        onUpdate: (self) => {
+          const p = self.progress;
+          orbRefs.current.forEach((orb, i) => {
+            if (!orb) return;
+            const shift = Math.sin(p * Math.PI * 2 + i * 1.2) * 15;
+            const vShift = Math.cos(p * Math.PI * 1.5 + i * 0.8) * 10;
+            orb.style.transform = `translate(${shift}%, ${vShift}%)`;
+          });
+
+          const ci = Math.floor(p * (BG_COLORS.length - 1));
+          const ni = Math.min(ci + 1, BG_COLORS.length - 1);
+          const t = (p * (BG_COLORS.length - 1)) - ci;
+          const c = BG_COLORS[ci];
+          const n = BG_COLORS[ni];
+          const r = Math.round(c.r + (n.r - c.r) * t);
+          const g = Math.round(c.g + (n.g - c.g) * t);
+          const b = Math.round(c.b + (n.b - c.b) * t);
+          if (bgRef.current) {
+            bgRef.current.style.backgroundColor = `rgb(${r},${g},${b})`;
+          }
+        },
       });
 
       gsap.fromTo(
@@ -246,8 +334,37 @@ export function ScrollytellingSection() {
       });
     }, section);
 
-    return () => ctx.revert();
-  }, []);
+    const quickXSetters: ReturnType<typeof gsap.quickTo>[] = [];
+    if (!isMobile) {
+      mockupRefs.current.forEach((el, i) => {
+        if (!el) return;
+        quickXSetters[i] = gsap.quickTo(el, "x", { duration: 1.2, ease: "power2.out" });
+      });
+
+      const tickerFn = () => {
+        const mx = mouseRef.current.x - 0.5;
+        const my = mouseRef.current.y - 0.5;
+        mockupRefs.current.forEach((el, i) => {
+          if (!el || !quickXSetters[i]) return;
+          const m = MOCKUPS[i];
+          const sensitivity = (m.zIndex / 3) * 0.6;
+          const shiftX = -mx * 15 * sensitivity;
+          quickXSetters[i](shiftX);
+        });
+      };
+      gsap.ticker.add(tickerFn);
+
+      return () => {
+        ctx.revert();
+        gsap.ticker.remove(tickerFn);
+        window.removeEventListener("mousemove", handleMouseMove);
+      };
+    }
+
+    return () => {
+      ctx.revert();
+    };
+  }, [handleMouseMove]);
 
   function splitIntoWords(text: string) {
     return text.split(" ").map((word, i) => (
@@ -271,58 +388,103 @@ export function ScrollytellingSection() {
       data-testid="section-scrollytelling"
     >
       <div
+        ref={bgRef}
+        className="absolute inset-0 transition-colors duration-700"
+        style={{ backgroundColor: "rgb(15, 10, 40)" }}
+      >
+        {[
+          { w: "60vw", h: "60vw", top: "5%", left: "10%", bg: "radial-gradient(circle, hsla(270,80%,40%,0.35) 0%, transparent 70%)" },
+          { w: "50vw", h: "50vw", top: "35%", right: "5%", bg: "radial-gradient(circle, hsla(220,80%,40%,0.3) 0%, transparent 70%)" },
+          { w: "45vw", h: "45vw", bottom: "10%", left: "20%", bg: "radial-gradient(circle, hsla(320,70%,35%,0.25) 0%, transparent 70%)" },
+          { w: "55vw", h: "55vw", top: "55%", left: "50%", bg: "radial-gradient(circle, hsla(260,60%,45%,0.2) 0%, transparent 70%)" },
+        ].map((orb, i) => (
+          <div
+            key={i}
+            ref={(el) => { orbRefs.current[i] = el; }}
+            className="absolute pointer-events-none"
+            style={{
+              width: orb.w,
+              height: orb.h,
+              top: orb.top,
+              bottom: (orb as any).bottom,
+              left: orb.left,
+              right: (orb as any).right,
+              background: orb.bg,
+              filter: "blur(80px)",
+              willChange: "transform",
+            }}
+          />
+        ))}
+      </div>
+
+      <div
         ref={galleryRef}
         className="absolute inset-0 pointer-events-none"
         style={{ perspective: "1400px", perspectiveOrigin: "50% 50%" }}
         aria-hidden="true"
         data-testid="floating-gallery"
       >
-        {MOCKUPS.map((m, i) => (
-          <div
-            key={m.id}
-            ref={(el) => { mockupRefs.current[i] = el; }}
-            className="absolute mockup-float-card"
-            style={{
-              left: `${m.x}%`,
-              top: `${m.y}%`,
-              width: `${m.width}px`,
-              zIndex: m.zIndex,
-              transformStyle: "preserve-3d",
-              willChange: "transform",
-            }}
-            data-testid={`mockup-card-${m.id}`}
-          >
+        {MOCKUPS.map((m, i) => {
+          const isMobileWidth = typeof window !== "undefined" && window.innerWidth < 768;
+          const mobileScale = isMobileWidth ? 0.55 : 1;
+          return (
             <div
-              className="relative rounded-xl overflow-hidden"
+              key={m.id}
+              ref={(el) => { mockupRefs.current[i] = el; }}
+              className="absolute"
               style={{
-                transform: `scale(${m.scale})`,
-                opacity: m.opacity,
-                boxShadow: `
-                  0 4px 6px rgba(0,0,0,0.04),
-                  0 10px 25px rgba(0,0,0,0.06),
-                  0 25px 60px rgba(0,0,0,0.08),
-                  0 0 0 1px rgba(0,0,0,0.04)
-                `,
+                left: `${m.x}%`,
+                top: `${m.y}%`,
+                width: `${m.width * mobileScale}px`,
+                zIndex: m.zIndex,
+                transformStyle: "preserve-3d",
+                willChange: "transform",
               }}
+              data-testid={`mockup-card-${m.id}`}
             >
-              <div className="h-5 sm:h-6 bg-gradient-to-b from-gray-100 to-gray-50 flex items-center px-2 gap-1 sm:gap-1.5 border-b border-gray-200/60">
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-400/70" />
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-yellow-400/70" />
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-400/70" />
-                <div className="flex-1 mx-1 sm:mx-2">
-                  <div className="h-2.5 sm:h-3 bg-gray-200/80 rounded-full max-w-[60%] mx-auto" />
+              <div
+                data-card-inner
+                className="relative rounded-xl overflow-hidden"
+                style={{
+                  transform: `scale(${m.scale})`,
+                  opacity: m.opacity,
+                  filter: `blur(${m.blurBase}px)`,
+                  willChange: "transform, filter",
+                  boxShadow: `
+                    0 4px 6px rgba(0,0,0,0.15),
+                    0 10px 25px rgba(0,0,0,0.2),
+                    0 25px 60px rgba(0,0,0,0.25),
+                    0 0 0 1px rgba(255,255,255,0.06)
+                  `,
+                }}
+              >
+                <div className="h-5 sm:h-6 bg-gradient-to-b from-gray-800 to-gray-900 flex items-center px-2 gap-1 sm:gap-1.5 border-b border-white/5">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500/80" />
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-yellow-500/80" />
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500/80" />
+                  <div className="flex-1 mx-1 sm:mx-2">
+                    <div className="h-2.5 sm:h-3 bg-white/10 rounded-full max-w-[60%] mx-auto" />
+                  </div>
                 </div>
+                <img
+                  src={m.src}
+                  alt=""
+                  loading="lazy"
+                  className="w-full aspect-[3/2] object-cover"
+                  style={{ display: "block" }}
+                />
+                <div
+                  ref={(el) => { glareRefs.current[i] = el; }}
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: "linear-gradient(120deg, rgba(255,255,255,0.12) 0%, transparent 50%, rgba(255,255,255,0.04) 100%)",
+                    mixBlendMode: "overlay",
+                  }}
+                />
               </div>
-              <img
-                src={m.src}
-                alt=""
-                loading="lazy"
-                className="w-full aspect-[3/2] object-cover"
-                style={{ display: "block" }}
-              />
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -335,15 +497,15 @@ export function ScrollytellingSection() {
               style={{ willChange: "transform" }}
               data-testid={`text-story-block-${index}`}
             >
-              <div className="scrollytelling-glass-card rounded-2xl p-7 sm:p-8 border border-white/30 shadow-2xl backdrop-blur-xl">
+              <div className="scrollytelling-glass-card rounded-2xl p-7 sm:p-8 border border-white/15 shadow-2xl backdrop-blur-xl">
                 <div className="absolute inset-0 rounded-2xl pointer-events-none"
                   style={{
-                    background: "linear-gradient(135deg, hsla(28, 60%, 48%, 0.04) 0%, transparent 50%)",
+                    background: "linear-gradient(135deg, hsla(270, 50%, 60%, 0.06) 0%, transparent 50%)",
                   }}
                 />
 
                 <div data-anim="icon" className="flex items-center gap-3 mb-5 relative">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-copper/20 to-copper/5 flex items-center justify-center border border-copper/15 shadow-sm">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-copper/25 to-copper/10 flex items-center justify-center border border-copper/20 shadow-sm">
                     <block.icon className="w-6 h-6 text-copper" />
                   </div>
                 </div>
@@ -356,16 +518,16 @@ export function ScrollytellingSection() {
                   {block.tagline}
                 </p>
 
-                <h3 className="text-3xl sm:text-4xl md:text-[2.75rem] font-extrabold leading-[1.1] mb-4 text-charcoal overflow-hidden relative">
+                <h3 className="text-3xl sm:text-4xl md:text-[2.75rem] font-extrabold leading-[1.1] mb-4 text-white overflow-hidden relative">
                   {splitIntoWords(block.title)}
                 </h3>
 
-                <p data-anim="body" className="text-base md:text-lg text-charcoal/75 leading-relaxed relative">
+                <p data-anim="body" className="text-base md:text-lg text-white/70 leading-relaxed relative">
                   {block.text}
                 </p>
 
                 {index < storyBlocks.length - 1 && (
-                  <div data-anim="divider" className="mt-8 w-16 h-px bg-gradient-to-l from-copper/30 to-transparent origin-right relative" />
+                  <div data-anim="divider" className="mt-8 w-16 h-px bg-gradient-to-l from-copper/40 to-transparent origin-right relative" />
                 )}
               </div>
             </div>
@@ -374,7 +536,7 @@ export function ScrollytellingSection() {
       </div>
 
       <div className="fixed left-4 top-1/2 -translate-y-1/2 z-20 hidden lg:block pointer-events-none">
-        <div className="h-32 w-[3px] rounded-full bg-sand-dark/15 overflow-hidden">
+        <div className="h-32 w-[3px] rounded-full bg-white/10 overflow-hidden">
           <div
             ref={progressRef}
             className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-copper to-copper-dark rounded-full origin-top"

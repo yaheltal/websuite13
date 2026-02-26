@@ -1,0 +1,24 @@
+Let's take another major step forward in refining the design, performance, and specifically the initial Hero Section. 
+
+Please implement the following updates to the code:
+
+1. Hero Section Overhaul (Immediate "Wow" Factor):
+   - Keep the awesome text reveal animations, but change the main headline to something much more impressive, bold, and modern (e.g., "Experience the Digital Future" or "Crafting the Next Web").
+   - Bring the 3D floating gallery into the Hero section! The floating website mockups must be visible in the background immediately when the site loads, slowly drifting and rotating in zero gravity behind the main headline, before the user even starts scrolling. 
+   - Ensure the contrast is perfect so the main headline pops out clearly against the moving background cards.
+
+2. Color Palette Update (STRICTLY NO ORANGE): 
+   - Completely remove any orange, rust, or warm amber colors from the entire site. 
+   - Replace the color scheme with a more premium, modern palette—think deep space blues, rich dark purples, or a sleek monochrome dark mode with subtle neon cyan/emerald accents.
+
+3. Animation Refinement & Easing: 
+   - Smooth out the GSAP animations even further. Ensure the easing (e.g., `power3.out` or `expo.inOut`) feels highly deliberate and premium. 
+   - The initial text reveal and the continuous floating effect should feel "buttery smooth" and high-end.
+
+4. Bulletproof Responsiveness (Mobile & Desktop):
+   - Desktop Layout: Take full advantage of wider screens. Ensure the 3D gallery spreads out beautifully across the X-axis.
+   - Mobile Layout: Ensure the floating cards scale down appropriately on mobile so they do not block or overwhelm the main text. 
+   - Dynamic ScrollTriggers: Adjust the GSAP ScrollTrigger `start` and `end` points dynamically based on the viewport size.
+
+5. Performance Polish (Crucial for Mobile): 
+   - Double-check that ALL moving elements strictly use `transform` (translate3d, scale, rotate) and `opacity`. This forces hardware acceleration and prevents lag/layout thrashing on mobile browsers.
