@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Layers, Briefcase, MessageCircle, X, ClipboardList } from "lucide-react";
+import { Home, Layers, MessageCircle, X, ClipboardList } from "lucide-react";
 import { Link } from "wouter";
 
 const navItems = [
   { label: "ראשי", href: "#hero", icon: Home },
   { label: "שירותים", href: "#services", icon: Layers },
-  { label: "עבודות", href: "#portfolio", icon: Briefcase },
   { label: "צור קשר", href: "#contact", icon: MessageCircle },
 ];
 
