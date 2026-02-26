@@ -1,0 +1,753 @@
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { Link } from "wouter";
+import {
+  ArrowRight,
+  ArrowLeft,
+  Globe,
+  CreditCard,
+  ShoppingBag,
+  Bot,
+  User,
+  Send,
+  Upload,
+  FileImage,
+  X,
+  Check,
+  Copy,
+  Sparkles,
+  CheckCircle2,
+  Loader2,
+  ChevronRight,
+} from "lucide-react";
+
+const stepLabels = ["בחירת שירות", "שאלון", "שיחה עם AI", "העלאת קבצים", "סיכום"];
+
+const services = [
+  {
+    id: "landing-page",
+    title: "דף נחיתה",
+    description: "דף נחיתה ממוקד המרה שימשוך לידים ויגביר מכירות",
+    icon: Globe,
+    color: "from-blue-500 to-blue-600",
+  },
+  {
+    id: "digital-card",
+    title: "כרטיס ביקור דיגיטלי",
+    description: "כרטיס ביקור מעוצב ומקצועי שמשאיר רושם",
+    icon: CreditCard,
+    color: "from-purple-500 to-purple-600",
+  },
+  {
+    id: "ecommerce",
+    title: "חנות אונליין",
+    description: "חנות מסחר אלקטרוני מלאה עם תשלומים ומשלוחים",
+    icon: ShoppingBag,
+    color: "from-emerald-500 to-emerald-600",
+  },
+];
+
+const landingQuestions = [
+  { key: "businessName", label: "שם העסק", type: "text", required: true },
+  { key: "businessField", label: "תחום פעילות", type: "text", required: true },
+  { key: "targetAudience", label: "קהל יעד", type: "text", required: true },
+  { key: "mainGoal", label: "מטרה עיקרית (לידים, מכירות, מודעות)", type: "text", required: true },
+  { key: "existingBranding", label: "האם יש מיתוג קיים? (לוגו, צבעים)", type: "text", required: false },
+  { key: "inspirations", label: "אתרים שמשמשים השראה", type: "text", required: false },
+  { key: "specialFeatures", label: "פיצ'רים מיוחדים שצריך", type: "textarea", required: false },
+  { key: "budget", label: "תקציב משוער", type: "text", required: false },
+  { key: "timeline", label: "לוח זמנים רצוי", type: "text", required: false },
+];
+
+const cardQuestions = [
+  { key: "fullName", label: "שם מלא", type: "text", required: true },
+  { key: "jobTitle", label: "תפקיד", type: "text", required: true },
+  { key: "businessName", label: "שם העסק / חברה", type: "text", required: true },
+  { key: "phone", label: "טלפון", type: "text", required: true },
+  { key: "email", label: "אימייל", type: "text", required: true },
+  { key: "socialLinks", label: "קישורים לרשתות חברתיות", type: "textarea", required: false },
+  { key: "brandColors", label: "צבעי מותג (אם יש)", type: "text", required: false },
+  { key: "personalBranding", label: "סגנון אישי / מסר שתרצה להעביר", type: "textarea", required: false },
+  { key: "specialFeatures", label: "פיצ'רים (QR, vCard, גלריה)", type: "text", required: false },
+];
+
+const ecommerceQuestions = [
+  { key: "businessName", label: "שם החנות / העסק", type: "text", required: true },
+  { key: "businessField", label: "תחום ומוצרים עיקריים", type: "text", required: true },
+  { key: "productCount", label: "כמה מוצרים (בערך)?", type: "text", required: true },
+  { key: "targetAudience", label: "קהל יעד", type: "text", required: true },
+  { key: "shippingMethod", label: "שיטת משלוח (דואר, שליח, איסוף)", type: "text", required: true },
+  { key: "paymentMethods", label: "אמצעי תשלום (אשראי, PayPal, bit)", type: "text", required: true },
+  { key: "existingBranding", label: "מיתוג קיים (לוגו, צבעים)", type: "text", required: false },
+  { key: "existingSite", label: "האם יש אתר קיים? כתובת?", type: "text", required: false },
+  { key: "specialFeatures", label: "פיצ'רים מיוחדים (קופונים, מלאי, מנויים)", type: "textarea", required: false },
+  { key: "inspirations", label: "חנויות שמשמשות השראה", type: "text", required: false },
+  { key: "budget", label: "תקציב משוער", type: "text", required: false },
+  { key: "timeline", label: "לוח זמנים", type: "text", required: false },
+];
+
+function getQuestionsForService(service: string) {
+  switch (service) {
+    case "digital-card": return cardQuestions;
+    case "ecommerce": return ecommerceQuestions;
+    default: return landingQuestions;
+  }
+}
+
+const contactSchema = z.object({
+  name: z.string().min(2, "שם חייב להכיל לפחות 2 תווים"),
+  email: z.string().email("אנא הזן כתובת אימייל תקינה"),
+  phone: z.string().optional(),
+});
+
+interface ChatMessage {
+  role: "user" | "bot";
+  content: string;
+}
+
+function formatChatMessage(text: string) {
+  const parts = text.split(/(```[\s\S]*?```)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("```") && part.endsWith("```")) {
+      const lines = part.slice(3, -3).split("\n");
+      const lang = lines[0]?.trim();
+      const code = lang ? lines.slice(1).join("\n") : lines.join("\n");
+      return <PromptCodeBlock key={i} code={code} label={lang} />;
+    }
+
+    const formatted = part.split("\n").map((line, j) => {
+      const segments: Array<{ text: string; bold: boolean }> = [];
+      let lastIndex = 0;
+      const boldRegex = /\*\*(.*?)\*\*/g;
+      let match;
+      while ((match = boldRegex.exec(line)) !== null) {
+        if (match.index > lastIndex) segments.push({ text: line.slice(lastIndex, match.index), bold: false });
+        segments.push({ text: match[1], bold: true });
+        lastIndex = match.index + match[0].length;
+      }
+      if (lastIndex < line.length) segments.push({ text: line.slice(lastIndex), bold: false });
+      if (segments.length === 0) segments.push({ text: line, bold: false });
+      return (
+        <span key={j}>
+          {j > 0 && <br />}
+          {segments.map((seg, k) =>
+            seg.bold ? <strong key={k}>{seg.text}</strong> : <span key={k}>{seg.text}</span>
+          )}
+        </span>
+      );
+    });
+    return <span key={i}>{formatted}</span>;
+  });
+}
+
+function PromptCodeBlock({ code, label }: { code: string; label?: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="my-3 rounded-xl overflow-hidden border border-border/60 bg-charcoal">
+      <div className="flex items-center justify-between px-3 py-2 bg-charcoal-light/30 text-xs text-white/60">
+        <span className="flex items-center gap-1.5">
+          <Sparkles className="w-3 h-3 text-copper" />
+          {label || "Replit-Ready Prompt"}
+        </span>
+        <button onClick={handleCopy} className="flex items-center gap-1 hover:text-white transition-colors" data-testid="button-copy-prompt">
+          {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? "הועתק!" : "העתק"}
+        </button>
+      </div>
+      <pre className="p-3 text-xs leading-relaxed overflow-x-auto whitespace-pre-wrap text-white/90 font-mono" dir="ltr">
+        {code}
+      </pre>
+    </div>
+  );
+}
+
+function StepIndicator({ currentStep, labels }: { currentStep: number; labels: string[] }) {
+  return (
+    <div className="flex items-center justify-center gap-2 mb-8" data-testid="step-indicator">
+      {labels.map((label, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
+            i < currentStep ? "bg-copper/15 text-copper" :
+            i === currentStep ? "bg-copper text-white shadow-md" :
+            "bg-muted/50 text-muted-foreground"
+          }`}>
+            {i < currentStep ? <Check className="w-3 h-3" /> : null}
+            <span className="hidden sm:inline">{label}</span>
+            <span className="sm:hidden">{i + 1}</span>
+          </div>
+          {i < labels.length - 1 && (
+            <ChevronRight className="w-3 h-3 text-muted-foreground/40" />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function Onboarding() {
+  const [step, setStep] = useState(0);
+  const [selectedService, setSelectedService] = useState<string>("");
+  const [questionnaireData, setQuestionnaireData] = useState<Record<string, string>>({});
+  const [onboardingId, setOnboardingId] = useState<number | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatSessionId, setChatSessionId] = useState<string | null>(null);
+  const [promptGenerated, setPromptGenerated] = useState(false);
+  const [generatedPrompt, setGeneratedPrompt] = useState("");
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  const contactForm = useForm<z.infer<typeof contactSchema>>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: { name: "", email: "", phone: "" },
+  });
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages]);
+
+  const handleServiceSelect = (serviceId: string) => {
+    setSelectedService(serviceId);
+    setStep(1);
+  };
+
+  const handleQuestionnaireSubmit = async () => {
+    const questions = getQuestionsForService(selectedService);
+    const required = questions.filter(q => q.required);
+    const missing = required.filter(q => !questionnaireData[q.key]?.trim());
+    if (missing.length > 0) {
+      toast({ title: "שדות חובה חסרים", description: `אנא מלא: ${missing.map(q => q.label).join(", ")}`, variant: "destructive" });
+      return;
+    }
+
+    const contactValues = contactForm.getValues();
+    const isValid = await contactForm.trigger();
+    if (!isValid) return;
+
+    try {
+      const response = await apiRequest("POST", "/api/onboarding/start", {
+        name: contactValues.name,
+        email: contactValues.email,
+        phone: contactValues.phone || null,
+        service: selectedService,
+        questionnaireData,
+      });
+      const data = await response.json();
+      const newId = data.id;
+      setOnboardingId(newId);
+      setStep(2);
+      startAiChat(newId);
+    } catch {
+      toast({ title: "שגיאה", description: "משהו השתבש, נסה שוב", variant: "destructive" });
+    }
+  };
+
+  const startAiChat = async (oid?: number) => {
+    const currentId = oid ?? onboardingId;
+    setChatLoading(true);
+    try {
+      const response = await apiRequest("POST", "/api/onboarding/chat", {
+        message: "שלום, מילאתי את השאלון ואני מוכן להמשיך",
+        sessionId: null,
+        onboardingId: currentId,
+        service: selectedService,
+        questionnaireData,
+      });
+      const data = await response.json();
+      setChatSessionId(data.sessionId);
+      setChatMessages([
+        { role: "user", content: "שלום, מילאתי את השאלון ואני מוכן להמשיך" },
+        { role: "bot", content: data.reply },
+      ]);
+    } catch {
+      setChatMessages([{ role: "bot", content: "שלום! בוא נדבר על הפרויקט שלך. ספר לי עוד על מה שאתה מחפש." }]);
+    }
+    setChatLoading(false);
+  };
+
+  const sendChatMessage = async () => {
+    const trimmed = chatInput.trim();
+    if (!trimmed || chatLoading) return;
+
+    setChatMessages(prev => [...prev, { role: "user", content: trimmed }]);
+    setChatInput("");
+    setChatLoading(true);
+
+    try {
+      const response = await apiRequest("POST", "/api/onboarding/chat", {
+        message: trimmed,
+        sessionId: chatSessionId,
+        onboardingId,
+        service: selectedService,
+        questionnaireData,
+      });
+      const data = await response.json();
+      if (!chatSessionId) setChatSessionId(data.sessionId);
+      setChatMessages(prev => [...prev, { role: "bot", content: data.reply }]);
+
+      if (data.hasPrompt) {
+        setPromptGenerated(true);
+        const promptMatch = data.reply.match(/```(?:prompt)?\n?([\s\S]*?)```/);
+        if (promptMatch) setGeneratedPrompt(promptMatch[1].trim());
+      }
+    } catch {
+      setChatMessages(prev => [...prev, { role: "bot", content: "מצטער, נתקלתי בשגיאה. אנא נסה שוב." }]);
+    }
+    setChatLoading(false);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || !onboardingId) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("onboardingId", String(onboardingId));
+    Array.from(files).forEach(f => formData.append("files", f));
+
+    try {
+      const response = await fetch("/api/onboarding/upload", { method: "POST", body: formData });
+      const data = await response.json();
+      if (data.files) {
+        setUploadedFiles(prev => [...prev, ...data.files]);
+        toast({ title: "הקבצים הועלו בהצלחה!" });
+      }
+    } catch {
+      toast({ title: "שגיאה בהעלאה", variant: "destructive" });
+    }
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleComplete = async () => {
+    if (!onboardingId) return;
+    setCompleting(true);
+    try {
+      const response = await apiRequest("POST", "/api/onboarding/complete", { onboardingId });
+      const data = await response.json();
+      setCompleted(true);
+      setEmailSent(data.emailSent);
+    } catch {
+      toast({ title: "שגיאה", variant: "destructive" });
+    }
+    setCompleting(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-background" dir="rtl" data-testid="page-onboarding">
+      <div className="sticky top-0 z-40 bg-card/90 backdrop-blur-md border-b border-border/40">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Link href="/" data-testid="link-back-home">
+            <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center">
+                <span className="text-sm font-extrabold text-white">W</span>
+              </div>
+              <span className="text-lg font-extrabold text-charcoal">
+                Web<span className="text-copper">Craft</span>
+              </span>
+            </div>
+          </Link>
+          <h1 className="text-sm font-semibold text-charcoal-light" data-testid="text-onboarding-title">
+            שאלון התאמה לאתר
+          </h1>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <StepIndicator currentStep={step} labels={stepLabels} />
+
+        <AnimatePresence mode="wait">
+          {step === 0 && (
+            <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
+                  מה תרצה לבנות?
+                </h2>
+                <p className="text-charcoal-light">בחר את סוג האתר שמתאים לך ונתחיל</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {services.map((svc) => (
+                  <motion.button
+                    key={svc.id}
+                    whileHover={{ y: -4 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleServiceSelect(svc.id)}
+                    className="p-6 rounded-2xl border border-border/60 bg-card hover:border-copper/40 transition-all text-right group"
+                    data-testid={`button-service-${svc.id}`}
+                  >
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${svc.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                      <svc.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-charcoal mb-2">{svc.title}</h3>
+                    <p className="text-sm text-charcoal-light">{svc.description}</p>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {step === 1 && (
+            <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
+                  ספר לנו על הפרויקט
+                </h2>
+                <p className="text-charcoal-light">מלא את השאלון וניצור לך הצעה מותאמת</p>
+              </div>
+
+              <div className="bg-card rounded-2xl border border-border/60 p-6 mb-6">
+                <h3 className="text-lg font-bold text-charcoal mb-4 flex items-center gap-2">
+                  <User className="w-5 h-5 text-copper" />
+                  פרטי קשר
+                </h3>
+                <Form {...contactForm}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField control={contactForm.control} name="name" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>שם מלא *</FormLabel>
+                        <FormControl><Input {...field} data-testid="input-contact-name" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={contactForm.control} name="email" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>אימייל *</FormLabel>
+                        <FormControl><Input type="email" {...field} data-testid="input-contact-email" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={contactForm.control} name="phone" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>טלפון</FormLabel>
+                        <FormControl><Input {...field} data-testid="input-contact-phone" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+                </Form>
+              </div>
+
+              <div className="bg-card rounded-2xl border border-border/60 p-6">
+                <h3 className="text-lg font-bold text-charcoal mb-4 flex items-center gap-2">
+                  {services.find(s => s.id === selectedService)?.icon && (() => {
+                    const Icon = services.find(s => s.id === selectedService)!.icon;
+                    return <Icon className="w-5 h-5 text-copper" />;
+                  })()}
+                  פרטי הפרויקט
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  {getQuestionsForService(selectedService).map((q) => (
+                    <div key={q.key}>
+                      <label className="text-sm font-medium text-charcoal mb-1.5 block">
+                        {q.label} {q.required && <span className="text-copper">*</span>}
+                      </label>
+                      {q.type === "textarea" ? (
+                        <Textarea
+                          value={questionnaireData[q.key] || ""}
+                          onChange={(e) => setQuestionnaireData(prev => ({ ...prev, [q.key]: e.target.value }))}
+                          className="resize-none"
+                          rows={3}
+                          data-testid={`input-q-${q.key}`}
+                        />
+                      ) : (
+                        <Input
+                          value={questionnaireData[q.key] || ""}
+                          onChange={(e) => setQuestionnaireData(prev => ({ ...prev, [q.key]: e.target.value }))}
+                          data-testid={`input-q-${q.key}`}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mt-6">
+                <Button variant="outline" onClick={() => { setStep(0); setSelectedService(""); }} data-testid="button-back">
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                  חזרה
+                </Button>
+                <Button onClick={handleQuestionnaireSubmit} className="bg-gradient-to-l from-copper to-copper-dark text-white" data-testid="button-next-to-chat">
+                  המשך לשיחה עם AI
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 2 && (
+            <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-extrabold text-charcoal mb-2" data-testid="text-step-title">
+                  שיחה עם הסוכן AI
+                </h2>
+                <p className="text-sm text-charcoal-light">ה-AI ישאל שאלות העמקה ויכין לך פרומפט מותאם</p>
+              </div>
+
+              <div className="bg-card rounded-2xl border border-border/60 overflow-hidden flex flex-col" style={{ height: "500px" }}>
+                <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-l from-copper to-copper-dark text-white">
+                  <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                    <Bot className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm">סוכן AI — WebCraft Studio</h3>
+                    <span className="text-[11px] text-white/70">אוסף מידע ובונה פרומפט</span>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3" dir="rtl">
+                  {chatMessages.map((msg, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`flex gap-2 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
+                    >
+                      <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-1 ${
+                        msg.role === "user" ? "bg-copper/15 text-copper" : "bg-sage/30 text-foreground/70"
+                      }`}>
+                        {msg.role === "user" ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
+                      </div>
+                      <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                        msg.role === "user" ? "bg-copper text-white rounded-tr-md" : "bg-muted/60 text-foreground rounded-tl-md"
+                      }`} data-testid={`chat-message-${msg.role}-${i}`}>
+                        {msg.role === "bot" ? formatChatMessage(msg.content) : msg.content}
+                      </div>
+                    </motion.div>
+                  ))}
+
+                  {chatLoading && (
+                    <div className="flex gap-2">
+                      <div className="w-7 h-7 rounded-full bg-sage/30 flex items-center justify-center">
+                        <Bot className="w-3.5 h-3.5 text-foreground/70" />
+                      </div>
+                      <div className="bg-muted/60 rounded-2xl rounded-tl-md px-4 py-3">
+                        <div className="flex gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-foreground/30 animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <span className="w-2 h-2 rounded-full bg-foreground/30 animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <span className="w-2 h-2 rounded-full bg-foreground/30 animate-bounce" style={{ animationDelay: "300ms" }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+
+                <div className="px-3 py-3 border-t border-border/40" dir="rtl">
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChatMessage(); } }}
+                      placeholder="כתוב הודעה..."
+                      disabled={chatLoading}
+                      className="flex-1 bg-muted/40 border border-border/40 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper/40 transition-all disabled:opacity-50"
+                      data-testid="input-chat-message"
+                    />
+                    <Button onClick={sendChatMessage} disabled={!chatInput.trim() || chatLoading} size="icon" className="rounded-xl bg-copper hover:bg-copper-dark text-white h-10 w-10" data-testid="button-send-chat">
+                      <Send className="w-4 h-4 rotate-180" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 flex items-center justify-between">
+                {chatMessages.length >= 4 && !promptGenerated && (
+                  <Button variant="outline" onClick={() => setStep(3)} className="text-sm" data-testid="button-skip-to-upload">
+                    דלג להעלאת קבצים
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                  </Button>
+                )}
+                {!chatMessages.length && <div />}
+                {promptGenerated && (
+                  <Button onClick={() => setStep(3)} className="bg-gradient-to-l from-copper to-copper-dark text-white mr-auto" data-testid="button-next-to-upload">
+                    המשך להעלאת קבצים
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                  </Button>
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+
+          {step === 3 && (
+            <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
+                  העלאת קבצים
+                </h2>
+                <p className="text-charcoal-light">העלה לוגו, תמונות, ונכסי מותג (אופציונלי)</p>
+              </div>
+
+              <div className="bg-card rounded-2xl border border-border/60 p-8">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf,.ai,.psd,.svg"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  data-testid="input-file-upload"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="w-full border-2 border-dashed border-border/60 rounded-xl p-10 text-center hover:border-copper/40 transition-colors group"
+                  data-testid="button-upload-area"
+                >
+                  {uploading ? (
+                    <Loader2 className="w-10 h-10 mx-auto text-copper animate-spin mb-3" />
+                  ) : (
+                    <Upload className="w-10 h-10 mx-auto text-charcoal-light group-hover:text-copper transition-colors mb-3" />
+                  )}
+                  <p className="font-medium text-charcoal mb-1">
+                    {uploading ? "מעלה קבצים..." : "לחץ כאן להעלאת קבצים"}
+                  </p>
+                  <p className="text-xs text-charcoal-light">
+                    JPG, PNG, SVG, PDF, AI, PSD — עד 10MB לקובץ
+                  </p>
+                </button>
+
+                {uploadedFiles.length > 0 && (
+                  <div className="mt-6 space-y-2">
+                    <h4 className="text-sm font-semibold text-charcoal mb-3">קבצים שהועלו ({uploadedFiles.length})</h4>
+                    {uploadedFiles.map((file, i) => (
+                      <div key={i} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                        <FileImage className="w-5 h-5 text-copper flex-shrink-0" />
+                        <span className="text-sm text-charcoal truncate flex-1" dir="ltr">{file}</span>
+                        <Check className="w-4 h-4 text-green-600" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between mt-6">
+                <Button variant="outline" onClick={() => setStep(2)} data-testid="button-back-to-chat">
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                  חזרה לשיחה
+                </Button>
+                <Button onClick={() => setStep(4)} className="bg-gradient-to-l from-copper to-copper-dark text-white" data-testid="button-next-to-summary">
+                  המשך לסיכום
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 4 && !completed && (
+            <motion.div key="step4" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
+                  סיכום ושליחה
+                </h2>
+                <p className="text-charcoal-light">בדוק את הפרומפט שנוצר ושלח</p>
+              </div>
+
+              <div className="bg-card rounded-2xl border border-border/60 p-6 mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="w-5 h-5 text-copper" />
+                  <h3 className="text-lg font-bold text-charcoal">Replit-Ready Prompt</h3>
+                </div>
+                {generatedPrompt ? (
+                  <PromptCodeBlock code={generatedPrompt} label="prompt" />
+                ) : (
+                  <p className="text-charcoal-light text-sm">לא נוצר פרומפט עדיין. חזור לשיחה עם ה-AI להשלמת התהליך.</p>
+                )}
+              </div>
+
+              <div className="bg-card rounded-2xl border border-border/60 p-6 mb-6">
+                <h3 className="text-lg font-bold text-charcoal mb-3">פרטי הלקוח</h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div><span className="text-charcoal-light">שם:</span> <strong>{contactForm.getValues("name")}</strong></div>
+                  <div><span className="text-charcoal-light">אימייל:</span> <strong>{contactForm.getValues("email")}</strong></div>
+                  <div><span className="text-charcoal-light">שירות:</span> <strong className="text-copper">{services.find(s => s.id === selectedService)?.title}</strong></div>
+                  {uploadedFiles.length > 0 && (
+                    <div><span className="text-charcoal-light">קבצים:</span> <strong>{uploadedFiles.length} קבצים</strong></div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Button variant="outline" onClick={() => setStep(3)} data-testid="button-back-to-upload">
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                  חזרה
+                </Button>
+                <Button
+                  onClick={handleComplete}
+                  disabled={completing || !generatedPrompt}
+                  className="bg-gradient-to-l from-copper to-copper-dark text-white gap-2"
+                  data-testid="button-complete"
+                >
+                  {completing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 rotate-180" />}
+                  שלח פרומפט למייל
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
+          {completed && (
+            <motion.div key="completed" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-16">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", damping: 15, delay: 0.2 }}
+                className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6"
+              >
+                <CheckCircle2 className="w-10 h-10 text-green-600" />
+              </motion.div>
+              <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-completion-title">
+                התהליך הושלם בהצלחה!
+              </h2>
+              <p className="text-charcoal-light mb-2">
+                {emailSent
+                  ? "הפרומפט נשלח למייל בהצלחה. ניצור איתך קשר בהקדם!"
+                  : "הפרומפט נשמר בהצלחה. ניצור איתך קשר בהקדם!"}
+              </p>
+              {!emailSent && generatedPrompt && (
+                <div className="max-w-2xl mx-auto mt-6">
+                  <p className="text-sm text-charcoal-light mb-3">העתק את הפרומפט כאן:</p>
+                  <PromptCodeBlock code={generatedPrompt} label="prompt" />
+                </div>
+              )}
+              <Link href="/">
+                <Button variant="outline" className="mt-6" data-testid="button-back-home">
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                  חזרה לדף הבית
+                </Button>
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}

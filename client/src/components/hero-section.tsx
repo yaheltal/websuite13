@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
 import { MouseTrackingElement, FloatingShape } from "@/components/floating-elements";
+import { Link } from "wouter";
 
 export function HeroSection() {
   const scrollToSection = (href: string) => {
@@ -84,14 +85,15 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.7 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <Button
-            size="lg"
-            onClick={() => scrollToSection("#contact")}
-            className="bg-gradient-to-l from-copper to-copper-dark text-white font-extrabold text-base px-8 border-0 shadow-lg"
-            data-testid="button-hero-cta"
-          >
-            קבלו הצעת מחיר חינם
-          </Button>
+          <Link href="/onboarding">
+            <Button
+              size="lg"
+              className="bg-gradient-to-l from-copper to-copper-dark text-white font-extrabold text-base px-8 border-0 shadow-lg"
+              data-testid="button-hero-cta"
+            >
+              התחילו שאלון התאמה
+            </Button>
+          </Link>
           <Button
             size="lg"
             variant="outline"

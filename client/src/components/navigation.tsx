@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Layers, Briefcase, MessageCircle, X } from "lucide-react";
+import { Home, Layers, Briefcase, MessageCircle, X, ClipboardList } from "lucide-react";
+import { Link } from "wouter";
 
 const navItems = [
   { label: "ראשי", href: "#hero", icon: Home },
@@ -103,13 +104,15 @@ export function Navigation() {
 
           <div className="w-px h-6 bg-border/60 mx-1" />
 
-          <button
-            onClick={() => scrollToSection("#contact")}
-            className="bg-gradient-to-l from-copper to-copper-dark text-white font-bold text-sm px-5 py-2 rounded-full transition-all duration-300"
-            data-testid="button-nav-cta"
-          >
-            בואו נדבר
-          </button>
+          <Link href="/onboarding">
+            <button
+              className="flex items-center gap-2 bg-gradient-to-l from-copper to-copper-dark text-white font-bold text-sm px-5 py-2 rounded-full transition-all duration-300 hover:shadow-lg"
+              data-testid="button-nav-questionnaire"
+            >
+              <ClipboardList className="w-4 h-4" />
+              שאלון התאמה
+            </button>
+          </Link>
         </div>
       </motion.nav>
 
@@ -170,13 +173,15 @@ export function Navigation() {
                 })}
               </div>
               <div className="mt-3 pt-3 border-t border-border/40">
-                <button
-                  onClick={() => scrollToSection("#contact")}
-                  className="w-full bg-gradient-to-l from-copper to-copper-dark text-white font-bold text-sm py-2.5 rounded-xl"
-                  data-testid="button-mobile-cta"
-                >
-                  בואו נדבר
-                </button>
+                <Link href="/onboarding">
+                  <button
+                    className="w-full bg-gradient-to-l from-copper to-copper-dark text-white font-bold text-sm py-2.5 rounded-xl flex items-center justify-center gap-2"
+                    data-testid="button-mobile-questionnaire"
+                  >
+                    <ClipboardList className="w-4 h-4" />
+                    שאלון התאמה
+                  </button>
+                </Link>
               </div>
             </motion.div>
           ) : (
