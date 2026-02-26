@@ -267,7 +267,7 @@ export function ContactSection() {
                 icon: Mail,
                 title: "אימייל",
                 subtitle: "נחזור אליכם תוך 24 שעות",
-                value: "hello@webcraft.co.il",
+                value: "hello@web13.co.il",
                 iconBg: "bg-copper/10",
                 iconColor: "text-copper",
               },
@@ -289,7 +289,7 @@ export function ContactSection() {
             <div className="rounded-xl border border-copper/15 bg-gradient-to-br from-copper/[0.03] to-sand-light p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Award className="w-5 h-5 text-copper" />
-                <h3 className="font-extrabold text-sm text-charcoal">למה WebCraft?</h3>
+                <h3 className="font-extrabold text-sm text-charcoal">למה WEB13?</h3>
               </div>
               <ul className="space-y-2.5 text-sm text-charcoal-light">
                 {[

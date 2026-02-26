@@ -47,10 +47,10 @@ export function HeroSection() {
           data-testid="link-logo"
         >
           <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center shadow-md">
-            <span className="text-xl md:text-2xl font-extrabold text-white">W</span>
+            <span className="text-lg md:text-xl font-extrabold text-white">13</span>
           </div>
           <span className="text-2xl md:text-3xl font-extrabold tracking-tight text-charcoal">
-            Web<span className="text-copper">Craft</span>
+            WEB<span className="text-copper">13</span>
           </span>
         </motion.div>
 

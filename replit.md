@@ -1,4 +1,4 @@
-# WebCraft Studio - Boutique Web Agency "Market Disruptor" Platform
+# WEB13 - Boutique Web Agency "Market Disruptor" Platform
 
 ## Overview
 A premium boutique web agency portfolio site with "market disruptor" branding — high-end quality at competitive pricing. Features a warm boutique aesthetic with soft sand/sage/copper palette, browser preview modals, parallax scrolling, mouse-tracking floating elements, AI-powered onboarding funnel, and full Hebrew RTL support.

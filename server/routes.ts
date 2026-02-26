@@ -48,7 +48,7 @@ function getOnboardingSystemPrompt(service: string, questionnaireData: Record<st
     .map(([k, v]) => `- ${k}: ${v}`)
     .join("\n");
 
-  return `אתה סוכן AI מקצועי של WebCraft Studio — סטודיו בוטיק לבניית אתרים פרימיום.
+  return `אתה סוכן AI מקצועי של WEB13 — סטודיו בוטיק לבניית אתרים פרימיום.
 
 הלקוח מילא שאלון ראשוני ובחר בשירות: ${serviceName}
 

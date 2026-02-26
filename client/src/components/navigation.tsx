@@ -70,7 +70,7 @@ export function Navigation() {
             data-testid="link-logo"
           >
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center">
-              <span className="text-xs font-extrabold text-white">W</span>
+              <span className="text-[10px] font-extrabold text-white">13</span>
             </div>
           </button>
 
@@ -138,10 +138,10 @@ export function Navigation() {
               <div className="flex items-center justify-between mb-3 px-1">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center">
-                    <span className="text-xs font-extrabold text-white">W</span>
+                    <span className="text-[10px] font-extrabold text-white">13</span>
                   </div>
                   <span className="text-sm font-extrabold text-charcoal">
-                    Web<span className="text-copper">Craft</span>
+                    WEB<span className="text-copper">13</span>
                   </span>
                 </div>
                 <button
@@ -220,7 +220,7 @@ export function Navigation() {
                 className="w-10 h-10 rounded-full bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center"
                 data-testid="button-mobile-menu"
               >
-                <span className="text-xs font-extrabold text-white">W</span>
+                <span className="text-[10px] font-extrabold text-white">13</span>
               </button>
             </motion.div>
           )}

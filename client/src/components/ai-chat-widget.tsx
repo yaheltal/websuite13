@@ -129,7 +129,7 @@ export function AiChatWidget() {
       setMessages([
         {
           role: "bot",
-          content: "שלום! 👋 אני הסוכן AI של WebCraft Studio. ספר לי על העסק שלך ואני אעזור לך להגדיר את האתר המושלם!",
+          content: "שלום! 👋 אני הסוכן AI של WEB13. ספר לי על העסק שלך ואני אעזור לך להגדיר את האתר המושלם!",
         },
       ]);
     }
@@ -187,7 +187,7 @@ export function AiChatWidget() {
                   <Bot className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm leading-tight">סוכן AI — WebCraft</h3>
+                  <h3 className="font-semibold text-sm leading-tight">סוכן AI — WEB13</h3>
                   <span className="text-[11px] text-white/70">מומחה לבניית אתרים</span>
                 </div>
               </div>

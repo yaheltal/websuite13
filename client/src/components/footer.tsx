@@ -9,15 +9,15 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-md bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center">
-              <span className="text-sm font-extrabold text-white">W</span>
+              <span className="text-[10px] font-extrabold text-white">13</span>
             </div>
             <span className="text-lg font-extrabold text-charcoal">
-              Web<span className="text-copper">Craft</span>
+              WEB<span className="text-copper">13</span>
             </span>
           </div>
 
           <p className="text-sm text-charcoal-light" data-testid="text-copyright">
-            {currentYear} WebCraft Studio. כל הזכויות שמורות.
+            {currentYear} WEB13. כל הזכויות שמורות.
           </p>
 
           <div className="flex items-center gap-3">

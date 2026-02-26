@@ -369,10 +369,10 @@ export default function Onboarding() {
           <Link href="/" data-testid="link-back-home">
             <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center">
-                <span className="text-sm font-extrabold text-white">W</span>
+                <span className="text-[10px] font-extrabold text-white">13</span>
               </div>
               <span className="text-lg font-extrabold text-charcoal">
-                Web<span className="text-copper">Craft</span>
+                WEB<span className="text-copper">13</span>
               </span>
             </div>
           </Link>
@@ -518,7 +518,7 @@ export default function Onboarding() {
                     <Bot className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm">סוכן AI — WebCraft Studio</h3>
+                    <h3 className="font-semibold text-sm">סוכן AI — WEB13</h3>
                     <span className="text-[11px] text-white/70">אוסף מידע ובונה פרומפט</span>
                   </div>
                 </div>

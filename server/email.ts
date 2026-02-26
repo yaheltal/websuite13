@@ -32,7 +32,7 @@ export async function sendPromptEmail(data: {
   const htmlBody = `
     <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #c27a3a, #9a5e2a); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 24px;">WebCraft Studio</h1>
+        <h1 style="color: white; margin: 0; font-size: 24px;">WEB13</h1>
         <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0;">פרויקט חדש התקבל!</p>
       </div>
       
@@ -51,13 +51,13 @@ ${data.prompt}
       </div>
       
       <div style="background: #f0ede8; padding: 16px 30px; border-radius: 0 0 16px 16px; text-align: center; border: 1px solid #e8e4de; border-top: none;">
-        <p style="color: #888; margin: 0; font-size: 12px;">נשלח אוטומטית מ-WebCraft Studio Onboarding System</p>
+        <p style="color: #888; margin: 0; font-size: 12px;">נשלח אוטומטית מ-WEB13 Onboarding System</p>
       </div>
     </div>
   `;
 
   await transporter.sendMail({
-    from: `"WebCraft Studio" <${SENDER_EMAIL}>`,
+    from: `"WEB13" <${SENDER_EMAIL}>`,
     to: RECIPIENT_EMAIL,
     subject: `פרויקט חדש: ${serviceName} — ${data.clientName}`,
     html: htmlBody,
