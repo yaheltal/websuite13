@@ -1,35 +1,9 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Sparkles, Zap, Palette, Rocket, Shield } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
-
-/*
- * ============================================================
- *  IMAGE SEQUENCE CONFIGURATION
- * ============================================================
- *  Replace the placeholder URLs below with your own
- *  high-resolution image sequence (e.g. a 3D product spin,
- *  rendered frames from Blender/After Effects, etc.).
- *
- *  Requirements:
- *   - All frames should be the same resolution (e.g. 1024×1024)
- *   - PNG or WebP recommended for quality
- *   - 60 frames gives smooth playback; 30 is the minimum
- *   - Place files in  client/public/frames/  and reference as
- *     "/frames/frame_01.webp" etc.
- *
- *  Example with real assets:
- *    const FRAME_URLS = Array.from({ length: 60 }, (_, i) =>
- *      `/frames/frame_${String(i + 1).padStart(2, "0")}.webp`
- *    );
- * ============================================================
- */
-const FRAME_COUNT = 60;
-const FRAME_URLS = Array.from({ length: FRAME_COUNT }, (_, i) =>
-  `frame_${String(i + 1).padStart(2, "0")}.jpg`
-);
 
 const storyBlocks = [
   {
@@ -64,342 +38,78 @@ const storyBlocks = [
   },
 ];
 
-interface ParallaxOrb {
+interface FloatingMockup {
+  id: number;
+  src: string;
   x: number;
   y: number;
-  size: number;
-  hue: number;
-  alpha: number;
+  scale: number;
+  opacity: number;
+  zIndex: number;
+  rotateX: number;
+  rotateY: number;
+  rotateZ: number;
   speed: number;
+  width: number;
 }
 
-function generateOrbs(count: number): ParallaxOrb[] {
-  return Array.from({ length: count }, () => ({
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: 80 + Math.random() * 200,
-    hue: 20 + Math.random() * 30,
-    alpha: 0.03 + Math.random() * 0.04,
-    speed: 0.2 + Math.random() * 0.3,
-  }));
-}
-
-const PARALLAX_ORBS = generateOrbs(8);
-
-const PHI = (1 + Math.sqrt(5)) / 2;
-const ICO_VERTS: [number, number, number][] = [
-  [-1, PHI, 0], [1, PHI, 0], [-1, -PHI, 0], [1, -PHI, 0],
-  [0, -1, PHI], [0, 1, PHI], [0, -1, -PHI], [0, 1, -PHI],
-  [PHI, 0, -1], [PHI, 0, 1], [-PHI, 0, -1], [-PHI, 0, 1],
+const MOCKUPS: FloatingMockup[] = [
+  { id: 0, src: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop&q=80", x: 2, y: 5, scale: 0.95, opacity: 0.55, zIndex: 3, rotateX: -3, rotateY: 5, rotateZ: -1.5, speed: 0.6, width: 320 },
+  { id: 1, src: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=600&h=400&fit=crop&q=80", x: 58, y: 2, scale: 1.05, opacity: 0.45, zIndex: 2, rotateX: 4, rotateY: -6, rotateZ: 2, speed: 0.45, width: 340 },
+  { id: 2, src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&q=80", x: 72, y: 22, scale: 0.75, opacity: 0.35, zIndex: 1, rotateX: -5, rotateY: 8, rotateZ: -2.5, speed: 0.3, width: 260 },
+  { id: 3, src: "https://images.unsplash.com/photo-1555421689-d68471e189f2?w=600&h=400&fit=crop&q=80", x: -5, y: 35, scale: 0.85, opacity: 0.4, zIndex: 2, rotateX: 6, rotateY: -4, rotateZ: 1, speed: 0.55, width: 300 },
+  { id: 4, src: "https://images.unsplash.com/photo-1559028012-481c04fa702d?w=600&h=400&fit=crop&q=80", x: 45, y: 40, scale: 1.1, opacity: 0.5, zIndex: 4, rotateX: -2, rotateY: 3, rotateZ: -1, speed: 0.7, width: 360 },
+  { id: 5, src: "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?w=600&h=400&fit=crop&q=80", x: 80, y: 50, scale: 0.7, opacity: 0.3, zIndex: 1, rotateX: 7, rotateY: -9, rotateZ: 3, speed: 0.25, width: 240 },
+  { id: 6, src: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop&q=80", x: 15, y: 60, scale: 0.9, opacity: 0.45, zIndex: 3, rotateX: -4, rotateY: 6, rotateZ: -2, speed: 0.5, width: 310 },
+  { id: 7, src: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&h=400&fit=crop&q=80", x: 60, y: 65, scale: 0.8, opacity: 0.38, zIndex: 2, rotateX: 5, rotateY: -7, rotateZ: 1.5, speed: 0.35, width: 280 },
+  { id: 8, src: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?w=600&h=400&fit=crop&q=80", x: -2, y: 78, scale: 0.75, opacity: 0.32, zIndex: 1, rotateX: -6, rotateY: 4, rotateZ: -3, speed: 0.4, width: 250 },
+  { id: 9, src: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=600&h=400&fit=crop&q=80", x: 40, y: 82, scale: 0.95, opacity: 0.42, zIndex: 3, rotateX: 3, rotateY: -5, rotateZ: 2, speed: 0.6, width: 330 },
+  { id: 10, src: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=600&h=400&fit=crop&q=80", x: 75, y: 88, scale: 0.65, opacity: 0.28, zIndex: 1, rotateX: -8, rotateY: 10, rotateZ: -1, speed: 0.2, width: 220 },
 ];
-const ICO_EDGES: [number, number][] = [
-  [0,11],[0,5],[0,1],[0,7],[0,10],[1,5],[1,9],[1,8],[1,7],
-  [2,3],[2,4],[2,6],[2,10],[2,11],[3,4],[3,9],[3,6],[3,8],
-  [4,5],[4,9],[4,11],[5,9],[5,11],[6,7],[6,8],[6,10],
-  [7,8],[7,10],[8,9],[10,11],
-];
-const ICO_NORM = 1 / Math.sqrt(1 + PHI * PHI);
-
-function rotateY(v: [number, number, number], a: number): [number, number, number] {
-  const c = Math.cos(a), s = Math.sin(a);
-  return [v[0] * c + v[2] * s, v[1], -v[0] * s + v[2] * c];
-}
-function rotateX(v: [number, number, number], a: number): [number, number, number] {
-  const c = Math.cos(a), s = Math.sin(a);
-  return [v[0], v[1] * c - v[2] * s, v[1] * s + v[2] * c];
-}
-function project(v: [number, number, number], w: number, radius: number, fov: number): [number, number, number] {
-  const perspective = fov / (fov + v[2]);
-  return [w / 2 + v[0] * radius * perspective, w / 2 + v[1] * radius * perspective, v[2]];
-}
-
-function generatePlaceholderFrame(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  frameIndex: number,
-  totalFrames: number
-) {
-  const progress = frameIndex / (totalFrames - 1);
-  const rotY = progress * Math.PI * 2;
-  const rotXAngle = Math.sin(progress * Math.PI) * 0.4 + 0.3;
-  const breathe = 1 + Math.sin(progress * Math.PI * 2) * 0.04;
-  const radius = w * 0.28 * breathe;
-  const fov = 4;
-
-  ctx.clearRect(0, 0, w, h);
-
-  const bgGrad = ctx.createRadialGradient(w / 2, h * 0.45, 0, w / 2, h * 0.45, w * 0.8);
-  bgGrad.addColorStop(0, `hsla(225, 20%, 10%, 1)`);
-  bgGrad.addColorStop(0.5, `hsla(220, 18%, 7%, 1)`);
-  bgGrad.addColorStop(1, `hsla(215, 15%, 4%, 1)`);
-  ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, 0, w, h);
-
-  const ambGrad = ctx.createRadialGradient(w * 0.35, h * 0.35, 0, w * 0.35, h * 0.35, w * 0.5);
-  ambGrad.addColorStop(0, `hsla(28, 70%, 50%, 0.06)`);
-  ambGrad.addColorStop(1, `transparent`);
-  ctx.fillStyle = ambGrad;
-  ctx.fillRect(0, 0, w, h);
-
-  const ambGrad2 = ctx.createRadialGradient(w * 0.7, h * 0.6, 0, w * 0.7, h * 0.6, w * 0.4);
-  ambGrad2.addColorStop(0, `hsla(200, 40%, 50%, 0.04)`);
-  ambGrad2.addColorStop(1, `transparent`);
-  ctx.fillStyle = ambGrad2;
-  ctx.fillRect(0, 0, w, h);
-
-  const dustCount = 40;
-  for (let i = 0; i < dustCount; i++) {
-    const seed = i * 137.508;
-    const dx = (Math.sin(seed) * 0.5 + 0.5) * w;
-    const dy = (Math.cos(seed * 0.7) * 0.5 + 0.5) * h;
-    const drift = Math.sin(progress * Math.PI * 2 + seed) * w * 0.02;
-    const dAlpha = 0.1 + Math.sin(progress * Math.PI * 3 + i) * 0.08;
-    const dSize = 1 + Math.sin(seed * 0.3) * 0.5;
-    ctx.beginPath();
-    ctx.arc(dx + drift, dy, dSize, 0, Math.PI * 2);
-    ctx.fillStyle = `hsla(28, 40%, 70%, ${dAlpha})`;
-    ctx.fill();
-  }
-
-  const transformed = ICO_VERTS.map((v) => {
-    let nv: [number, number, number] = [v[0] * ICO_NORM, v[1] * ICO_NORM, v[2] * ICO_NORM];
-    nv = rotateY(nv, rotY);
-    nv = rotateX(nv, rotXAngle);
-    return nv;
-  });
-
-  const projected = transformed.map((v) => project(v, w, radius, fov));
-
-  const sortedEdges = [...ICO_EDGES].sort((a, b) => {
-    const zA = (transformed[a[0]][2] + transformed[a[1]][2]) / 2;
-    const zB = (transformed[b[0]][2] + transformed[b[1]][2]) / 2;
-    return zA - zB;
-  });
-
-  for (const [a, b] of sortedEdges) {
-    const pa = projected[a];
-    const pb = projected[b];
-    const avgZ = (transformed[a][2] + transformed[b][2]) / 2;
-    const depthFactor = (avgZ + 1) / 2;
-    const alpha = 0.08 + depthFactor * 0.35;
-    const lightness = 55 + depthFactor * 25;
-
-    ctx.beginPath();
-    ctx.moveTo(pa[0], pa[1]);
-    ctx.lineTo(pb[0], pb[1]);
-    ctx.strokeStyle = `hsla(28, 55%, ${lightness}%, ${alpha})`;
-    ctx.lineWidth = 0.5 + depthFactor * 1.2;
-    ctx.stroke();
-  }
-
-  for (let i = 0; i < projected.length; i++) {
-    const p = projected[i];
-    const z = transformed[i][2];
-    const depthFactor = (z + 1) / 2;
-    const nodeSize = 1.5 + depthFactor * 3;
-    const alpha = 0.3 + depthFactor * 0.7;
-
-    ctx.save();
-    ctx.shadowColor = `hsla(28, 70%, 60%, ${alpha * 0.6})`;
-    ctx.shadowBlur = 8 + depthFactor * 12;
-
-    const nodeGrad = ctx.createRadialGradient(p[0], p[1], 0, p[0], p[1], nodeSize * 2.5);
-    nodeGrad.addColorStop(0, `hsla(30, 80%, 85%, ${alpha})`);
-    nodeGrad.addColorStop(0.4, `hsla(28, 65%, 65%, ${alpha * 0.6})`);
-    nodeGrad.addColorStop(1, `hsla(28, 60%, 50%, 0)`);
-    ctx.fillStyle = nodeGrad;
-    ctx.beginPath();
-    ctx.arc(p[0], p[1], nodeSize * 2.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(p[0], p[1], nodeSize * 0.6, 0, Math.PI * 2);
-    ctx.fillStyle = `hsla(35, 90%, 92%, ${alpha})`;
-    ctx.fill();
-    ctx.restore();
-  }
-
-  const coreGlow = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, radius * 0.4);
-  coreGlow.addColorStop(0, `hsla(28, 60%, 55%, 0.08)`);
-  coreGlow.addColorStop(0.5, `hsla(28, 50%, 45%, 0.03)`);
-  coreGlow.addColorStop(1, `transparent`);
-  ctx.fillStyle = coreGlow;
-  ctx.beginPath();
-  ctx.arc(w / 2, h / 2, radius * 0.4, 0, Math.PI * 2);
-  ctx.fill();
-
-  const trailCount = 3;
-  for (let t = 0; t < trailCount; t++) {
-    const trailAngle = rotY * 0.6 + (t * Math.PI * 2) / trailCount;
-    const trailRadius = radius * (1.15 + t * 0.08);
-    ctx.beginPath();
-    ctx.arc(w / 2, h / 2, trailRadius, trailAngle, trailAngle + Math.PI * 0.35);
-    ctx.strokeStyle = `hsla(28, 50%, 60%, ${0.12 - t * 0.03})`;
-    ctx.lineWidth = 1.5 - t * 0.3;
-    ctx.stroke();
-  }
-
-  ctx.save();
-  ctx.shadowColor = `hsla(28, 60%, 65%, 0.4)`;
-  ctx.shadowBlur = 25;
-  ctx.fillStyle = `hsla(0, 0%, 100%, 0.9)`;
-  ctx.font = `800 ${w * 0.065}px "Assistant", sans-serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("WEB13", w / 2, h / 2);
-  ctx.restore();
-
-  ctx.fillStyle = `hsla(28, 50%, 70%, 0.35)`;
-  ctx.font = `500 ${w * 0.022}px "Assistant", sans-serif`;
-  ctx.textAlign = "center";
-  ctx.fillText("S H A P I N G   T H E   F U T U R E", w / 2, h / 2 + w * 0.055);
-}
-
-function debounce(fn: () => void, ms: number) {
-  let timer: ReturnType<typeof setTimeout>;
-  return () => {
-    clearTimeout(timer);
-    timer = setTimeout(fn, ms);
-  };
-}
 
 export function ScrollytellingSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const pinnedRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mobileCanvasRef = useRef<HTMLCanvasElement>(null);
+  const galleryRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const counterRef = useRef<HTMLSpanElement>(null);
   const blockRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const orbsRef = useRef<HTMLDivElement>(null);
-  const framesRef = useRef<HTMLImageElement[]>([]);
-  const [imagesLoaded, setImagesLoaded] = useState(false);
-  const currentFrameRef = useRef(-1);
-  const rafRef = useRef<number | null>(null);
-  const canvasSizesRef = useRef<Map<HTMLCanvasElement, number>>(new Map());
-
-  const setupCanvas = useCallback((canvas: HTMLCanvasElement, size: number) => {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = size * dpr;
-    canvas.height = size * dpr;
-    canvas.style.width = `${size}px`;
-    canvas.style.height = `${size}px`;
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(dpr, dpr);
-    }
-    canvasSizesRef.current.set(canvas, size);
-    return ctx;
-  }, []);
-
-  const renderFrame = useCallback((index: number, targetCanvas?: HTMLCanvasElement) => {
-    const canvas = targetCanvas || canvasRef.current || mobileCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const clampedIndex = Math.max(0, Math.min(FRAME_COUNT - 1, Math.round(index)));
-    if (clampedIndex === currentFrameRef.current && !targetCanvas) return;
-    currentFrameRef.current = clampedIndex;
-
-    const size = canvasSizesRef.current.get(canvas) || 600;
-
-    if (imagesLoaded && framesRef.current[clampedIndex]) {
-      ctx.clearRect(0, 0, size, size);
-      ctx.drawImage(framesRef.current[clampedIndex], 0, 0, size, size);
-    } else {
-      generatePlaceholderFrame(ctx, size, size, clampedIndex, FRAME_COUNT);
-    }
-
-    if (counterRef.current) {
-      counterRef.current.textContent = String(clampedIndex + 1).padStart(2, "0");
-    }
-  }, [imagesLoaded]);
-
-  useEffect(() => {
-    const desktop = canvasRef.current;
-    const mobile = mobileCanvasRef.current;
-
-    const isMobile = window.innerWidth < 1024;
-    const size = isMobile ? Math.min(window.innerWidth * 0.85, 500) : 600;
-
-    if (desktop) setupCanvas(desktop, 600);
-    if (mobile) setupCanvas(mobile, size);
-
-    renderFrame(0, isMobile ? mobile || undefined : desktop || undefined);
-
-    const handleResize = debounce(() => {
-      const nowMobile = window.innerWidth < 1024;
-      const newSize = nowMobile ? Math.min(window.innerWidth * 0.85, 500) : 600;
-      if (desktop) setupCanvas(desktop, 600);
-      if (mobile) setupCanvas(mobile, newSize);
-      currentFrameRef.current = -1;
-      renderFrame(0, nowMobile ? mobile || undefined : desktop || undefined);
-    }, 200);
-
-    window.addEventListener("resize", handleResize);
-
-    let loadedCount = 0;
-    const images: HTMLImageElement[] = [];
-    FRAME_URLS.forEach((url, i) => {
-      const img = new Image();
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === FRAME_COUNT) {
-          framesRef.current = images;
-          setImagesLoaded(true);
-        }
-      };
-      img.onerror = () => { loadedCount++; };
-      img.src = url;
-      images[i] = img;
-    });
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, [setupCanvas, renderFrame]);
+  const mockupRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const section = sectionRef.current;
-    const pinned = pinnedRef.current;
+    const gallery = galleryRef.current;
     const progress = progressRef.current;
-    const orbs = orbsRef.current;
-    if (!section || !progress) return;
-
-    const isMobile = window.innerWidth < 1024;
+    if (!section || !gallery || !progress) return;
 
     const ctx = gsap.context(() => {
-      if (pinned && !isMobile) {
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "bottom bottom",
-          pin: pinned,
-          pinSpacing: false,
-        });
-      }
+      mockupRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const m = MOCKUPS[i];
+        const direction = i % 2 === 0 ? -1 : 1;
+        const yTravel = window.innerHeight * (0.6 + m.speed * 0.8) * direction;
 
-      const activeCanvas = isMobile ? mobileCanvasRef.current : canvasRef.current;
-      if (activeCanvas) {
-        const frameObj = { frame: 0 };
-        gsap.to(frameObj, {
-          frame: FRAME_COUNT - 1,
-          ease: "none",
-          scrollTrigger: {
-            trigger: section,
-            start: "top top",
-            end: "bottom bottom",
-            scrub: 0.5,
-            onUpdate: () => {
-              if (rafRef.current) cancelAnimationFrame(rafRef.current);
-              rafRef.current = requestAnimationFrame(() => {
-                renderFrame(frameObj.frame, activeCanvas);
-              });
-            },
+        gsap.fromTo(
+          el,
+          {
+            y: -yTravel * 0.3,
+            rotateX: m.rotateX * 0.5,
+            rotateY: m.rotateY * 0.5,
+            rotateZ: m.rotateZ * 0.5,
           },
-        });
-      }
+          {
+            y: yTravel,
+            rotateX: m.rotateX * 2.5,
+            rotateY: m.rotateY * 2.5,
+            rotateZ: m.rotateZ * 2,
+            ease: "none",
+            scrollTrigger: {
+              trigger: section,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 1.2,
+            },
+          }
+        );
+      });
 
       gsap.fromTo(
         progress,
@@ -416,19 +126,6 @@ export function ScrollytellingSection() {
         }
       );
 
-      if (orbs) {
-        gsap.to(orbs, {
-          y: () => -window.innerHeight * 0.3,
-          ease: "none",
-          scrollTrigger: {
-            trigger: section,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-      }
-
       const velocityTracker = { skew: 0 };
       ScrollTrigger.create({
         trigger: section,
@@ -436,7 +133,7 @@ export function ScrollytellingSection() {
         end: "bottom top",
         onUpdate: (self) => {
           const velocity = self.getVelocity();
-          const clampedSkew = gsap.utils.clamp(-4, 4, velocity / 400);
+          const clampedSkew = gsap.utils.clamp(-3, 3, velocity / 500);
           gsap.to(velocityTracker, {
             skew: clampedSkew,
             duration: 0.3,
@@ -476,8 +173,8 @@ export function ScrollytellingSection() {
         if (tagline) {
           tl.fromTo(tagline, { opacity: 0, y: 20, clipPath: "inset(0 100% 0 0)" }, { opacity: 1, y: 0, clipPath: "inset(0 0% 0 0)", duration: 0.3 }, 0.05);
         }
-        titleWords.forEach((word, i) => {
-          tl.fromTo(word, { opacity: 0, y: 50, rotateX: -15 }, { opacity: 1, y: 0, rotateX: 0, duration: 0.35 }, 0.1 + i * 0.06);
+        titleWords.forEach((word, wi) => {
+          tl.fromTo(word, { opacity: 0, y: 50, rotateX: -15 }, { opacity: 1, y: 0, rotateX: 0, duration: 0.35 }, 0.1 + wi * 0.06);
         });
         if (body) {
           tl.fromTo(body, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4 }, 0.3);
@@ -488,11 +185,8 @@ export function ScrollytellingSection() {
       });
     }, section);
 
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      ctx.revert();
-    };
-  }, [renderFrame]);
+    return () => ctx.revert();
+  }, []);
 
   function splitIntoWords(text: string) {
     return text.split(" ").map((word, i) => (
@@ -511,142 +205,119 @@ export function ScrollytellingSection() {
     <section
       ref={sectionRef}
       id="scrollytelling"
-      className="relative"
+      className="relative overflow-hidden"
       style={{ minHeight: "350vh" }}
       data-testid="section-scrollytelling"
     >
       <div
-        ref={orbsRef}
-        className="absolute inset-0 pointer-events-none overflow-hidden"
+        ref={galleryRef}
+        className="absolute inset-0 pointer-events-none"
+        style={{ perspective: "1200px", perspectiveOrigin: "50% 50%" }}
         aria-hidden="true"
+        data-testid="floating-gallery"
       >
-        {PARALLAX_ORBS.map((orb, i) => (
+        {MOCKUPS.map((m, i) => (
           <div
-            key={i}
-            className="absolute rounded-full"
+            key={m.id}
+            ref={(el) => { mockupRefs.current[i] = el; }}
+            className="absolute"
             style={{
-              left: `${orb.x}%`,
-              top: `${orb.y}%`,
-              width: `${orb.size}px`,
-              height: `${orb.size}px`,
-              background: `radial-gradient(circle, hsla(${orb.hue}, 50%, 65%, ${orb.alpha}) 0%, transparent 70%)`,
-              filter: `blur(${40 + orb.size * 0.15}px)`,
+              left: `${m.x}%`,
+              top: `${m.y}%`,
+              width: `${m.width}px`,
+              zIndex: m.zIndex,
+              transformStyle: "preserve-3d",
               willChange: "transform",
             }}
-          />
+            data-testid={`mockup-card-${m.id}`}
+          >
+            <div
+              className="relative rounded-xl overflow-hidden"
+              style={{
+                transform: `scale(${m.scale})`,
+                opacity: m.opacity,
+                boxShadow: `
+                  0 4px 6px rgba(0,0,0,0.04),
+                  0 10px 25px rgba(0,0,0,0.06),
+                  0 25px 60px rgba(0,0,0,0.08),
+                  0 0 0 1px rgba(0,0,0,0.04)
+                `,
+              }}
+            >
+              <div className="h-6 bg-gradient-to-b from-gray-100 to-gray-50 flex items-center px-2.5 gap-1.5 border-b border-gray-200/60">
+                <div className="w-2 h-2 rounded-full bg-red-400/70" />
+                <div className="w-2 h-2 rounded-full bg-yellow-400/70" />
+                <div className="w-2 h-2 rounded-full bg-green-400/70" />
+                <div className="flex-1 mx-2">
+                  <div className="h-3 bg-gray-200/80 rounded-full max-w-[60%] mx-auto" />
+                </div>
+              </div>
+              <img
+                src={m.src}
+                alt=""
+                loading="lazy"
+                className="w-full aspect-[3/2] object-cover"
+                style={{ display: "block" }}
+              />
+            </div>
+          </div>
         ))}
       </div>
 
-      <div className="lg:hidden fixed inset-0 flex items-center justify-center pointer-events-none z-0"
-        style={{ top: 0, height: "100dvh" }}
-      >
-        <canvas
-          ref={mobileCanvasRef}
-          className="rounded-2xl opacity-30"
-          style={{
-            maxWidth: "85vw",
-            maxHeight: "85vw",
-            filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.15))",
-          }}
-          data-testid="canvas-mobile-sequence"
-        />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20">
-          <div className="space-y-[40vh] lg:space-y-[45vh] py-[25vh] lg:py-[40vh] order-2 lg:order-1">
-            {storyBlocks.map((block, index) => (
-              <div
-                key={index}
-                ref={(el) => { blockRefs.current[index] = el; }}
-                className="max-w-lg relative"
-                style={{ willChange: "transform" }}
-                data-testid={`text-story-block-${index}`}
-              >
-                <div className="scrollytelling-glass-card lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:rounded-none lg:p-0 lg:shadow-none rounded-2xl p-6 border border-white/10 shadow-lg backdrop-blur-md">
-                  <div data-anim="icon" className="flex items-center gap-3 mb-5">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-copper/20 to-copper/5 flex items-center justify-center border border-copper/10">
-                      <block.icon className="w-6 h-6 text-copper" />
-                    </div>
-                  </div>
-
-                  <p data-anim="tagline" className="text-xs font-bold tracking-[0.25em] uppercase text-copper mb-3" style={{ transformOrigin: "right center" }}>
-                    {block.tagline}
-                  </p>
-
-                  <h3 className="text-3xl sm:text-4xl md:text-[2.75rem] font-extrabold leading-[1.1] mb-4 text-charcoal overflow-hidden">
-                    {splitIntoWords(block.title)}
-                  </h3>
-
-                  <p data-anim="body" className="text-base md:text-lg text-charcoal-light/80 leading-relaxed max-w-sm">
-                    {block.text}
-                  </p>
-
-                  {index < storyBlocks.length - 1 && (
-                    <div data-anim="divider" className="mt-8 w-16 h-px bg-gradient-to-l from-copper/30 to-transparent origin-right" />
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div
-            ref={pinnedRef}
-            className="hidden lg:flex items-center justify-center order-1 lg:order-2"
-            style={{ height: "100dvh" }}
-          >
-            <div className="relative flex items-center justify-center">
-              <div
-                className="absolute rounded-full pointer-events-none animate-pulse"
-                style={{
-                  width: "750px",
-                  height: "750px",
-                  background: "radial-gradient(circle, hsla(28, 60%, 48%, 0.08) 0%, hsla(28, 60%, 48%, 0.02) 40%, transparent 70%)",
-                  filter: "blur(50px)",
-                  animationDuration: "4s",
-                }}
-              />
-              <div
-                className="absolute rounded-full pointer-events-none"
-                style={{
-                  width: "500px",
-                  height: "500px",
-                  background: "radial-gradient(circle, hsla(140, 12%, 78%, 0.06) 0%, transparent 60%)",
-                  filter: "blur(35px)",
-                  transform: "translate(60px, -40px)",
-                }}
-              />
-
-              <div className="relative">
-                <canvas
-                  ref={canvasRef}
-                  className="rounded-3xl"
+      <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="py-[25vh] lg:py-[35vh] space-y-[40vh] lg:space-y-[50vh]">
+          {storyBlocks.map((block, index) => (
+            <div
+              key={index}
+              ref={(el) => { blockRefs.current[index] = el; }}
+              className="relative max-w-xl mx-auto lg:mx-0"
+              style={{ willChange: "transform" }}
+              data-testid={`text-story-block-${index}`}
+            >
+              <div className="scrollytelling-glass-card rounded-2xl p-7 sm:p-8 border border-white/25 shadow-2xl backdrop-blur-xl">
+                <div className="absolute inset-0 rounded-2xl pointer-events-none"
                   style={{
-                    width: "600px",
-                    height: "600px",
-                    maxWidth: "min(600px, 35vw)",
-                    maxHeight: "min(600px, 35vw)",
-                    filter: "drop-shadow(0 30px 70px rgba(0,0,0,0.15))",
+                    background: "linear-gradient(135deg, hsla(28, 60%, 48%, 0.04) 0%, transparent 50%)",
                   }}
-                  data-testid="canvas-image-sequence"
                 />
 
-                <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-card/80 backdrop-blur-md border border-border/30 rounded-full px-5 py-2 shadow-lg">
-                  <div className="w-1.5 h-1.5 rounded-full bg-copper animate-pulse" />
-                  <span className="text-[11px] font-semibold text-charcoal-light tracking-wider">
-                    FRAME <span ref={counterRef} className="text-copper font-bold tabular-nums">01</span> / {FRAME_COUNT}
-                  </span>
+                <div data-anim="icon" className="flex items-center gap-3 mb-5 relative">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-copper/20 to-copper/5 flex items-center justify-center border border-copper/15 shadow-sm">
+                    <block.icon className="w-6 h-6 text-copper" />
+                  </div>
                 </div>
-              </div>
 
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-10 h-[55%] w-[3px] rounded-full bg-sand-dark/15 overflow-hidden">
-                <div
-                  ref={progressRef}
-                  className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-copper to-copper-dark rounded-full origin-top"
-                />
+                <p
+                  data-anim="tagline"
+                  className="text-xs font-bold tracking-[0.25em] uppercase text-copper mb-3 relative"
+                  style={{ transformOrigin: "right center" }}
+                >
+                  {block.tagline}
+                </p>
+
+                <h3 className="text-3xl sm:text-4xl md:text-[2.75rem] font-extrabold leading-[1.1] mb-4 text-charcoal overflow-hidden relative">
+                  {splitIntoWords(block.title)}
+                </h3>
+
+                <p data-anim="body" className="text-base md:text-lg text-charcoal-light/80 leading-relaxed relative">
+                  {block.text}
+                </p>
+
+                {index < storyBlocks.length - 1 && (
+                  <div data-anim="divider" className="mt-8 w-16 h-px bg-gradient-to-l from-copper/30 to-transparent origin-right relative" />
+                )}
               </div>
             </div>
-          </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="fixed left-4 top-1/2 -translate-y-1/2 z-20 hidden lg:block pointer-events-none">
+        <div className="h-32 w-[3px] rounded-full bg-sand-dark/15 overflow-hidden">
+          <div
+            ref={progressRef}
+            className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-copper to-copper-dark rounded-full origin-top"
+          />
         </div>
       </div>
     </section>

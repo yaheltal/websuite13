@@ -14,7 +14,7 @@ A premium boutique web agency portfolio site with "market disruptor" branding �
 ## Key Features
 - **Boutique Aesthetic**: Soft Sand, Muted Sage, Warm Off-White with Charcoal text and Copper accents
 - **RTL Hebrew Support**: Full right-to-left layout with Assistant font
-- **Scrollytelling Section**: Ultra-premium GSAP ScrollTrigger section with HTML canvas image sequence (60 frames, scroll-bound), word-level stagger text reveals, scroll-velocity skewY distortion, 3D parallax floating orbs at 30% speed, mobile Z-stack glassmorphism layout (fixed canvas behind glass-blur text cards), debounced canvas resize, per-canvas size tracking for dual desktop/mobile canvases
+- **Scrollytelling Section**: Ultra-premium GSAP ScrollTrigger section with 11 floating 3D parallax website mockup cards (Unsplash images in browser-chrome frames), varying depth/scale/opacity/z-index, scroll-bound parallax + 3D rotation per card, scroll-velocity skewY distortion on text blocks, word-level stagger text reveals with clipPath/rotateX, glassmorphism text containers (backdrop-blur-xl, layered box-shadow, gradient glass background)
 - **Onboarding Funnel**: 7-step flow: Service Selection → Contact Info (lead capture) → Incentive Hook → Questionnaire → AI Chat → File Upload → Summary
 - **AI Sales Agent (Gemini)**: Short, focused sales agent that asks one question at a time, never shows code/prompts to client. Uses <<COLLECTION_COMPLETE>> marker for auto-completion
 - **Email Automation**: Dual-email system with 3-attempt retry logic. Contact form sends immediate email; onboarding sends comprehensive brief. Subject: `[URGENT] New WebSuite Lead - [Name]`. WhatsApp fallback shown on 3x failure. All to WEBSUITE153@GMAIL.COM
