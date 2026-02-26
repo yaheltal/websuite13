@@ -34,6 +34,7 @@ import {
   Clock,
   Zap,
   FileText,
+  Sparkles,
 } from "lucide-react";
 
 const services = [
@@ -147,23 +148,35 @@ function ProgressBar({ stepsRemaining }: { stepsRemaining: number }) {
   const completed = totalSteps - stepsRemaining;
   const percentage = Math.round((completed / totalSteps) * 100);
 
+  const stepLabels = ["שאלון", "שיחת AI", "העלאת קבצים"];
+
   return (
     <div className="mb-8" data-testid="progress-bar">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-charcoal">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-base font-bold text-charcoal">
           {stepsRemaining > 0
             ? `${stepsRemaining} צעדים להצעת מחיר מקצועית`
             : "סיימת! ההצעה בדרך אליך"}
         </span>
         <span className="text-sm font-bold text-copper">{percentage}%</span>
       </div>
-      <div className="w-full h-2.5 bg-muted/50 rounded-full overflow-hidden">
+      <div className="w-full h-3 bg-muted/50 rounded-full overflow-hidden">
         <motion.div
           className="h-full bg-gradient-to-l from-copper to-copper-dark rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         />
+      </div>
+      <div className="flex justify-between mt-2">
+        {stepLabels.map((label, i) => (
+          <span
+            key={i}
+            className={`text-xs font-medium ${i < completed ? "text-copper" : "text-charcoal-light/60"}`}
+          >
+            {i < completed ? "✓ " : ""}{label}
+          </span>
+        ))}
       </div>
     </div>
   );
@@ -482,47 +495,65 @@ export default function Onboarding() {
                   <CheckCircle2 className="w-10 h-10 text-green-600" />
                 </motion.div>
 
-                <h2 className="text-2xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
-                  מעולה! קיבלנו את הפרטים שלך
+                <h2 className="text-2xl font-extrabold text-charcoal mb-2" data-testid="text-step-title">
+                  מעולה! קיבלנו את פרטי הקשר שלך
                 </h2>
-                <p className="text-charcoal-light mb-8 leading-relaxed">
-                  כדי לדלג על שיחות הכרות ארוכות ולקבל הצעת מחיר מותאמת תוך 24 שעות,
-                  מלא את השאלון הדיגיטלי שלנו — זה לוקח פחות מ-2 דקות.
+                <p className="text-lg text-charcoal-light mb-6 leading-relaxed max-w-md mx-auto">
+                  כדי לדלג על שיחות ההכרות ולקבל הצעת מחיר מותאמת תוך 24 שעות — מלא את השאלון הדיגיטלי. זה לוקח פחות מ-2 דקות.
                 </p>
 
-                <div className="bg-card rounded-2xl border border-border/60 p-6 mb-8 text-right">
-                  <h3 className="text-base font-bold text-charcoal mb-4">למה כדאי למלא עכשיו?</h3>
-                  <div className="space-y-3">
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25 }}
+                  className="bg-card rounded-2xl border-2 border-copper/20 p-6 mb-6 text-right shadow-sm"
+                >
+                  <h3 className="text-base font-bold text-charcoal mb-4 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-copper" />
+                    למה כדאי למלא עכשיו?
+                  </h3>
+                  <div className="space-y-4">
                     {[
-                      { icon: Clock, text: "הצעת מחיר תוך 24 שעות — בלי שיחות מיותרות" },
+                      { icon: Clock, text: "הצעת מחיר מותאמת תוך 24 שעות — בלי שיחות מיותרות" },
                       { icon: Zap, text: "הצוות שלנו מגיע מוכן עם פתרונות ספציפיים לעסק שלך" },
                       { icon: FileText, text: "שאלון קצר ומדויק — פחות מ-2 דקות" },
                     ].map((item, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-copper/10 flex items-center justify-center flex-shrink-0">
-                          <item.icon className="w-4 h-4 text-copper" />
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.35 + i * 0.1 }}
+                        className="flex items-center gap-3"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-copper/10 flex items-center justify-center flex-shrink-0">
+                          <item.icon className="w-4.5 h-4.5 text-copper" />
                         </div>
-                        <span className="text-sm text-charcoal">{item.text}</span>
-                      </div>
+                        <span className="text-sm text-charcoal leading-snug">{item.text}</span>
+                      </motion.div>
                     ))}
                   </div>
-                </div>
+                </motion.div>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="flex flex-col items-center gap-3"
+                >
                   <Button
                     onClick={handleStartQuestionnaire}
-                    className="bg-gradient-to-l from-copper to-copper-dark text-white px-8 py-3 text-base"
+                    className="bg-gradient-to-l from-copper to-copper-dark text-white px-10 py-6 text-lg font-bold rounded-2xl shadow-md hover:shadow-lg transition-shadow w-full sm:w-auto"
                     data-testid="button-start-questionnaire"
                   >
                     כן, בואו נתחיל!
-                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    <ArrowLeft className="w-5 h-5 mr-2" />
                   </Button>
                   <Link href="/">
-                    <Button variant="outline" className="text-sm" data-testid="button-skip-home">
+                    <Button variant="ghost" className="text-sm text-charcoal-light hover:text-charcoal" data-testid="button-skip-home">
                       לא עכשיו, חזרה לדף הבית
                     </Button>
                   </Link>
-                </div>
+                </motion.div>
               </div>
             </motion.div>
           )}
