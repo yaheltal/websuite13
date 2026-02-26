@@ -5,7 +5,7 @@ import { insertContactSchema } from "@shared/schema";
 import { z, ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { sendPromptEmail } from "./email";
+import { sendOnboardingEmail } from "./email";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -48,67 +48,39 @@ function getOnboardingSystemPrompt(service: string, questionnaireData: Record<st
     .map(([k, v]) => `- ${k}: ${v}`)
     .join("\n");
 
-  return `אתה סוכן AI מקצועי של WEB13 — סטודיו בוטיק לבניית אתרים פרימיום.
+  return `אתה סוכן מכירות ושירות של WEB13. התפקיד שלך הוא לאסוף פרטים מהלקוח כדי לבנות לו אתר/פתרון דיגיטלי.
 
-הלקוח מילא שאלון ראשוני ובחר בשירות: ${serviceName}
+הלקוח בחר בשירות: ${serviceName}
 
-המידע שהלקוח סיפק בשאלון:
+המידע שהלקוח כבר סיפק בשאלון:
 ${qaText}
 
-התפקיד שלך:
-1. לעבור על המידע שהלקוח כבר סיפק ולשאול שאלות העמקה חכמות
-2. לחפור לעומק בנושאים שחסרים או לא ברורים
-3. לשאול שאלה אחת עד שתיים בכל תשובה
-4. להיות ידידותי, מקצועי וחם
+כללי סגנון דיבור:
+- קצר ולעניין. משפטים קצרים. אל תכתוב פסקאות ארוכות.
+- שאל שאלה אחת בכל פעם בלבד.
+- היה ידידותי, מקצועי וחם.
+- השיחה חייבת להיות בעברית בלבד.
 
 נושאים שחשוב לכסות (אם לא כוסו בשאלון):
-- חזון העיצוב ותחושת המותג
+- חזון העיצוב ותחושת המותג (צבעים, סגנון, השראות)
 - פיצ'רים ספציפיים שנדרשים
 - תוכן — מי יספק טקסטים ותמונות
-- SEO ושיווק דיגיטלי
+- קהל יעד
 - אינטגרציות (CRM, תשלומים, רשתות חברתיות)
-- העדפות טכניות
 - דדליין ותקציב (אם לא צוינו)
 
-כשאתה מרגיש שיש לך מספיק מידע (אחרי 4-8 הודעות), הודע ללקוח שסיימת לאסוף מידע.
-ואז צור פרומפט מפורט ומדויק ל-Replit Agent בפורמט הבא:
+חשיבות ויזואלית:
+- ציין ללקוח שהעלאת הלוגו והתמונות היא צעד קריטי כדי שהתוצאה תהיה מקצועית.
+- הזכר את זה בשיחה כשמתאים.
 
-\`\`\`prompt
-Build a [type] website for [business name] — [industry/field].
+לוגיקת סיום שיחה:
+- כשיש לך מספיק מידע (אחרי 4-8 הודעות), סיים את השיחה.
+- אסור להציג ללקוח קוד, JSON, בלוקים טכניים, או פרומפטים.
+- שלח הודעת סיכום שירותית, למשל: "תודה רבה על הפרטים! הנתונים התקבלו בהצלחה. הצוות שלנו יעבור על הכל ונחזור אליך בהקדם לתיאום המשך עבודה."
+- חובה: כשאתה מסיים את השיחה, הוסף בסוף ההודעה שלך (בשורה נפרדת) את הטקסט הבא בדיוק: <<COLLECTION_COMPLETE>>
+- הטקסט <<COLLECTION_COMPLETE>> לא יוצג ללקוח, הוא רק סימון פנימי למערכת.
 
-Business Description: [detailed description in English]
-
-Target Audience: [details]
-
-Website Goals: [details]
-
-Design:
-- Style: [modern/classic/minimalist etc.]
-- Colors: [brand colors or suggestions]
-- Font: [if specified]
-- Inspirations: [reference sites]
-- Direction: RTL (Hebrew)
-
-Pages Required:
-- [list of pages with descriptions]
-
-Features:
-- [detailed feature list]
-
-Technical Requirements:
-- Full RTL Hebrew support
-- Mobile responsive
-- [additional requirements]
-
-Content Sections:
-- [detailed content structure]
-\`\`\`
-
-חשוב מאוד:
-- הפרומפט הסופי חייב להיות באנגלית כדי שסוכן ה-AI של Replit יבין אותו הכי טוב
-- אבל השיחה עם הלקוח חייבת להיות בעברית
-- אל תציג את הפרומפט עד שאספת מספיק מידע!
-- כשאתה מוכן להציג את הפרומפט, תתחיל את ההודעה עם הטקסט: "✅ סיימתי לאסוף את כל המידע!"`;
+אם הלקוח שואל שאלות טכניות, ענה בקצרה והחזר אותו למסלול איסוף הפרטים.`;
 }
 
 const MAX_SESSIONS = 500;
@@ -251,20 +223,38 @@ export async function registerRoutes(
         session.history = session.history.slice(-MAX_HISTORY_LENGTH);
       }
 
-      const hasPrompt = reply.includes("```prompt") || reply.includes("```\nprompt") || (reply.includes("✅") && reply.includes("```"));
+      const isComplete = reply.includes("<<COLLECTION_COMPLETE>>");
+      const cleanReply = reply.replace(/<<COLLECTION_COMPLETE>>/g, "").trim();
 
-      if (hasPrompt && onboardingId) {
-        const promptMatch = reply.match(/```(?:prompt)?\n?([\s\S]*?)```/);
-        const prompt = promptMatch ? promptMatch[1].trim() : "";
-        if (prompt) {
-          await storage.updateOnboarding(onboardingId, {
-            generatedPrompt: prompt,
-            chatHistory: session.history as any,
-          });
+      if (isComplete && onboardingId) {
+        const chatSummary = session.history
+          .map(h => `${h.role === "user" ? "לקוח" : "סוכן"}: ${h.parts.map(p => p.text).join(" ")}`)
+          .join("\n");
+
+        await storage.updateOnboarding(onboardingId, {
+          generatedPrompt: chatSummary,
+          chatHistory: session.history as any,
+        });
+
+        const onboarding = await storage.getOnboarding(onboardingId);
+        if (onboarding) {
+          try {
+            await sendOnboardingEmail({
+              clientName: onboarding.name,
+              clientEmail: onboarding.email,
+              clientPhone: onboarding.phone || "",
+              service: onboarding.service,
+              questionnaireData: onboarding.questionnaireData as Record<string, any> || {},
+              chatSummary,
+              uploadedFiles: onboarding.uploadedFiles as string[] || [],
+            });
+          } catch (emailErr) {
+            console.error("Auto email error:", emailErr);
+          }
         }
       }
 
-      res.json({ reply, sessionId: sid, hasPrompt });
+      res.json({ reply: cleanReply, sessionId: sid, isComplete });
     } catch (error) {
       console.error("Chat error:", error);
       res.status(500).json({ message: "שגיאה בשירות ה-AI, נסה שוב" });
@@ -311,22 +301,27 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Onboarding not found" });
       }
 
-      if (!onboarding.generatedPrompt) {
-        return res.status(400).json({ message: "No prompt generated yet" });
+      if (onboarding.uploadedFiles && (onboarding.uploadedFiles as string[]).length > 0 && onboarding.chatHistory) {
+        const chatSummary = (onboarding.chatHistory as Array<{ role: string; parts: Array<{ text: string }> }>)
+          .map(h => `${h.role === "user" ? "לקוח" : "סוכן"}: ${h.parts.map(p => p.text).join(" ")}`)
+          .join("\n");
+
+        try {
+          await sendOnboardingEmail({
+            clientName: onboarding.name,
+            clientEmail: onboarding.email,
+            clientPhone: onboarding.phone || "",
+            service: onboarding.service,
+            questionnaireData: onboarding.questionnaireData as Record<string, any> || {},
+            chatSummary,
+            uploadedFiles: onboarding.uploadedFiles as string[] || [],
+          });
+        } catch (emailErr) {
+          console.error("Upload email update error:", emailErr);
+        }
       }
 
-      try {
-        await sendPromptEmail({
-          clientName: onboarding.name,
-          clientEmail: onboarding.email,
-          service: onboarding.service,
-          prompt: onboarding.generatedPrompt,
-        });
-        res.json({ success: true, emailSent: true });
-      } catch (emailError) {
-        console.error("Email send error:", emailError);
-        res.json({ success: true, emailSent: false, emailError: "Failed to send email" });
-      }
+      res.json({ success: true });
     } catch (error) {
       console.error("Complete error:", error);
       res.status(500).json({ message: "Internal server error" });

@@ -30,8 +30,6 @@ import {
   FileImage,
   X,
   Check,
-  Copy,
-  Sparkles,
   CheckCircle2,
   Loader2,
   ChevronRight,
@@ -122,65 +120,27 @@ interface ChatMessage {
 }
 
 function formatChatMessage(text: string) {
-  const parts = text.split(/(```[\s\S]*?```)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith("```") && part.endsWith("```")) {
-      const lines = part.slice(3, -3).split("\n");
-      const lang = lines[0]?.trim();
-      const code = lang ? lines.slice(1).join("\n") : lines.join("\n");
-      return <PromptCodeBlock key={i} code={code} label={lang} />;
+  return text.split("\n").map((line, j) => {
+    const segments: Array<{ text: string; bold: boolean }> = [];
+    let lastIndex = 0;
+    const boldRegex = /\*\*(.*?)\*\*/g;
+    let match;
+    while ((match = boldRegex.exec(line)) !== null) {
+      if (match.index > lastIndex) segments.push({ text: line.slice(lastIndex, match.index), bold: false });
+      segments.push({ text: match[1], bold: true });
+      lastIndex = match.index + match[0].length;
     }
-
-    const formatted = part.split("\n").map((line, j) => {
-      const segments: Array<{ text: string; bold: boolean }> = [];
-      let lastIndex = 0;
-      const boldRegex = /\*\*(.*?)\*\*/g;
-      let match;
-      while ((match = boldRegex.exec(line)) !== null) {
-        if (match.index > lastIndex) segments.push({ text: line.slice(lastIndex, match.index), bold: false });
-        segments.push({ text: match[1], bold: true });
-        lastIndex = match.index + match[0].length;
-      }
-      if (lastIndex < line.length) segments.push({ text: line.slice(lastIndex), bold: false });
-      if (segments.length === 0) segments.push({ text: line, bold: false });
-      return (
-        <span key={j}>
-          {j > 0 && <br />}
-          {segments.map((seg, k) =>
-            seg.bold ? <strong key={k}>{seg.text}</strong> : <span key={k}>{seg.text}</span>
-          )}
-        </span>
-      );
-    });
-    return <span key={i}>{formatted}</span>;
+    if (lastIndex < line.length) segments.push({ text: line.slice(lastIndex), bold: false });
+    if (segments.length === 0) segments.push({ text: line, bold: false });
+    return (
+      <span key={j}>
+        {j > 0 && <br />}
+        {segments.map((seg, k) =>
+          seg.bold ? <strong key={k}>{seg.text}</strong> : <span key={k}>{seg.text}</span>
+        )}
+      </span>
+    );
   });
-}
-
-function PromptCodeBlock({ code, label }: { code: string; label?: string }) {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="my-3 rounded-xl overflow-hidden border border-border/60 bg-charcoal">
-      <div className="flex items-center justify-between px-3 py-2 bg-charcoal-light/30 text-xs text-white/60">
-        <span className="flex items-center gap-1.5">
-          <Sparkles className="w-3 h-3 text-copper" />
-          {label || "Replit-Ready Prompt"}
-        </span>
-        <button onClick={handleCopy} className="flex items-center gap-1 hover:text-white transition-colors" data-testid="button-copy-prompt">
-          {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? "הועתק!" : "העתק"}
-        </button>
-      </div>
-      <pre className="p-3 text-xs leading-relaxed overflow-x-auto whitespace-pre-wrap text-white/90 font-mono" dir="ltr">
-        {code}
-      </pre>
-    </div>
-  );
 }
 
 function StepIndicator({ currentStep, labels }: { currentStep: number; labels: string[] }) {
@@ -215,13 +175,11 @@ export default function Onboarding() {
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
-  const [promptGenerated, setPromptGenerated] = useState(false);
-  const [generatedPrompt, setGeneratedPrompt] = useState("");
+  const [chatComplete, setChatComplete] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -314,10 +272,8 @@ export default function Onboarding() {
       if (!chatSessionId) setChatSessionId(data.sessionId);
       setChatMessages(prev => [...prev, { role: "bot", content: data.reply }]);
 
-      if (data.hasPrompt) {
-        setPromptGenerated(true);
-        const promptMatch = data.reply.match(/```(?:prompt)?\n?([\s\S]*?)```/);
-        if (promptMatch) setGeneratedPrompt(promptMatch[1].trim());
+      if (data.isComplete) {
+        setChatComplete(true);
       }
     } catch {
       setChatMessages(prev => [...prev, { role: "bot", content: "מצטער, נתקלתי בשגיאה. אנא נסה שוב." }]);
@@ -352,10 +308,8 @@ export default function Onboarding() {
     if (!onboardingId) return;
     setCompleting(true);
     try {
-      const response = await apiRequest("POST", "/api/onboarding/complete", { onboardingId });
-      const data = await response.json();
+      await apiRequest("POST", "/api/onboarding/complete", { onboardingId });
       setCompleted(true);
-      setEmailSent(data.emailSent);
     } catch {
       toast({ title: "שגיאה", variant: "destructive" });
     }
@@ -509,7 +463,7 @@ export default function Onboarding() {
                 <h2 className="text-2xl font-extrabold text-charcoal mb-2" data-testid="text-step-title">
                   שיחה עם הסוכן AI
                 </h2>
-                <p className="text-sm text-charcoal-light">ה-AI ישאל שאלות העמקה ויכין לך פרומפט מותאם</p>
+                <p className="text-sm text-charcoal-light">הסוכן שלנו ישאל כמה שאלות קצרות כדי להבין את הצרכים שלך</p>
               </div>
 
               <div className="bg-card rounded-2xl border border-border/60 overflow-hidden flex flex-col" style={{ height: "500px" }}>
@@ -519,7 +473,7 @@ export default function Onboarding() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-sm">סוכן AI — WEB13</h3>
-                    <span className="text-[11px] text-white/70">אוסף מידע ובונה פרומפט</span>
+                    <span className="text-[11px] text-white/70">סוכן מכירות ושירות</span>
                   </div>
                 </div>
 
@@ -581,14 +535,14 @@ export default function Onboarding() {
               </div>
 
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 flex items-center justify-between">
-                {chatMessages.length >= 4 && !promptGenerated && (
+                {chatMessages.length >= 4 && !chatComplete && (
                   <Button variant="outline" onClick={() => setStep(3)} className="text-sm" data-testid="button-skip-to-upload">
                     דלג להעלאת קבצים
                     <ArrowLeft className="w-4 h-4 mr-2" />
                   </Button>
                 )}
-                {!chatMessages.length && <div />}
-                {promptGenerated && (
+                {!chatMessages.length && !chatComplete && <div />}
+                {chatComplete && (
                   <Button onClick={() => setStep(3)} className="bg-gradient-to-l from-copper to-copper-dark text-white mr-auto" data-testid="button-next-to-upload">
                     המשך להעלאת קבצים
                     <ArrowLeft className="w-4 h-4 mr-2" />
@@ -669,29 +623,40 @@ export default function Onboarding() {
                 <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
                   סיכום ושליחה
                 </h2>
-                <p className="text-charcoal-light">בדוק את הפרומפט שנוצר ושלח</p>
+                <p className="text-charcoal-light">בדוק את הפרטים ושלח</p>
               </div>
 
               <div className="bg-card rounded-2xl border border-border/60 p-6 mb-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="w-5 h-5 text-copper" />
-                  <h3 className="text-lg font-bold text-charcoal">Replit-Ready Prompt</h3>
-                </div>
-                {generatedPrompt ? (
-                  <PromptCodeBlock code={generatedPrompt} label="prompt" />
-                ) : (
-                  <p className="text-charcoal-light text-sm">לא נוצר פרומפט עדיין. חזור לשיחה עם ה-AI להשלמת התהליך.</p>
-                )}
-              </div>
-
-              <div className="bg-card rounded-2xl border border-border/60 p-6 mb-6">
-                <h3 className="text-lg font-bold text-charcoal mb-3">פרטי הלקוח</h3>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div><span className="text-charcoal-light">שם:</span> <strong>{contactForm.getValues("name")}</strong></div>
-                  <div><span className="text-charcoal-light">אימייל:</span> <strong>{contactForm.getValues("email")}</strong></div>
-                  <div><span className="text-charcoal-light">שירות:</span> <strong className="text-copper">{services.find(s => s.id === selectedService)?.title}</strong></div>
+                <h3 className="text-lg font-bold text-charcoal mb-4 flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-copper" />
+                  פרטי הפרויקט
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <span className="text-charcoal-light block text-xs mb-1">שם</span>
+                    <strong data-testid="text-summary-name">{contactForm.getValues("name")}</strong>
+                  </div>
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <span className="text-charcoal-light block text-xs mb-1">אימייל</span>
+                    <strong data-testid="text-summary-email">{contactForm.getValues("email")}</strong>
+                  </div>
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <span className="text-charcoal-light block text-xs mb-1">שירות</span>
+                    <strong className="text-copper" data-testid="text-summary-service">{services.find(s => s.id === selectedService)?.title}</strong>
+                  </div>
                   {uploadedFiles.length > 0 && (
-                    <div><span className="text-charcoal-light">קבצים:</span> <strong>{uploadedFiles.length} קבצים</strong></div>
+                    <div className="p-3 bg-muted/30 rounded-lg">
+                      <span className="text-charcoal-light block text-xs mb-1">קבצים</span>
+                      <strong data-testid="text-summary-files">{uploadedFiles.length} קבצים הועלו</strong>
+                    </div>
+                  )}
+                  {chatComplete && (
+                    <div className="p-3 bg-green-50 rounded-lg sm:col-span-2">
+                      <span className="text-green-700 text-xs flex items-center gap-1">
+                        <Check className="w-3 h-3" />
+                        שיחת AI הושלמה — הנתונים נשלחו לצוות
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -703,12 +668,12 @@ export default function Onboarding() {
                 </Button>
                 <Button
                   onClick={handleComplete}
-                  disabled={completing || !generatedPrompt}
+                  disabled={completing}
                   className="bg-gradient-to-l from-copper to-copper-dark text-white gap-2"
                   data-testid="button-complete"
                 >
                   {completing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 rotate-180" />}
-                  שלח פרומפט למייל
+                  סיום ושליחה
                 </Button>
               </div>
             </motion.div>
@@ -725,19 +690,11 @@ export default function Onboarding() {
                 <CheckCircle2 className="w-10 h-10 text-green-600" />
               </motion.div>
               <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-completion-title">
-                התהליך הושלם בהצלחה!
+                תודה רבה!
               </h2>
               <p className="text-charcoal-light mb-2">
-                {emailSent
-                  ? "הפרומפט נשלח למייל בהצלחה. ניצור איתך קשר בהקדם!"
-                  : "הפרומפט נשמר בהצלחה. ניצור איתך קשר בהקדם!"}
+                הנתונים התקבלו בהצלחה. הצוות שלנו יעבור על הכל ונחזור אליך בהקדם לתיאום המשך עבודה.
               </p>
-              {!emailSent && generatedPrompt && (
-                <div className="max-w-2xl mx-auto mt-6">
-                  <p className="text-sm text-charcoal-light mb-3">העתק את הפרומפט כאן:</p>
-                  <PromptCodeBlock code={generatedPrompt} label="prompt" />
-                </div>
-              )}
               <Link href="/">
                 <Button variant="outline" className="mt-6" data-testid="button-back-home">
                   <ArrowRight className="w-4 h-4 ml-2" />
