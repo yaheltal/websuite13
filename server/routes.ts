@@ -5,7 +5,7 @@ import { insertContactSchema } from "@shared/schema";
 import { z, ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { sendOnboardingEmail, sendContactEmail } from "./email";
+import { sendOnboardingEmail } from "./email";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -115,20 +115,6 @@ export async function registerRoutes(
     try {
       const data = insertContactSchema.parse(req.body);
       const contact = await storage.createContact(data);
-
-      try {
-        await sendContactEmail({
-          name: data.name,
-          email: data.email,
-          phone: data.phone || "",
-          service: data.service || "",
-          message: data.message || "",
-        });
-        console.log(`Contact email sent for: ${data.name}`);
-      } catch (emailErr) {
-        console.error("Contact email error:", emailErr);
-      }
-
       res.status(201).json(contact);
     } catch (error) {
       if (error instanceof ZodError) {
