@@ -5,6 +5,7 @@ import { PortfolioSection } from "@/components/portfolio-section";
 import { ContactSection } from "@/components/contact-section";
 import { Footer } from "@/components/footer";
 import { ScrollBackground } from "@/components/scroll-background";
+import { AiChatWidget } from "@/components/ai-chat-widget";
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
         </main>
         <Footer />
       </div>
+      <AiChatWidget />
     </div>
   );
 }
