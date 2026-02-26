@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowDown } from "lucide-react";
 import { MouseTrackingElement, FloatingShape } from "@/components/floating-elements";
 import { Link } from "wouter";
 
@@ -123,21 +122,6 @@ export function HeroSection() {
           ))}
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.3 }}
-          className="mt-14 md:mt-20"
-        >
-          <button
-            onClick={() => scrollToSection("#services")}
-            className="animate-float inline-flex flex-col items-center gap-2 text-charcoal-light transition-colors duration-300 hover:text-charcoal"
-            data-testid="button-scroll-down"
-          >
-            <span className="text-xs font-medium">גלו את השירותים שלנו</span>
-            <ArrowDown className="w-5 h-5" />
-          </button>
-        </motion.div>
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background/50 to-transparent pointer-events-none" />
