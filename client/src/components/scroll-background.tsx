@@ -1,73 +1,122 @@
-import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useRef, useMemo } from "react";
 
-const sectionImages = [
-  { id: "hero", src: "/images/section-hero.png" },
-  { id: "services", src: "/images/section-services.png" },
-  { id: "portfolio", src: "/images/section-portfolio.png" },
-  { id: "contact", src: "/images/section-contact.png" },
-];
+const siteImages = Array.from({ length: 10 }, (_, i) => `/images/site-${i + 1}.png`);
+
+function seededRandom(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+interface Thumbnail {
+  src: string;
+  x: number;
+  y: number;
+  width: number;
+  rotation: number;
+  opacity: number;
+  parallaxSpeed: number;
+}
+
+function generateThumbnails(count: number, pageHeight: number): Thumbnail[] {
+  const rand = seededRandom(42);
+  const thumbnails: Thumbnail[] = [];
+  const cols = 4;
+  const rows = Math.ceil(count / cols);
+  const cellW = 100 / cols;
+  const cellH = pageHeight > 0 ? (100 / rows) : (25);
+
+  for (let i = 0; i < count; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const src = siteImages[i % siteImages.length];
+    const jitterX = (rand() - 0.5) * cellW * 0.6;
+    const jitterY = (rand() - 0.5) * cellH * 0.5;
+
+    thumbnails.push({
+      src,
+      x: col * cellW + cellW / 2 + jitterX,
+      y: row * cellH + cellH / 2 + jitterY,
+      width: 140 + rand() * 100,
+      rotation: (rand() - 0.5) * 20,
+      opacity: 0.08 + rand() * 0.1,
+      parallaxSpeed: 0.03 + rand() * 0.06,
+    });
+  }
+
+  return thumbnails;
+}
 
 export function ScrollBackground() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [parallaxY, setParallaxY] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
+  const [pageHeight, setPageHeight] = useState(0);
   const ticking = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const thumbnails = useMemo(() => generateThumbnails(40, pageHeight), [pageHeight]);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      setPageHeight(document.documentElement.scrollHeight);
+    };
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(document.body);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
       if (ticking.current) return;
       ticking.current = true;
-
       requestAnimationFrame(() => {
-        const scrollY = window.scrollY;
-        setParallaxY(scrollY * 0.15);
-
-        const viewportMiddle = scrollY + window.innerHeight * 0.4;
-        let newIndex = 0;
-
-        for (let i = sectionImages.length - 1; i >= 0; i--) {
-          const el = document.getElementById(sectionImages[i].id);
-          if (el && el.offsetTop <= viewportMiddle) {
-            newIndex = i;
-            break;
-          }
-        }
-
-        setActiveIndex(newIndex);
+        setScrollY(window.scrollY);
         ticking.current = false;
       });
     };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
-      <AnimatePresence mode="sync">
-        <motion.div
-          key={activeIndex}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: "easeInOut" }}
-          className="absolute inset-0"
-        >
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true" ref={containerRef}>
+      <div
+        className="absolute left-0 w-full"
+        style={{
+          top: 0,
+          height: `${pageHeight}px`,
+          transform: `translateY(${-scrollY * 0.85}px)`,
+          willChange: "transform",
+        }}
+      >
+        {thumbnails.map((thumb, i) => (
           <div
-            className="absolute inset-0 bg-cover bg-center"
+            key={i}
+            className="absolute rounded-lg overflow-hidden shadow-lg border border-border/10"
             style={{
-              backgroundImage: `url(${sectionImages[activeIndex].src})`,
-              transform: `translateY(${-parallaxY}px) scale(1.1)`,
+              left: `${thumb.x}%`,
+              top: `${thumb.y}%`,
+              width: `${thumb.width}px`,
+              transform: `translate(-50%, -50%) rotate(${thumb.rotation}deg) translateY(${scrollY * thumb.parallaxSpeed}px)`,
+              opacity: thumb.opacity,
               willChange: "transform",
             }}
-          />
-        </motion.div>
-      </AnimatePresence>
+          >
+            <img
+              src={thumb.src}
+              alt=""
+              className="w-full h-auto block"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        ))}
+      </div>
 
-      <div className="absolute inset-0 bg-background/85" />
-
-      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background/40" />
+      <div className="absolute inset-0 bg-background/80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background/50" />
     </div>
   );
 }
