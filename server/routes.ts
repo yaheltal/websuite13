@@ -116,20 +116,21 @@ export async function registerRoutes(
       const data = insertContactSchema.parse(req.body);
       const contact = await storage.createContact(data);
 
-      try {
-        await sendContactEmail({
-          name: data.name,
-          email: data.email,
-          phone: data.phone || "",
-          service: data.service || "",
-          message: data.message || "",
-        });
-        console.log(`Contact email sent for: ${data.name}`);
-      } catch (emailErr) {
-        console.error("Contact email error:", emailErr);
-      }
+      const emailResult = await sendContactEmail({
+        name: data.name,
+        email: data.email,
+        phone: data.phone || "",
+        service: data.service || "",
+        message: data.message || "",
+      });
 
-      res.status(201).json(contact);
+      if (emailResult.success) {
+        console.log(`Contact email dispatched for: ${data.name} (attempt ${emailResult.attempts})`);
+        res.status(201).json({ ...contact, emailSent: true });
+      } else {
+        console.error(`Contact email failed after ${emailResult.attempts} attempts for: ${data.name}. Data saved to DB.`);
+        res.status(201).json({ ...contact, emailSent: false, fallback: true });
+      }
     } catch (error) {
       if (error instanceof ZodError) {
         const validationError = fromZodError(error);
@@ -429,22 +430,23 @@ export async function registerRoutes(
           .join("\n");
       }
 
-      try {
-        await sendOnboardingEmail({
-          clientName: onboarding.name,
-          clientEmail: onboarding.email,
-          clientPhone: onboarding.phone || "",
-          service: onboarding.service,
-          questionnaireData: onboarding.questionnaireData as Record<string, any> || {},
-          chatSummary,
-          uploadedFiles: onboarding.uploadedFiles as string[] || [],
-        });
-        console.log(`Onboarding complete email sent for: ${onboarding.name}`);
-      } catch (emailErr) {
-        console.error("Complete email error:", emailErr);
-      }
+      const emailResult = await sendOnboardingEmail({
+        clientName: onboarding.name,
+        clientEmail: onboarding.email,
+        clientPhone: onboarding.phone || "",
+        service: onboarding.service,
+        questionnaireData: onboarding.questionnaireData as Record<string, any> || {},
+        chatSummary,
+        uploadedFiles: onboarding.uploadedFiles as string[] || [],
+      });
 
-      res.json({ success: true });
+      if (emailResult.success) {
+        console.log(`Onboarding email dispatched for: ${onboarding.name} (attempt ${emailResult.attempts})`);
+        res.json({ success: true, emailSent: true });
+      } else {
+        console.error(`Onboarding email failed after ${emailResult.attempts} attempts for: ${onboarding.name}. Data saved to DB.`);
+        res.json({ success: true, emailSent: false, fallback: true });
+      }
     } catch (error) {
       console.error("Complete error:", error);
       res.status(500).json({ message: "Internal server error" });

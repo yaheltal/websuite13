@@ -14,10 +14,10 @@ A premium boutique web agency portfolio site with "market disruptor" branding �
 ## Key Features
 - **Boutique Aesthetic**: Soft Sand, Muted Sage, Warm Off-White with Charcoal text and Copper accents
 - **RTL Hebrew Support**: Full right-to-left layout with Assistant font
-- **Scrollytelling Section**: GSAP ScrollTrigger-powered scroll-pinned visual with rotating WEB13 logo, 5 value prop text blocks with staggered reveal animations, Lenis smooth scrolling
+- **Scrollytelling Section**: Ultra-premium GSAP ScrollTrigger section with HTML canvas image sequence (60 frames, scroll-bound), word-level stagger text reveals, scroll-velocity skewY distortion, 3D parallax floating orbs at 30% speed, mobile Z-stack glassmorphism layout (fixed canvas behind glass-blur text cards), debounced canvas resize, per-canvas size tracking for dual desktop/mobile canvases
 - **Onboarding Funnel**: 7-step flow: Service Selection → Contact Info (lead capture) → Incentive Hook → Questionnaire → AI Chat → File Upload → Summary
 - **AI Sales Agent (Gemini)**: Short, focused sales agent that asks one question at a time, never shows code/prompts to client. Uses <<COLLECTION_COMPLETE>> marker for auto-completion
-- **Email Automation**: Single email at onboarding completion — sends full brief with questionnaire + AI chat + uploaded files + Replit-ready code prompt. To WEBSUITE153@GMAIL.COM
+- **Email Automation**: Dual-email system with 3-attempt retry logic. Contact form sends immediate email; onboarding sends comprehensive brief. Subject: `[URGENT] New WebSuite Lead - [Name]`. WhatsApp fallback shown on 3x failure. All to WEBSUITE153@GMAIL.COM
 - **Browser Preview Modals**: Realistic browser window mockups for each service
 - **Scroll Background**: Scattered website mockup thumbnails with parallax depth
 - **Floating Nav**: Bottom-centered capsule with "שאלון התאמה" button
@@ -70,7 +70,7 @@ client/public/images/
 ```
 
 ## API Endpoints
-- `POST /api/contact` - Submit contact form (saves to DB, no email)
+- `POST /api/contact` - Submit contact form (saves to DB, sends email with 3x retry; returns emailSent/fallback status)
 - `GET /api/contacts` - List all submissions
 - `POST /api/onboarding/start` - Start onboarding (saves contact + questionnaire data)
 - `POST /api/onboarding/chat` - AI chat with Gemini (context-aware)

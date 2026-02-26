@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -49,10 +50,17 @@ export function ContactSection() {
     },
   });
 
+  const [emailFailed, setEmailFailed] = useState(false);
+
   const mutation = useMutation({
     mutationFn: async (data: InsertContact) => {
       const res = await apiRequest("POST", "/api/contact", data);
       return res.json();
+    },
+    onSuccess: (result: any) => {
+      if (result.fallback) {
+        setEmailFailed(true);
+      }
     },
     onError: () => {
       toast({
@@ -64,6 +72,7 @@ export function ContactSection() {
   });
 
   const onSubmit = (data: InsertContact) => {
+    setEmailFailed(false);
     mutation.mutate(data);
   };
 
@@ -149,6 +158,30 @@ export function ContactSection() {
                     </div>
                   </motion.div>
 
+                  {emailFailed && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                      className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 w-full max-w-sm text-right"
+                      data-testid="fallback-whatsapp-notice"
+                    >
+                      <p className="text-sm text-amber-800 mb-3">
+                        הפרטים שלכם נשמרו בהצלחה. ניתן גם ליצור קשר ישיר דרך WhatsApp:
+                      </p>
+                      <a
+                        href="https://wa.me/972547966616?text=%D7%94%D7%99%D7%99%2C%20%D7%94%D7%A9%D7%90%D7%A8%D7%AA%D7%99%20%D7%A4%D7%A8%D7%98%D7%99%D7%9D%20%D7%91%D7%90%D7%AA%D7%A8%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%97%D7%96%D7%A8%D7%94"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-green-700 transition-colors"
+                        data-testid="link-whatsapp-fallback"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        שלחו לנו WhatsApp
+                      </a>
+                    </motion.div>
+                  )}
+
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -165,7 +198,7 @@ export function ContactSection() {
                       <ArrowLeft className="w-5 h-5 mr-2" />
                     </Button>
                     <button
-                      onClick={() => mutation.reset()}
+                      onClick={() => { mutation.reset(); setEmailFailed(false); }}
                       className="text-sm text-charcoal-light hover:text-charcoal transition-colors"
                       data-testid="button-send-another"
                     >

@@ -1,0 +1,33 @@
+# Ultra-Premium Scrollytelling & System Logic Update
+
+## 1. Cinematic Mobile-First UX (Responsive Excellence)
+- **Dynamic Sizing:** Use `dvh` (dynamic viewport height) for all full-screen containers to prevent layout jumps caused by mobile address bars.
+- **Mobile Layout (Breakpoint 768px):** - Transition from side-by-side to a "Z-stack" layout.
+    - Pin the Canvas centrally in the background (`fixed`).
+    - Text blocks must scroll *over* the canvas with an elegant **Glassmorphism** effect (`backdrop-filter: blur(10px)` and a subtle dark-to-transparent gradient).
+- **Adaptive Canvas:** Implement a robust `resize` event listener with a debounce function to ensure the animation scales and centers perfectly during orientation changes.
+
+## 2. GSAP Scroll-Velocity Distortion (The "Wow" Factor)
+- **Dynamic Skew:** Track the scroll velocity using GSAP's `ScrollTrigger.getVelocity()`.
+- **Transformation:** Apply a subtle dynamic `skewY` or `scale` to text blocks based on speed. Fast scrolling creates a "motion blur" stretching effect that snaps back smoothly to `0` when scrolling stops.
+
+## 3. 3D Depth & Parallax Environment
+- **Background Layers:** Add "Cinematic Depth" by generating out-of-focus, glowing abstract orbs/particles in the background.
+- **Parallax Logic:** These elements must move at 30% of the scroll speed (independent of the main canvas) to create a deep 3D parallax effect.
+
+## 4. High-End Text Animations
+- **Staggered Reveal:** Replace standard fades with a custom JS function. Use GSAP to split text into lines or words and animate them with a smooth upward "stagger" effect (`y: 50, opacity: 0` to `y: 0, opacity: 1`) as they enter the viewport.
+
+## 5. Email Delivery Verification & Logic (The "Back-End" Brain)
+You are strictly responsible for lead integrity. Execute this logic silently:
+- **Destination:** All leads must be dispatched to **websuite153@gmail.com**.
+- **The "Transmission Check":** - Mandatory Field: The **Phone Number** is a non-negotiable required field (*).
+    - Subject Line: `[URGENT] New WebSuite Lead - [Client Name]`.
+    - Internal Log: Verify successful dispatch before showing the "Thank You" message.
+- **Fail-Safe Protocol:** - If dispatch fails, log data locally and retry silently.
+    - After 3 failed attempts, activate "Troubleshooting Mode": Show a message that details are saved and provide a direct WhatsApp link as a backup.
+- **Client Feedback:** Only display "Thank you! Your details have been sent..." AFTER the dispatch is triggered.
+
+## 6. Performance Optimization
+- Use `requestAnimationFrame` for all canvas updates.
+- Ensure the framerate stays at a silky smooth 60fps, even on mid-range mobile devices, by optimizing shader/loop calculations.

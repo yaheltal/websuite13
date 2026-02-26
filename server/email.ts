@@ -2,6 +2,8 @@ import nodemailer from "nodemailer";
 
 const RECIPIENT_EMAIL = "WEBSUITE153@GMAIL.COM";
 const SENDER_EMAIL = "WEBSUITE153@GMAIL.COM";
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 2000;
 
 function createTransporter() {
   return nodemailer.createTransport({
@@ -24,6 +26,34 @@ const SERVICE_NAMES: Record<string, string> = {
   "business-card": "כרטיס ביקור דיגיטלי",
   "other": "אחר",
 };
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function sendWithRetry(
+  mailOptions: nodemailer.SendMailOptions
+): Promise<{ success: boolean; attempts: number }> {
+  const transporter = createTransporter();
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log(`Email dispatched successfully on attempt ${attempt}`);
+      return { success: true, attempts: attempt };
+    } catch (err) {
+      lastError = err;
+      console.error(`Email dispatch attempt ${attempt}/${MAX_RETRIES} failed:`, err);
+      if (attempt < MAX_RETRIES) {
+        await sleep(RETRY_DELAY_MS * attempt);
+      }
+    }
+  }
+
+  console.error(`Email dispatch failed after ${MAX_RETRIES} attempts. Last error:`, lastError);
+  return { success: false, attempts: MAX_RETRIES };
+}
 
 function generateReplitPrompt(data: {
   clientName: string;
@@ -63,8 +93,7 @@ export async function sendContactEmail(data: {
   phone: string;
   service: string;
   message: string;
-}) {
-  const transporter = createTransporter();
+}): Promise<{ success: boolean; attempts: number }> {
   const serviceName = SERVICE_NAMES[data.service] || data.service || "לא צוין";
 
   const htmlBody = `
@@ -97,10 +126,10 @@ export async function sendContactEmail(data: {
     </div>
   `;
 
-  await transporter.sendMail({
+  return sendWithRetry({
     from: `"WEB13" <${SENDER_EMAIL}>`,
     to: RECIPIENT_EMAIL,
-    subject: `ליד חדש מטופס צור קשר - ${data.name}`,
+    subject: `[URGENT] New WebSuite Lead - ${data.name}`,
     html: htmlBody,
   });
 }
@@ -113,9 +142,7 @@ export async function sendOnboardingEmail(data: {
   questionnaireData: Record<string, any>;
   chatSummary: string;
   uploadedFiles: string[];
-}) {
-  const transporter = createTransporter();
-
+}): Promise<{ success: boolean; attempts: number }> {
   const serviceName = SERVICE_NAMES[data.service] || data.service;
 
   const qaRows = Object.entries(data.questionnaireData)
@@ -182,10 +209,10 @@ ${escapeHtml(replitPrompt)}
     </div>
   `;
 
-  await transporter.sendMail({
+  return sendWithRetry({
     from: `"WEB13" <${SENDER_EMAIL}>`,
     to: RECIPIENT_EMAIL,
-    subject: `ליד חדש מהאתר - ${data.clientName}`,
+    subject: `[URGENT] New WebSuite Lead - ${data.clientName}`,
     html: htmlBody,
   });
 }
