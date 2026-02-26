@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, Crown } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import { MouseTrackingElement, FloatingShape } from "@/components/floating-elements";
 
 export function HeroSection() {
@@ -38,10 +38,25 @@ export function HeroSection() {
       <MouseTrackingElement sensitivity={0.02} className="absolute bottom-1/3 left-[25%] w-64 h-64 rounded-full bg-sage/[0.06] blur-3xl pointer-events-none" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="flex items-center justify-center gap-3 mb-10"
+          data-testid="link-logo"
+        >
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center shadow-md">
+            <span className="text-xl md:text-2xl font-extrabold text-white">W</span>
+          </div>
+          <span className="text-2xl md:text-3xl font-extrabold tracking-tight text-charcoal">
+            Web<span className="text-copper">Craft</span>
+          </span>
+        </motion.div>
+
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] mb-6 text-charcoal"
           data-testid="text-hero-title"
         >
@@ -55,7 +70,7 @@ export function HeroSection() {
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
           className="text-lg md:text-xl text-charcoal-light max-w-2xl mx-auto mb-10 leading-relaxed"
           data-testid="text-hero-subtitle"
         >
@@ -66,7 +81,7 @@ export function HeroSection() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.7 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <Button
@@ -91,7 +106,7 @@ export function HeroSection() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
           className="flex items-center justify-center gap-8 mt-16 md:mt-20"
         >
           {[
@@ -109,7 +124,7 @@ export function HeroSection() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.5 }}
+          transition={{ duration: 1, delay: 1.3 }}
           className="mt-14 md:mt-20"
         >
           <button

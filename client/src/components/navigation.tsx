@@ -1,136 +1,226 @@
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { Home, Layers, Briefcase, MessageCircle, X } from "lucide-react";
 
 const navItems = [
-  { label: "ראשי", href: "#hero" },
-  { label: "שירותים", href: "#services" },
-  { label: "תיק עבודות", href: "#portfolio" },
-  { label: "צור קשר", href: "#contact" },
+  { label: "ראשי", href: "#hero", icon: Home },
+  { label: "שירותים", href: "#services", icon: Layers },
+  { label: "עבודות", href: "#portfolio", icon: Briefcase },
+  { label: "צור קשר", href: "#contact", icon: MessageCircle },
 ];
 
 export function Navigation() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("#hero");
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isMobileExpanded, setIsMobileExpanded] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const currentY = window.scrollY;
+      setIsVisible(currentY < 100 || currentY < lastScrollY);
+      setLastScrollY(currentY);
+
+      const sections = navItems.map((item) => ({
+        id: item.href,
+        el: document.querySelector(item.href),
+      }));
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i];
+        if (section.el) {
+          const rect = section.el.getBoundingClientRect();
+          if (rect.top <= window.innerHeight / 3) {
+            setActiveSection(section.id);
+            break;
+          }
+        }
+      }
     };
-    window.addEventListener("scroll", handleScroll);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [lastScrollY]);
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
-    setIsMobileMenuOpen(false);
+    setIsMobileExpanded(false);
   };
 
   return (
     <>
-      <nav
+      <motion.nav
         data-testid="navigation-bar"
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled
-            ? "glass-panel bg-background/85 border-b border-border/50 shadow-sm"
-            : "bg-transparent"
-        }`}
+        initial={{ y: 100, opacity: 0 }}
+        animate={{
+          y: isVisible ? 0 : 100,
+          opacity: isVisible ? 1 : 0,
+        }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden md:block"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            <button
-              onClick={() => scrollToSection("#hero")}
-              className="flex items-center gap-2"
-              data-testid="link-logo"
-            >
-              <div className="w-8 h-8 md:w-9 md:h-9 rounded-md bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center">
-                <span className="text-sm md:text-base font-extrabold text-white">W</span>
-              </div>
-              <span className="text-lg md:text-xl font-extrabold tracking-tight text-charcoal">
-                Web<span className="text-copper">Craft</span>
-              </span>
-            </button>
-
-            <div className="hidden md:flex items-center gap-8">
-              {navItems.map((item) => (
-                <button
-                  key={item.href}
-                  onClick={() => scrollToSection(item.href)}
-                  className="text-sm font-medium text-charcoal-light transition-colors duration-300 hover:text-charcoal"
-                  data-testid={`link-nav-${item.href.replace("#", "")}`}
-                >
-                  {item.label}
-                </button>
-              ))}
-              <Button
-                size="sm"
-                onClick={() => scrollToSection("#contact")}
-                className="bg-gradient-to-l from-copper to-copper-dark text-white font-bold border-0 shadow-md"
-                data-testid="button-nav-cta"
-              >
-                בואו נדבר
-              </Button>
-            </div>
-
-            <Button
-              size="icon"
-              variant="ghost"
-              className="md:hidden"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              data-testid="button-mobile-menu"
-            >
-              {isMobileMenuOpen ? <X /> : <Menu />}
-            </Button>
-          </div>
-        </div>
-      </nav>
-
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-background/97 glass-panel pt-20 md:hidden"
-            data-testid="mobile-menu"
+        <div className="glass-panel bg-card/90 border border-border/60 rounded-full px-2 py-2 shadow-lg flex items-center gap-1">
+          <button
+            onClick={() => scrollToSection("#hero")}
+            className="flex items-center gap-1.5 pl-3 pr-1"
+            data-testid="link-logo"
           >
-            <div className="flex flex-col items-center gap-6 p-8">
-              {navItems.map((item, index) => (
-                <motion.button
-                  key={item.href}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  onClick={() => scrollToSection(item.href)}
-                  className="text-2xl font-semibold text-charcoal"
-                  data-testid={`link-mobile-${item.href.replace("#", "")}`}
-                >
-                  {item.label}
-                </motion.button>
-              ))}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center">
+              <span className="text-xs font-extrabold text-white">W</span>
+            </div>
+          </button>
+
+          <div className="w-px h-6 bg-border/60 mx-1" />
+
+          {navItems.map((item) => {
+            const isActive = activeSection === item.href;
+            return (
+              <button
+                key={item.href}
+                onClick={() => scrollToSection(item.href)}
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  isActive
+                    ? "bg-copper/10 text-copper"
+                    : "text-charcoal-light hover:text-charcoal"
+                }`}
+                data-testid={`link-nav-${item.href.replace("#", "")}`}
               >
-                <Button
-                  size="lg"
+                <item.icon className="w-4 h-4" />
+                <span>{item.label}</span>
+                {isActive && (
+                  <motion.div
+                    layoutId="nav-indicator"
+                    className="absolute inset-0 rounded-full border border-copper/20"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+              </button>
+            );
+          })}
+
+          <div className="w-px h-6 bg-border/60 mx-1" />
+
+          <button
+            onClick={() => scrollToSection("#contact")}
+            className="bg-gradient-to-l from-copper to-copper-dark text-white font-bold text-sm px-5 py-2 rounded-full transition-all duration-300"
+            data-testid="button-nav-cta"
+          >
+            בואו נדבר
+          </button>
+        </div>
+      </motion.nav>
+
+      <motion.div
+        initial={{ y: 100, opacity: 0 }}
+        animate={{
+          y: isVisible ? 0 : 100,
+          opacity: isVisible ? 1 : 0,
+        }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 md:hidden"
+      >
+        <AnimatePresence mode="wait">
+          {isMobileExpanded ? (
+            <motion.div
+              key="expanded"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="glass-panel bg-card/95 border border-border/60 rounded-2xl p-4 shadow-xl min-w-[260px]"
+            >
+              <div className="flex items-center justify-between mb-3 px-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center">
+                    <span className="text-xs font-extrabold text-white">W</span>
+                  </div>
+                  <span className="text-sm font-extrabold text-charcoal">
+                    Web<span className="text-copper">Craft</span>
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsMobileExpanded(false)}
+                  className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center"
+                  data-testid="button-mobile-close"
+                >
+                  <X className="w-4 h-4 text-charcoal-light" />
+                </button>
+              </div>
+              <div className="space-y-1">
+                {navItems.map((item) => {
+                  const isActive = activeSection === item.href;
+                  return (
+                    <button
+                      key={item.href}
+                      onClick={() => scrollToSection(item.href)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                        isActive
+                          ? "bg-copper/10 text-copper"
+                          : "text-charcoal-light"
+                      }`}
+                      data-testid={`link-mobile-${item.href.replace("#", "")}`}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-3 pt-3 border-t border-border/40">
+                <button
                   onClick={() => scrollToSection("#contact")}
-                  className="bg-gradient-to-l from-copper to-copper-dark text-white font-bold border-0 mt-4"
+                  className="w-full bg-gradient-to-l from-copper to-copper-dark text-white font-bold text-sm py-2.5 rounded-xl"
                   data-testid="button-mobile-cta"
                 >
                   בואו נדבר
-                </Button>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                </button>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="collapsed"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="glass-panel bg-card/90 border border-border/60 rounded-full shadow-lg flex items-center gap-1 p-1.5"
+            >
+              {navItems.map((item) => {
+                const isActive = activeSection === item.href;
+                return (
+                  <button
+                    key={item.href}
+                    onClick={() => scrollToSection(item.href)}
+                    className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+                      isActive ? "bg-copper/10 text-copper" : "text-charcoal-light"
+                    }`}
+                    data-testid={`link-mobile-icon-${item.href.replace("#", "")}`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    {isActive && (
+                      <motion.div
+                        layoutId="mobile-nav-indicator"
+                        className="absolute inset-0 rounded-full border border-copper/20"
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => setIsMobileExpanded(true)}
+                className="w-10 h-10 rounded-full bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center"
+                data-testid="button-mobile-menu"
+              >
+                <span className="text-xs font-extrabold text-white">W</span>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </>
   );
 }
