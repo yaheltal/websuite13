@@ -86,6 +86,33 @@ function generateOrbs(count: number): ParallaxOrb[] {
 
 const PARALLAX_ORBS = generateOrbs(8);
 
+const PHI = (1 + Math.sqrt(5)) / 2;
+const ICO_VERTS: [number, number, number][] = [
+  [-1, PHI, 0], [1, PHI, 0], [-1, -PHI, 0], [1, -PHI, 0],
+  [0, -1, PHI], [0, 1, PHI], [0, -1, -PHI], [0, 1, -PHI],
+  [PHI, 0, -1], [PHI, 0, 1], [-PHI, 0, -1], [-PHI, 0, 1],
+];
+const ICO_EDGES: [number, number][] = [
+  [0,11],[0,5],[0,1],[0,7],[0,10],[1,5],[1,9],[1,8],[1,7],
+  [2,3],[2,4],[2,6],[2,10],[2,11],[3,4],[3,9],[3,6],[3,8],
+  [4,5],[4,9],[4,11],[5,9],[5,11],[6,7],[6,8],[6,10],
+  [7,8],[7,10],[8,9],[10,11],
+];
+const ICO_NORM = 1 / Math.sqrt(1 + PHI * PHI);
+
+function rotateY(v: [number, number, number], a: number): [number, number, number] {
+  const c = Math.cos(a), s = Math.sin(a);
+  return [v[0] * c + v[2] * s, v[1], -v[0] * s + v[2] * c];
+}
+function rotateX(v: [number, number, number], a: number): [number, number, number] {
+  const c = Math.cos(a), s = Math.sin(a);
+  return [v[0], v[1] * c - v[2] * s, v[1] * s + v[2] * c];
+}
+function project(v: [number, number, number], w: number, radius: number, fov: number): [number, number, number] {
+  const perspective = fov / (fov + v[2]);
+  return [w / 2 + v[0] * radius * perspective, w / 2 + v[1] * radius * perspective, v[2]];
+}
+
 function generatePlaceholderFrame(
   ctx: CanvasRenderingContext2D,
   w: number,
@@ -94,76 +121,139 @@ function generatePlaceholderFrame(
   totalFrames: number
 ) {
   const progress = frameIndex / (totalFrames - 1);
-  const hue = 28 + progress * 12;
-  const saturation = 55 + Math.sin(progress * Math.PI) * 15;
-  const lightness = 42 + Math.sin(progress * Math.PI * 2) * 8;
+  const rotY = progress * Math.PI * 2;
+  const rotXAngle = Math.sin(progress * Math.PI) * 0.4 + 0.3;
+  const breathe = 1 + Math.sin(progress * Math.PI * 2) * 0.04;
+  const radius = w * 0.28 * breathe;
+  const fov = 4;
 
   ctx.clearRect(0, 0, w, h);
 
-  const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.7);
-  bgGrad.addColorStop(0, `hsla(${hue}, 15%, 12%, 1)`);
-  bgGrad.addColorStop(1, `hsla(${hue - 5}, 10%, 6%, 1)`);
+  const bgGrad = ctx.createRadialGradient(w / 2, h * 0.45, 0, w / 2, h * 0.45, w * 0.8);
+  bgGrad.addColorStop(0, `hsla(225, 20%, 10%, 1)`);
+  bgGrad.addColorStop(0.5, `hsla(220, 18%, 7%, 1)`);
+  bgGrad.addColorStop(1, `hsla(215, 15%, 4%, 1)`);
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, w, h);
 
-  const gradient = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.38);
-  gradient.addColorStop(0, `hsla(${hue}, ${saturation}%, ${lightness + 20}%, 0.9)`);
-  gradient.addColorStop(0.5, `hsla(${hue}, ${saturation}%, ${lightness}%, 0.6)`);
-  gradient.addColorStop(1, `hsla(${hue}, ${saturation}%, ${lightness - 10}%, 0)`);
-  ctx.fillStyle = gradient;
-  ctx.beginPath();
-  ctx.arc(w / 2, h / 2, w * 0.38, 0, Math.PI * 2);
-  ctx.fill();
+  const ambGrad = ctx.createRadialGradient(w * 0.35, h * 0.35, 0, w * 0.35, h * 0.35, w * 0.5);
+  ambGrad.addColorStop(0, `hsla(28, 70%, 50%, 0.06)`);
+  ambGrad.addColorStop(1, `transparent`);
+  ctx.fillStyle = ambGrad;
+  ctx.fillRect(0, 0, w, h);
 
-  const angle = progress * Math.PI * 2;
-  for (let r = 0; r < 5; r++) {
-    const ringAngle = angle + (r * Math.PI * 2) / 5;
-    const ringRadius = w * (0.18 + r * 0.045);
-    ctx.beginPath();
-    ctx.arc(w / 2, h / 2, ringRadius, ringAngle, ringAngle + Math.PI * 0.5);
-    ctx.strokeStyle = `hsla(${hue}, 60%, ${75 + r * 3}%, ${0.25 - r * 0.04})`;
-    ctx.lineWidth = 2 - r * 0.3;
-    ctx.stroke();
-  }
+  const ambGrad2 = ctx.createRadialGradient(w * 0.7, h * 0.6, 0, w * 0.7, h * 0.6, w * 0.4);
+  ambGrad2.addColorStop(0, `hsla(200, 40%, 50%, 0.04)`);
+  ambGrad2.addColorStop(1, `transparent`);
+  ctx.fillStyle = ambGrad2;
+  ctx.fillRect(0, 0, w, h);
 
-  for (let i = 0; i < 8; i++) {
-    const orbAngle = angle + (i * Math.PI * 2) / 8;
-    const orbDist = w * (0.2 + Math.sin(progress * Math.PI + i) * 0.08);
-    const ox = w / 2 + Math.cos(orbAngle) * orbDist;
-    const oy = h / 2 + Math.sin(orbAngle) * orbDist;
-    const orbSize = 3 + Math.sin(progress * Math.PI * 2 + i * 1.5) * 2;
-    const orbGrad = ctx.createRadialGradient(ox, oy, 0, ox, oy, orbSize * 3);
-    orbGrad.addColorStop(0, `hsla(${hue + i * 6}, 70%, 80%, 0.9)`);
-    orbGrad.addColorStop(0.5, `hsla(${hue + i * 6}, 60%, 70%, 0.3)`);
-    orbGrad.addColorStop(1, `hsla(${hue + i * 6}, 60%, 70%, 0)`);
-    ctx.fillStyle = orbGrad;
+  const dustCount = 40;
+  for (let i = 0; i < dustCount; i++) {
+    const seed = i * 137.508;
+    const dx = (Math.sin(seed) * 0.5 + 0.5) * w;
+    const dy = (Math.cos(seed * 0.7) * 0.5 + 0.5) * h;
+    const drift = Math.sin(progress * Math.PI * 2 + seed) * w * 0.02;
+    const dAlpha = 0.1 + Math.sin(progress * Math.PI * 3 + i) * 0.08;
+    const dSize = 1 + Math.sin(seed * 0.3) * 0.5;
     ctx.beginPath();
-    ctx.arc(ox, oy, orbSize * 3, 0, Math.PI * 2);
+    ctx.arc(dx + drift, dy, dSize, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(28, 40%, 70%, ${dAlpha})`;
     ctx.fill();
   }
 
-  const innerGlow = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.12);
-  innerGlow.addColorStop(0, `hsla(${hue}, 80%, 90%, 0.5)`);
-  innerGlow.addColorStop(1, `hsla(${hue}, 80%, 80%, 0)`);
-  ctx.fillStyle = innerGlow;
+  const transformed = ICO_VERTS.map((v) => {
+    let nv: [number, number, number] = [v[0] * ICO_NORM, v[1] * ICO_NORM, v[2] * ICO_NORM];
+    nv = rotateY(nv, rotY);
+    nv = rotateX(nv, rotXAngle);
+    return nv;
+  });
+
+  const projected = transformed.map((v) => project(v, w, radius, fov));
+
+  const sortedEdges = [...ICO_EDGES].sort((a, b) => {
+    const zA = (transformed[a[0]][2] + transformed[a[1]][2]) / 2;
+    const zB = (transformed[b[0]][2] + transformed[b[1]][2]) / 2;
+    return zA - zB;
+  });
+
+  for (const [a, b] of sortedEdges) {
+    const pa = projected[a];
+    const pb = projected[b];
+    const avgZ = (transformed[a][2] + transformed[b][2]) / 2;
+    const depthFactor = (avgZ + 1) / 2;
+    const alpha = 0.08 + depthFactor * 0.35;
+    const lightness = 55 + depthFactor * 25;
+
+    ctx.beginPath();
+    ctx.moveTo(pa[0], pa[1]);
+    ctx.lineTo(pb[0], pb[1]);
+    ctx.strokeStyle = `hsla(28, 55%, ${lightness}%, ${alpha})`;
+    ctx.lineWidth = 0.5 + depthFactor * 1.2;
+    ctx.stroke();
+  }
+
+  for (let i = 0; i < projected.length; i++) {
+    const p = projected[i];
+    const z = transformed[i][2];
+    const depthFactor = (z + 1) / 2;
+    const nodeSize = 1.5 + depthFactor * 3;
+    const alpha = 0.3 + depthFactor * 0.7;
+
+    ctx.save();
+    ctx.shadowColor = `hsla(28, 70%, 60%, ${alpha * 0.6})`;
+    ctx.shadowBlur = 8 + depthFactor * 12;
+
+    const nodeGrad = ctx.createRadialGradient(p[0], p[1], 0, p[0], p[1], nodeSize * 2.5);
+    nodeGrad.addColorStop(0, `hsla(30, 80%, 85%, ${alpha})`);
+    nodeGrad.addColorStop(0.4, `hsla(28, 65%, 65%, ${alpha * 0.6})`);
+    nodeGrad.addColorStop(1, `hsla(28, 60%, 50%, 0)`);
+    ctx.fillStyle = nodeGrad;
+    ctx.beginPath();
+    ctx.arc(p[0], p[1], nodeSize * 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(p[0], p[1], nodeSize * 0.6, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(35, 90%, 92%, ${alpha})`;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  const coreGlow = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, radius * 0.4);
+  coreGlow.addColorStop(0, `hsla(28, 60%, 55%, 0.08)`);
+  coreGlow.addColorStop(0.5, `hsla(28, 50%, 45%, 0.03)`);
+  coreGlow.addColorStop(1, `transparent`);
+  ctx.fillStyle = coreGlow;
   ctx.beginPath();
-  ctx.arc(w / 2, h / 2, w * 0.12, 0, Math.PI * 2);
+  ctx.arc(w / 2, h / 2, radius * 0.4, 0, Math.PI * 2);
   ctx.fill();
 
+  const trailCount = 3;
+  for (let t = 0; t < trailCount; t++) {
+    const trailAngle = rotY * 0.6 + (t * Math.PI * 2) / trailCount;
+    const trailRadius = radius * (1.15 + t * 0.08);
+    ctx.beginPath();
+    ctx.arc(w / 2, h / 2, trailRadius, trailAngle, trailAngle + Math.PI * 0.35);
+    ctx.strokeStyle = `hsla(28, 50%, 60%, ${0.12 - t * 0.03})`;
+    ctx.lineWidth = 1.5 - t * 0.3;
+    ctx.stroke();
+  }
+
   ctx.save();
-  ctx.shadowColor = `hsla(${hue}, 60%, 70%, 0.5)`;
-  ctx.shadowBlur = 20;
-  ctx.fillStyle = `hsla(0, 0%, 100%, 0.95)`;
-  ctx.font = `800 ${w * 0.13}px "Assistant", sans-serif`;
+  ctx.shadowColor = `hsla(28, 60%, 65%, 0.4)`;
+  ctx.shadowBlur = 25;
+  ctx.fillStyle = `hsla(0, 0%, 100%, 0.9)`;
+  ctx.font = `800 ${w * 0.065}px "Assistant", sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("13", w / 2, h / 2 - w * 0.015);
+  ctx.fillText("WEB13", w / 2, h / 2);
   ctx.restore();
 
-  ctx.fillStyle = `hsla(0, 0%, 100%, 0.45)`;
-  ctx.font = `600 ${w * 0.035}px "Assistant", sans-serif`;
-  ctx.letterSpacing = "4px";
-  ctx.fillText("W E B 1 3", w / 2, h / 2 + w * 0.1);
+  ctx.fillStyle = `hsla(28, 50%, 70%, 0.35)`;
+  ctx.font = `500 ${w * 0.022}px "Assistant", sans-serif`;
+  ctx.textAlign = "center";
+  ctx.fillText("S H A P I N G   T H E   F U T U R E", w / 2, h / 2 + w * 0.055);
 }
 
 function debounce(fn: () => void, ms: number) {
