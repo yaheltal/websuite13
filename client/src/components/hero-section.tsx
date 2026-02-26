@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, Sparkles } from "lucide-react";
+import { ArrowDown, Crown } from "lucide-react";
+import { MouseTrackingElement, FloatingShape } from "@/components/floating-elements";
 
 export function HeroSection() {
   const scrollToSection = (href: string) => {
@@ -13,61 +14,63 @@ export function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-sand-light via-background to-background"
       data-testid="section-hero"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background/95" />
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 right-1/4 w-72 h-72 md:w-96 md:h-96 bg-electric/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/3 w-64 h-64 md:w-80 md:h-80 bg-gold/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-primary/3 rounded-full blur-[120px]" />
-      </div>
-
-      <div className="absolute inset-0 opacity-[0.02]">
-        <div
-          className="w-full h-full"
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 opacity-[0.015]"
           style={{
             backgroundImage:
-              "linear-gradient(hsl(var(--foreground) / 0.15) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground) / 0.15) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
+              "radial-gradient(hsl(220 15% 18% / 0.3) 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
           }}
         />
       </div>
+
+      <FloatingShape variant="circle" size="lg" animation="float-slow" className="top-20 right-[10%]" />
+      <FloatingShape variant="diamond" size="md" animation="float" className="top-1/3 left-[8%]" />
+      <FloatingShape variant="ring" size="lg" animation="float-reverse" className="bottom-1/4 right-[15%]" />
+      <FloatingShape variant="square" size="sm" animation="float-slow" className="bottom-1/3 left-[20%]" />
+      <FloatingShape variant="circle" size="sm" animation="float" className="top-[15%] left-[40%]" />
+      <FloatingShape variant="ring" size="md" animation="float-reverse" className="top-2/3 right-[35%]" />
+
+      <MouseTrackingElement sensitivity={0.015} className="absolute top-1/4 right-[20%] w-48 h-48 rounded-full bg-copper/[0.04] blur-2xl pointer-events-none" />
+      <MouseTrackingElement sensitivity={0.02} className="absolute bottom-1/3 left-[25%] w-64 h-64 rounded-full bg-sage/[0.06] blur-3xl pointer-events-none" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 border border-gold/20 mb-8"
+          transition={{ duration: 0.7, delay: 0.2 }}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-copper/8 border border-copper/15 mb-8"
         >
-          <Sparkles className="w-4 h-4 text-gold" />
-          <span className="text-sm font-medium text-gold">סטודיו לפיתוח אתרים פרימיום</span>
+          <Crown className="w-4 h-4 text-copper" />
+          <span className="text-sm font-semibold text-copper-dark">בוטיק דיגיטלי | איכות ללא פשרות</span>
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6"
+          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] mb-6 text-charcoal"
           data-testid="text-hero-title"
         >
-          אנחנו בונים
+          שוברים את השוק:
           <br />
-          <span className="text-gradient">חוויות דיגיטליות</span>
+          <span className="text-copper">אתרים בוטיק</span>
           <br />
-          שמניעות תוצאות
+          במחירים שלא מאמינים
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
+          className="text-lg md:text-xl text-charcoal-light max-w-2xl mx-auto mb-10 leading-relaxed"
           data-testid="text-hero-subtitle"
         >
-          מדפי נחיתה ממירים ועד חנויות אונליין מלאות — אנחנו מעצבים ומפתחים
-          פתרונות דיגיטליים שמביאים לעסק שלכם לקוחות חדשים
+          איכות של בוטיק פרימיום, מחיר שמפתיע. אנחנו מוכיחים שאתר
+          ברמה הכי גבוהה לא חייב לעלות הון — הוא רק חייב להיות שלנו
         </motion.p>
 
         <motion.div
@@ -79,16 +82,16 @@ export function HeroSection() {
           <Button
             size="lg"
             onClick={() => scrollToSection("#contact")}
-            className="bg-gradient-to-l from-gold to-gold-dark text-black font-bold text-base px-8 border-0"
+            className="bg-gradient-to-l from-copper to-copper-dark text-white font-extrabold text-base px-8 border-0 shadow-lg"
             data-testid="button-hero-cta"
           >
-            קבלו הצעת מחיר
+            קבלו הצעת מחיר חינם
           </Button>
           <Button
             size="lg"
             variant="outline"
             onClick={() => scrollToSection("#portfolio")}
-            className="font-semibold text-base px-8"
+            className="font-semibold text-base px-8 border-charcoal/15 text-charcoal"
             data-testid="button-hero-portfolio"
           >
             צפו בעבודות שלנו
@@ -98,12 +101,30 @@ export function HeroSection() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.2 }}
-          className="mt-16 md:mt-24"
+          transition={{ duration: 0.8, delay: 1.2 }}
+          className="flex items-center justify-center gap-8 mt-16 md:mt-20"
+        >
+          {[
+            { value: "100+", label: "פרויקטים" },
+            { value: "8+", label: "שנות ניסיון" },
+            { value: "98%", label: "שביעות רצון" },
+          ].map((stat) => (
+            <div key={stat.label} className="text-center">
+              <p className="text-2xl md:text-3xl font-extrabold text-copper">{stat.value}</p>
+              <p className="text-xs text-charcoal-light mt-0.5">{stat.label}</p>
+            </div>
+          ))}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1.5 }}
+          className="mt-14 md:mt-20"
         >
           <button
             onClick={() => scrollToSection("#services")}
-            className="animate-float inline-flex flex-col items-center gap-2 text-muted-foreground transition-colors duration-300 hover:text-foreground"
+            className="animate-float inline-flex flex-col items-center gap-2 text-charcoal-light transition-colors duration-300 hover:text-charcoal"
             data-testid="button-scroll-down"
           >
             <span className="text-xs font-medium">גלו את השירותים שלנו</span>
@@ -112,7 +133,7 @@ export function HeroSection() {
         </motion.div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
     </section>
   );
 }

@@ -36,7 +36,7 @@ export function Navigation() {
         data-testid="navigation-bar"
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled
-            ? "glass-panel bg-background/80 border-b border-border/50"
+            ? "glass-panel bg-background/85 border-b border-border/50 shadow-sm"
             : "bg-transparent"
         }`}
       >
@@ -47,11 +47,11 @@ export function Navigation() {
               className="flex items-center gap-2"
               data-testid="link-logo"
             >
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-md bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
-                <span className="text-sm md:text-base font-bold text-black">W</span>
+              <div className="w-8 h-8 md:w-9 md:h-9 rounded-md bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center">
+                <span className="text-sm md:text-base font-extrabold text-white">W</span>
               </div>
-              <span className="text-lg md:text-xl font-bold tracking-tight">
-                Web<span className="text-gradient">Craft</span>
+              <span className="text-lg md:text-xl font-extrabold tracking-tight text-charcoal">
+                Web<span className="text-copper">Craft</span>
               </span>
             </button>
 
@@ -60,7 +60,7 @@ export function Navigation() {
                 <button
                   key={item.href}
                   onClick={() => scrollToSection(item.href)}
-                  className="text-sm font-medium text-muted-foreground transition-colors duration-300 hover:text-foreground"
+                  className="text-sm font-medium text-charcoal-light transition-colors duration-300 hover:text-charcoal"
                   data-testid={`link-nav-${item.href.replace("#", "")}`}
                 >
                   {item.label}
@@ -69,7 +69,7 @@ export function Navigation() {
               <Button
                 size="sm"
                 onClick={() => scrollToSection("#contact")}
-                className="bg-gradient-to-l from-gold to-gold-dark text-black font-semibold border-0"
+                className="bg-gradient-to-l from-copper to-copper-dark text-white font-bold border-0 shadow-md"
                 data-testid="button-nav-cta"
               >
                 בואו נדבר
@@ -96,7 +96,7 @@ export function Navigation() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-background/95 glass-panel pt-20 md:hidden"
+            className="fixed inset-0 z-40 bg-background/97 glass-panel pt-20 md:hidden"
             data-testid="mobile-menu"
           >
             <div className="flex flex-col items-center gap-6 p-8">
@@ -107,7 +107,7 @@ export function Navigation() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   onClick={() => scrollToSection(item.href)}
-                  className="text-2xl font-medium"
+                  className="text-2xl font-semibold text-charcoal"
                   data-testid={`link-mobile-${item.href.replace("#", "")}`}
                 >
                   {item.label}
@@ -121,7 +121,7 @@ export function Navigation() {
                 <Button
                   size="lg"
                   onClick={() => scrollToSection("#contact")}
-                  className="bg-gradient-to-l from-gold to-gold-dark text-black font-semibold border-0 mt-4"
+                  className="bg-gradient-to-l from-copper to-copper-dark text-white font-bold border-0 mt-4"
                   data-testid="button-mobile-cta"
                 >
                   בואו נדבר
