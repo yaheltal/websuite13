@@ -4,18 +4,22 @@ import { ServicesSection } from "@/components/services-section";
 import { PortfolioSection } from "@/components/portfolio-section";
 import { ContactSection } from "@/components/contact-section";
 import { Footer } from "@/components/footer";
+import { ScrollBackground } from "@/components/scroll-background";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background" data-testid="page-home">
-      <Navigation />
-      <main>
-        <HeroSection />
-        <ServicesSection />
-        <PortfolioSection />
-        <ContactSection />
-      </main>
-      <Footer />
+    <div className="min-h-screen" data-testid="page-home">
+      <ScrollBackground />
+      <div className="relative z-10">
+        <Navigation />
+        <main>
+          <HeroSection />
+          <ServicesSection />
+          <PortfolioSection />
+          <ContactSection />
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 }

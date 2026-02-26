@@ -14,11 +14,11 @@ export function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-sand-light via-background to-background"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
       data-testid="section-hero"
     >
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 opacity-[0.015]"
+        <div className="absolute inset-0 opacity-[0.02]"
           style={{
             backgroundImage:
               "radial-gradient(hsl(220 15% 18% / 0.3) 1px, transparent 1px)",
@@ -138,7 +138,7 @@ export function HeroSection() {
         </motion.div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background/50 to-transparent pointer-events-none" />
     </section>
   );
 }

@@ -92,7 +92,7 @@ export function PortfolioSection() {
   return (
     <>
       <section id="portfolio" className="py-20 md:py-32 relative" data-testid="section-portfolio">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-sand/30 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-background/30 rounded-3xl pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
