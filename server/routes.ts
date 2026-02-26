@@ -49,6 +49,7 @@ function getOnboardingSystemPrompt(service: string, questionnaireData: Record<st
     .join("\n");
 
   return `אתה סוכן מכירות ושירות של WEB13. התפקיד שלך הוא לאסוף פרטים מהלקוח כדי לבנות לו אתר/פתרון דיגיטלי.
+המטרה שלך: זרימה חלקה של איסוף מידע.
 
 הלקוח בחר בשירות: ${serviceName}
 
@@ -60,6 +61,15 @@ ${qaText}
 - שאל שאלה אחת בכל פעם בלבד.
 - היה ידידותי, מקצועי וחם.
 - השיחה חייבת להיות בעברית בלבד.
+- אסור בשום מצב להציג קוד, JSON, בלוקים טכניים, או פרומפטים בצ'אט.
+
+טיפול בקלט לא תקין (חשוב!):
+- אם הלקוח שולח טקסט חסר משמעות (כמו "כגג", "adsf", "rthtrht"), אל תתייחס אליו כאל תשובה אמיתית.
+- בקש ממנו בנימוס לנסח מחדש: "לא הצלחתי להבין. תוכל בבקשה לנסח שוב את [הפרט הנדרש] כדי שנמשיך?"
+- לעולם אל תמשיך הלאה עם נתונים לא הגיוניים. ודא שקיבלת מידע ברור לפני שאתה עובר לשאלה הבאה.
+
+אישור קבלת נתונים:
+- לפני שאתה עובר לשאלה הבאה, אשר שקיבלת את הנתון: "מעולה, תודה! עכשיו לגבי..."
 
 נושאים שחשוב לכסות (אם לא כוסו בשאלון):
 - חזון העיצוב ותחושת המותג (צבעים, סגנון, השראות)
@@ -75,8 +85,7 @@ ${qaText}
 
 לוגיקת סיום שיחה:
 - כשיש לך מספיק מידע (אחרי 4-8 הודעות), סיים את השיחה.
-- אסור להציג ללקוח קוד, JSON, בלוקים טכניים, או פרומפטים.
-- שלח הודעת סיכום שירותית, למשל: "תודה רבה על הפרטים! הנתונים התקבלו בהצלחה. הצוות שלנו יעבור על הכל ונחזור אליך בהקדם לתיאום המשך עבודה."
+- שלח הודעת סיכום שירותית: "תודה רבה על הפרטים! הנתונים התקבלו בהצלחה. הצוות שלנו יעבור על הכל ונחזור אליך בהקדם לתיאום המשך עבודה."
 - חובה: כשאתה מסיים את השיחה, הוסף בסוף ההודעה שלך (בשורה נפרדת) את הטקסט הבא בדיוק: <<COLLECTION_COMPLETE>>
 - הטקסט <<COLLECTION_COMPLETE>> לא יוצג ללקוח, הוא רק סימון פנימי למערכת.
 
@@ -125,6 +134,83 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching contacts:", error);
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/chat", async (req, res) => {
+    try {
+      const { message, sessionId } = req.body;
+      if (!message || typeof message !== "string") {
+        return res.status(400).json({ message: "הודעה חסרה" });
+      }
+
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+      const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        systemInstruction: `אתה סוכן מכירות ושירות של WEB13 — סוכנות בוטיק לבניית אתרים.
+אתה עוזר ללקוחות פוטנציאליים להבין מה הם צריכים ומעודד אותם להתחיל את תהליך ההרשמה.
+
+כללים:
+- דבר בעברית בלבד. קצר ולעניין.
+- שאל שאלה אחת בכל פעם.
+- היה ידידותי ומקצועי.
+- אסור להציג קוד, JSON, או בלוקים טכניים.
+- אם הלקוח שולח טקסט חסר משמעות, בקש ממנו לנסח מחדש בנימוס.
+- אם הלקוח מתעניין, הפנה אותו ל"תהליך ההרשמה" בכפתור "בואו נתחיל" בעמוד הראשי.
+
+השירותים של WEB13:
+1. דפי נחיתה — עמוד יחיד ממוקד המרות
+2. כרטיסי ביקור דיגיטליים — נוכחות דיגיטלית מקצועית
+3. חנויות אונליין — פתרון E-commerce מלא`,
+      });
+
+      const sid = sessionId || `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      let session = chatSessions.get(sid);
+
+      if (!session) {
+        session = { history: [], lastAccess: Date.now() };
+        if (chatSessions.size >= MAX_SESSIONS) {
+          let oldest: string | null = null;
+          let oldestTime = Infinity;
+          for (const [id, s] of chatSessions) {
+            if (s.lastAccess < oldestTime) { oldest = id; oldestTime = s.lastAccess; }
+          }
+          if (oldest) chatSessions.delete(oldest);
+        }
+        chatSessions.set(sid, session);
+      }
+
+      session.lastAccess = Date.now();
+
+      const historyForChat = session.history.map(h => ({
+        role: h.role as "user" | "model",
+        parts: h.parts,
+      }));
+
+      const chat = model.startChat({ history: historyForChat });
+      const result = await chat.sendMessage(message);
+      const reply = result.response.text();
+
+      const cleanReply = reply
+        .replace(/<<COLLECTION_COMPLETE>>/g, "")
+        .replace(/\[THOUGHT\][\s\S]*?\[\/THOUGHT\]/gi, "")
+        .trim();
+
+      session.history.push({ role: "user", parts: [{ text: message }] });
+      session.history.push({ role: "model", parts: [{ text: cleanReply }] });
+
+      if (session.history.length > MAX_HISTORY_LENGTH) {
+        session.history = session.history.slice(-MAX_HISTORY_LENGTH);
+      }
+
+      res.json({ reply: cleanReply, sessionId: sid });
+    } catch (error: any) {
+      console.error("Homepage chat error:", error);
+      if (error?.status === 429) {
+        res.status(429).json({ message: "שירות ה-AI עמוס כרגע. אנא נסה שוב בעוד כמה דקות." });
+      } else {
+        res.status(500).json({ message: "שגיאה בשירות ה-AI" });
+      }
     }
   });
 

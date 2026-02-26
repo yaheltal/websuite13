@@ -244,21 +244,32 @@ export default function Onboarding() {
     const currentId = oid ?? onboardingId;
     setChatLoading(true);
     try {
-      const response = await apiRequest("POST", "/api/onboarding/chat", {
-        message: "שלום, מילאתי את השאלון ואני מוכן להמשיך",
-        sessionId: null,
-        onboardingId: currentId,
-        service: selectedService,
-        questionnaireData,
+      const response = await fetch("/api/onboarding/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: "שלום, מילאתי את השאלון ואני מוכן להמשיך",
+          sessionId: null,
+          onboardingId: currentId,
+          service: selectedService,
+          questionnaireData,
+        }),
       });
       const data = await response.json();
-      setChatSessionId(data.sessionId);
-      setChatMessages([
-        { role: "user", content: "שלום, מילאתי את השאלון ואני מוכן להמשיך" },
-        { role: "bot", content: data.reply },
-      ]);
+      if (response.ok && data.reply) {
+        setChatSessionId(data.sessionId);
+        setChatMessages([
+          { role: "user", content: "שלום, מילאתי את השאלון ואני מוכן להמשיך" },
+          { role: "bot", content: data.reply },
+        ]);
+      } else {
+        const fallback = response.status === 429
+          ? "שלום! הסוכן שלנו עמוס כרגע. אנא נסה שוב בעוד כמה רגעים."
+          : "שלום! סליחה, הייתה תקלה קטנה. ספר לי בבקשה מה סוג הפרויקט שאתה מחפש?";
+        setChatMessages([{ role: "bot", content: fallback }]);
+      }
     } catch {
-      setChatMessages([{ role: "bot", content: "שלום! בוא נדבר על הפרויקט שלך. ספר לי עוד על מה שאתה מחפש." }]);
+      setChatMessages([{ role: "bot", content: "שלום! סליחה, הייתה תקלה קטנה. ספר לי בבקשה מה סוג הפרויקט שאתה מחפש?" }]);
     }
     setChatLoading(false);
   };
@@ -272,22 +283,34 @@ export default function Onboarding() {
     setChatLoading(true);
 
     try {
-      const response = await apiRequest("POST", "/api/onboarding/chat", {
-        message: trimmed,
-        sessionId: chatSessionId,
-        onboardingId,
-        service: selectedService,
-        questionnaireData,
+      const response = await fetch("/api/onboarding/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: trimmed,
+          sessionId: chatSessionId,
+          onboardingId,
+          service: selectedService,
+          questionnaireData,
+        }),
       });
       const data = await response.json();
-      if (!chatSessionId) setChatSessionId(data.sessionId);
-      setChatMessages(prev => [...prev, { role: "bot", content: data.reply }]);
 
-      if (data.isComplete) {
-        setChatComplete(true);
+      if (!response.ok) {
+        const fallback = response.status === 429
+          ? "הסוכן שלנו עמוס כרגע. אנא נסה שוב בעוד כמה רגעים — הפרטים שלך שמורים!"
+          : "סליחה, הייתה תקלה קטנה. תוכל בבקשה לחזור על מה שאמרת?";
+        setChatMessages(prev => [...prev, { role: "bot", content: fallback }]);
+      } else {
+        if (!chatSessionId) setChatSessionId(data.sessionId);
+        setChatMessages(prev => [...prev, { role: "bot", content: data.reply }]);
+
+        if (data.isComplete) {
+          setChatComplete(true);
+        }
       }
     } catch {
-      setChatMessages(prev => [...prev, { role: "bot", content: "מצטער, נתקלתי בשגיאה. אנא נסה שוב." }]);
+      setChatMessages(prev => [...prev, { role: "bot", content: "סליחה, הייתה תקלה קטנה. תוכל בבקשה לחזור על מה שאמרת?" }]);
     }
     setChatLoading(false);
   };

@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Bot, User, Copy, Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { apiRequest } from "@/lib/queryClient";
 
 interface ChatMessage {
   role: "user" | "bot";
@@ -115,21 +114,32 @@ export function AiChatWidget() {
     setIsLoading(true);
     setHasGreeted(true);
     try {
-      const response = await apiRequest("POST", "/api/chat", {
-        message: "שלום, אני מתעניין בבניית אתר",
-        sessionId: null,
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: "שלום, אני מתעניין בבניית אתר",
+          sessionId: null,
+        }),
       });
       const data = await response.json();
-      setSessionId(data.sessionId);
-      setMessages([
-        { role: "user", content: "שלום, אני מתעניין בבניית אתר" },
-        { role: "bot", content: data.reply },
-      ]);
+      if (response.ok && data.reply) {
+        setSessionId(data.sessionId);
+        setMessages([
+          { role: "user", content: "שלום, אני מתעניין בבניית אתר" },
+          { role: "bot", content: data.reply },
+        ]);
+      } else {
+        const fallback = response.status === 429
+          ? "שלום! הסוכן שלנו עמוס כרגע. אנא נסה שוב בעוד כמה רגעים."
+          : "שלום! אני הסוכן של WEB13. ספר לי על העסק שלך ואני אעזור לך להגדיר את האתר המושלם.";
+        setMessages([{ role: "bot", content: fallback }]);
+      }
     } catch {
       setMessages([
         {
           role: "bot",
-          content: "שלום! 👋 אני הסוכן AI של WEB13. ספר לי על העסק שלך ואני אעזור לך להגדיר את האתר המושלם!",
+          content: "שלום! אני הסוכן של WEB13. ספר לי על העסק שלך ואני אעזור לך להגדיר את האתר המושלם.",
         },
       ]);
     }
@@ -146,17 +156,25 @@ export function AiChatWidget() {
     setIsLoading(true);
 
     try {
-      const response = await apiRequest("POST", "/api/chat", {
-        message: trimmed,
-        sessionId,
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: trimmed, sessionId }),
       });
       const data = await response.json();
-      if (!sessionId) setSessionId(data.sessionId);
-      setMessages((prev) => [...prev, { role: "bot", content: data.reply }]);
+      if (response.ok && data.reply) {
+        if (!sessionId) setSessionId(data.sessionId);
+        setMessages((prev) => [...prev, { role: "bot", content: data.reply }]);
+      } else {
+        const fallback = response.status === 429
+          ? "הסוכן שלנו עמוס כרגע. אנא נסה שוב בעוד כמה רגעים."
+          : "סליחה, הייתה תקלה קטנה. תוכל בבקשה לחזור על מה שאמרת?";
+        setMessages((prev) => [...prev, { role: "bot", content: fallback }]);
+      }
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "bot", content: "מצטער, נתקלתי בשגיאה. אנא נסה שוב." },
+        { role: "bot", content: "סליחה, הייתה תקלה קטנה. תוכל בבקשה לחזור על מה שאמרת?" },
       ]);
     }
     setIsLoading(false);
