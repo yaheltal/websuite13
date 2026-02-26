@@ -24,7 +24,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { insertContactSchema, type InsertContact } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
-import { Send, CheckCircle2, MessageSquare, Phone, Mail, Clock, Award } from "lucide-react";
+import { useLocation } from "wouter";
+import { Send, CheckCircle2, MessageSquare, Phone, Mail, Clock, Award, ArrowLeft, Sparkles, Zap, FileText } from "lucide-react";
 
 const serviceOptions = [
   { value: "business-card", label: "כרטיס ביקור דיגיטלי" },
@@ -35,6 +36,7 @@ const serviceOptions = [
 
 export function ContactSection() {
   const { toast } = useToast();
+  const [, navigate] = useLocation();
 
   const form = useForm<InsertContact>({
     resolver: zodResolver(insertContactSchema),
@@ -51,13 +53,6 @@ export function ContactSection() {
     mutationFn: async (data: InsertContact) => {
       const res = await apiRequest("POST", "/api/contact", data);
       return res.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "הודעה נשלחה בהצלחה!",
-        description: "נחזור אליכם בהקדם האפשרי",
-      });
-      form.reset();
     },
     onError: () => {
       toast({
@@ -105,24 +100,78 @@ export function ContactSection() {
             <div className="rounded-xl border border-border/50 bg-card p-6 md:p-8 shadow-sm">
               {mutation.isSuccess ? (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center justify-center py-12 text-center gap-4"
+                  className="flex flex-col items-center justify-center py-8 text-center"
                   data-testid="contact-success"
                 >
-                  <div className="w-16 h-16 rounded-full bg-sage/20 flex items-center justify-center">
-                    <CheckCircle2 className="w-8 h-8 text-sage-dark" />
-                  </div>
-                  <h3 className="text-xl font-extrabold text-charcoal">תודה על פנייתכם!</h3>
-                  <p className="text-charcoal-light">נחזור אליכם בהקדם האפשרי עם הצעה מותאמת</p>
-                  <Button
-                    variant="outline"
-                    onClick={() => mutation.reset()}
-                    className="border-copper/20 text-copper"
-                    data-testid="button-send-another"
+                  <motion.div
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.1, type: "spring", damping: 15 }}
+                    className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-5"
                   >
-                    שלחו הודעה נוספת
-                  </Button>
+                    <CheckCircle2 className="w-10 h-10 text-green-600" />
+                  </motion.div>
+
+                  <h3 className="text-2xl font-extrabold text-charcoal mb-2" data-testid="text-success-title">
+                    מעולה! קיבלנו את הפרטים שלך
+                  </h3>
+                  <p className="text-charcoal-light mb-6 max-w-sm mx-auto leading-relaxed">
+                    כדי לדלג על שיחות ההכרות ולקבל הצעת מחיר מותאמת תוך 24 שעות — המשיכו לשאלון הדיגיטלי וסוכן ה-AI שלנו.
+                  </p>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-gradient-to-br from-copper/[0.04] to-sand-light border-2 border-copper/20 rounded-2xl p-5 mb-6 w-full max-w-sm text-right"
+                  >
+                    <div className="space-y-3">
+                      {[
+                        { icon: Clock, text: "הצעה מותאמת תוך 24 שעות" },
+                        { icon: Zap, text: "הצוות מגיע מוכן עם פתרונות לעסק שלך" },
+                        { icon: FileText, text: "שאלון קצר — פחות מ-2 דקות" },
+                      ].map((item, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: 8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.4 + i * 0.1 }}
+                          className="flex items-center gap-3"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-copper/10 flex items-center justify-center flex-shrink-0">
+                            <item.icon className="w-4 h-4 text-copper" />
+                          </div>
+                          <span className="text-sm text-charcoal">{item.text}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
+                    className="flex flex-col items-center gap-3 w-full max-w-sm"
+                  >
+                    <Button
+                      onClick={() => navigate("/onboarding")}
+                      className="w-full bg-gradient-to-l from-copper to-copper-dark text-white px-8 py-6 text-lg font-bold rounded-2xl shadow-md hover:shadow-lg transition-shadow"
+                      data-testid="button-continue-onboarding"
+                    >
+                      <Sparkles className="w-5 h-5 ml-2" />
+                      בואו נתחיל עכשיו!
+                      <ArrowLeft className="w-5 h-5 mr-2" />
+                    </Button>
+                    <button
+                      onClick={() => mutation.reset()}
+                      className="text-sm text-charcoal-light hover:text-charcoal transition-colors"
+                      data-testid="button-send-another"
+                    >
+                      לא עכשיו, תודה
+                    </button>
+                  </motion.div>
                 </motion.div>
               ) : (
                 <Form {...form}>
