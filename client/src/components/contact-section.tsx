@@ -211,7 +211,7 @@ export function ContactSection() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>טלפון (אופציונלי)</FormLabel>
+                            <FormLabel>טלפון</FormLabel>
                             <FormControl>
                               <Input type="tel" placeholder="054-1234567" dir="ltr" {...field} value={field.value || ""} data-testid="input-phone" />
                             </FormControl>
