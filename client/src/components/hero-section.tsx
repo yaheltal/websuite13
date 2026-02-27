@@ -232,7 +232,7 @@ export function HeroSection() {
         <div
           ref={brandRef}
           dir="ltr"
-          className="mb-4 sm:mb-5 inline-flex items-end justify-center select-none"
+          className="mb-4 sm:mb-5 mt-6 sm:mt-8 inline-flex items-end justify-center select-none"
           style={{
             opacity: 0,
             perspective: "800px",
