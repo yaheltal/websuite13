@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/hero-section";
 import { ServicesSection } from "@/components/services-section";
 import { ScrollytellingSection } from "@/components/scrollytelling-section";
 import { ContactSection } from "@/components/contact-section";
+import { FaqSection } from "@/components/faq-section";
 import { Footer } from "@/components/footer";
 import { ScrollBackground } from "@/components/scroll-background";
 import { AiChatWidget } from "@/components/ai-chat-widget";
@@ -22,6 +23,7 @@ export default function Home() {
           <HeroSection />
           <ScrollytellingSection />
           <ServicesSection />
+          <FaqSection />
           <ContactSection />
         </main>
         <Footer />

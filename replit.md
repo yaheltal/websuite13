@@ -22,6 +22,7 @@ A premium boutique web agency portfolio site with "market disruptor" branding �
 - **Email Automation**: Triple-email system with 3-attempt retry logic: 1) Early lead notify when contact info entered, 2) Contact form immediate email, 3) Full onboarding brief. Subject: `[URGENT] New WebSuite Lead - [Name]`. WhatsApp fallback shown on 3x failure. All to WEBSUITE153@GMAIL.COM
 - **Browser Preview Modals**: Realistic browser window mockups for each service
 - **Scroll Background**: Scattered website mockup thumbnails with parallax depth
+- **FAQ Section**: Glassmorphism accordion with GSAP scroll-triggered stagger reveals, dark cinematic background with floating orbs, accessible (aria-expanded, aria-controls, role=region), RTL-native. Placed between Services and Contact sections.
 - **Floating Nav**: Bottom-centered capsule with "שאלון התאמה" button
 - **Contact Form**: Validated with Zod, persisted to PostgreSQL. Redirects to onboarding (no separate email)
 - **Responsive**: Mobile, tablet, desktop breakpoints
