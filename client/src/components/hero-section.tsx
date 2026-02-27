@@ -257,8 +257,8 @@ export function HeroSection() {
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
           }}>{t("hero.line1")}</span>
-          <span data-hero-line className="block overflow-hidden">{t("hero.line2")}</span>
-          <span data-hero-line className="block overflow-hidden">{t("hero.line3")}</span>
+          <span data-hero-line className="overflow-hidden inline">{t("hero.line2")}</span>{" "}
+          <span data-hero-line className="overflow-hidden inline">{t("hero.line3")}</span>
         </h1>
 
         <p
