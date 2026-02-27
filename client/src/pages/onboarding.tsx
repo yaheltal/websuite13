@@ -1007,12 +1007,34 @@ export default function Onboarding() {
               <p className="text-charcoal-light mb-2 max-w-md mx-auto leading-relaxed">
                 אנחנו כבר מתחילים לעבור על המידע. תקבלו מאיתנו הצעה מותאמת אישית תוך פחות מ-24 שעות.
               </p>
-              <Link href="/">
-                <Button variant="outline" className="mt-6" data-testid="button-back-home">
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                  חזרה לדף הבית
+              <div className="flex gap-3 justify-center mt-6">
+                <Link href="/">
+                  <Button variant="outline" data-testid="button-back-home">
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                    חזרה לדף הבית
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  data-testid="button-start-over"
+                  onClick={() => {
+                    clearStorage();
+                    setStep(0);
+                    setSelectedService("");
+                    setQuestionnaireData({});
+                    setOnboardingId(null);
+                    setChatMessages([]);
+                    setChatInput("");
+                    setChatSessionId(null);
+                    setChatComplete(false);
+                    setUploadedFiles([]);
+                    setCompleted(false);
+                    setLeadNotified(false);
+                  }}
+                >
+                  התחל שאלון חדש
                 </Button>
-              </Link>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
