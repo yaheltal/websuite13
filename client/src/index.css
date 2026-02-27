@@ -8,6 +8,17 @@ button, [role="button"], a {
   touch-action: manipulation;
 }
 
+button:hover,
+[role="button"]:hover,
+a.btn:hover,
+.btn-interactive:hover {
+  transform: scale(1.03) translateZ(0);
+  box-shadow:
+    0 4px 24px hsla(220, 80%, 55%, 0.18),
+    -2px 8px 16px hsla(260, 70%, 55%, 0.10);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
