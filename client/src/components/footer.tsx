@@ -1,5 +1,6 @@
 import { WebSuiteLogo } from "./websuite-logo";
 import { useI18n } from "@/lib/i18n";
+import { Link } from "wouter";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -103,19 +104,19 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5">
               <li>
-                <a href="#" className="text-sm text-charcoal-light hover:text-charcoal transition-colors" data-testid="link-footer-privacy">
+                <Link href="/legal/privacy" className="text-sm text-charcoal-light hover:text-charcoal transition-colors" data-testid="link-footer-privacy">
                   {t("footer.legal.privacy")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-charcoal-light hover:text-charcoal transition-colors" data-testid="link-footer-terms">
+                <Link href="/legal/terms" className="text-sm text-charcoal-light hover:text-charcoal transition-colors" data-testid="link-footer-terms">
                   {t("footer.legal.terms")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-charcoal-light hover:text-charcoal transition-colors" data-testid="link-footer-cookies">
+                <Link href="/legal/cookies" className="text-sm text-charcoal-light hover:text-charcoal transition-colors" data-testid="link-footer-cookies">
                   {t("footer.legal.cookies")}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
