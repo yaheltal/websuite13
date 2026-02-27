@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Layers, MessageCircle, X, ClipboardList } from "lucide-react";
+import { Home, Layers, MessageCircle, X, ClipboardList, MessageSquare } from "lucide-react";
 import { Link } from "wouter";
 import { WebSuiteLogo } from "./websuite-logo";
 import { useI18n } from "@/lib/i18n";
@@ -17,7 +17,7 @@ export function Navigation() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
   const [edgeHover, setEdgeHover] = useState(false);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -204,39 +204,53 @@ export function Navigation() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="glass-panel bg-card/90 border border-border/60 rounded-full shadow-lg flex items-center gap-1 p-1.5"
+              className="flex items-center gap-2"
             >
-              {navKeys.map((item) => {
-                const isActive = activeSection === item.href;
-                return (
-                  <button
-                    key={item.href}
-                    onClick={() => scrollToSection(item.href)}
-                    className={`relative w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      isActive ? "text-blue-400" : "text-charcoal-light"
-                    }`}
-                    style={isActive ? { background: "hsla(220, 80%, 55%, 0.1)" } : undefined}
-                    data-testid={`link-mobile-icon-${item.href.replace("#", "")}`}
-                  >
-                    <item.icon className="w-4 h-4" />
-                    {isActive && (
-                      <motion.div
-                        layoutId="mobile-nav-indicator"
-                        className="absolute inset-0 rounded-full"
-                        style={{ border: "1px solid hsla(220, 80%, 55%, 0.2)" }}
-                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-              <button
-                onClick={() => setIsMobileExpanded(true)}
-                className="w-11 h-11 rounded-full flex items-center justify-center p-1"
-                data-testid="button-mobile-menu"
+              <a
+                href="https://wa.me/972547966616?text=%D7%94%D7%99%D7%99%20%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A2%D7%9C%20%D7%94%D7%A9%D7%99%D7%A8%D7%95%D7%AA%D7%99%D7%9D%20%D7%A9%D7%9C%D7%9B%D7%9D"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-full px-5 py-3 shadow-lg text-white font-bold text-sm transition-all duration-300 hover:shadow-xl active:scale-95"
+                style={{ background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}
+                data-testid="button-mobile-whatsapp"
               >
-                <WebSuiteLogo size={32} gradientId="mobc" />
-              </button>
+                <MessageSquare className="w-4 h-4" />
+                <span>{lang === "he" ? "דברו איתנו בוואטסאפ!" : "Chat on WhatsApp!"}</span>
+              </a>
+
+              <div className="glass-panel bg-card/90 border border-border/60 rounded-full shadow-lg flex items-center gap-1 p-1.5">
+                {navKeys.map((item) => {
+                  const isActive = activeSection === item.href;
+                  return (
+                    <button
+                      key={item.href}
+                      onClick={() => scrollToSection(item.href)}
+                      className={`relative w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
+                        isActive ? "text-blue-400" : "text-charcoal-light"
+                      }`}
+                      style={isActive ? { background: "hsla(220, 80%, 55%, 0.1)" } : undefined}
+                      data-testid={`link-mobile-icon-${item.href.replace("#", "")}`}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      {isActive && (
+                        <motion.div
+                          layoutId="mobile-nav-indicator"
+                          className="absolute inset-0 rounded-full"
+                          style={{ border: "1px solid hsla(220, 80%, 55%, 0.2)" }}
+                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => setIsMobileExpanded(true)}
+                  className="w-11 h-11 rounded-full flex items-center justify-center p-1"
+                  data-testid="button-mobile-menu"
+                >
+                  <WebSuiteLogo size={32} gradientId="mobc" />
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
