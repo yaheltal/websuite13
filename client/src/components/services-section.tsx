@@ -16,17 +16,6 @@ import { ParallaxSection } from "@/components/floating-elements";
 
 const services = [
   {
-    id: "landing",
-    icon: Layout,
-    title: "דף נחיתה",
-    subtitle: "ממיר לידים ומכירות",
-    description: "דפי נחיתה מעוצבים עם מיקוד בהמרה גבוהה, מותאמים לכל מכשיר ומהירים ברמה שגוגל אוהב",
-    features: ["עיצוב ממוקד המרה", "מהירות טעינה מושלמת", "אופטימיזציית SEO מלאה", "מעקב ואנליטיקס"],
-    price: "החל מ-₪1,490",
-    tag: "הכי פופולרי",
-    serviceType: "landing" as const,
-  },
-  {
     id: "card",
     icon: Smartphone,
     title: "כרטיס ביקור דיגיטלי",
@@ -36,6 +25,17 @@ const services = [
     price: "החל מ-₪490",
     tag: "מחיר השקה",
     serviceType: "card" as const,
+  },
+  {
+    id: "landing",
+    icon: Layout,
+    title: "דף נחיתה",
+    subtitle: "ממיר לידים ומכירות",
+    description: "דפי נחיתה מעוצבים עם מיקוד בהמרה גבוהה, מותאמים לכל מכשיר ומהירים ברמה שגוגל אוהב",
+    features: ["עיצוב ממוקד המרה", "מהירות טעינה מושלמת", "אופטימיזציית SEO מלאה", "מעקב ואנליטיקס"],
+    price: "החל מ-₪1,490",
+    tag: "הכי פופולרי",
+    serviceType: "landing" as const,
   },
   {
     id: "ecommerce",
