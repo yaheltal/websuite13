@@ -5,12 +5,14 @@ import { Link } from "wouter";
 import { useI18n } from "@/lib/i18n";
 import { CodeRainBg } from "./code-rain-bg";
 
-const BRAND = "WebSuite";
+const BRAND_WEB = "Web";
+const BRAND_SUITE = "Suite";
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const brandRef = useRef<HTMLDivElement>(null);
   const brandCharsRef = useRef<(HTMLSpanElement | null)[]>([]);
+  const suitIconRef = useRef<SVGSVGElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
@@ -54,6 +56,11 @@ export function HeroSection() {
 
       gsap.set(brand, { opacity: 1 });
 
+      const suitIcon = suitIconRef.current;
+      if (suitIcon) {
+        gsap.set(suitIcon, { opacity: 0, scale: 0, rotateZ: -20 });
+      }
+
       tl.fromTo(bChars,
         {
           opacity: 0,
@@ -74,6 +81,16 @@ export function HeroSection() {
         },
         0
       );
+
+      if (suitIcon) {
+        tl.to(suitIcon, {
+          opacity: 1,
+          scale: 1,
+          rotateZ: 0,
+          duration: 0.7,
+          ease: "back.out(2.5)",
+        }, 0.2);
+      }
 
       tl.to(chars, {
         opacity: 1,
@@ -215,7 +232,7 @@ export function HeroSection() {
         <div
           ref={brandRef}
           dir="ltr"
-          className="mb-4 sm:mb-5 inline-flex justify-center select-none"
+          className="mb-4 sm:mb-5 inline-flex items-end justify-center select-none"
           style={{
             opacity: 0,
             perspective: "800px",
@@ -223,9 +240,9 @@ export function HeroSection() {
           }}
           data-testid="text-hero-brand"
         >
-          {BRAND.split("").map((char, i) => (
+          {BRAND_WEB.split("").map((char, i) => (
             <span
-              key={i}
+              key={`w${i}`}
               ref={(el) => { brandCharsRef.current[i] = el; }}
               className="font-black"
               style={{
@@ -239,7 +256,95 @@ export function HeroSection() {
                 backgroundClip: "text",
                 willChange: "transform, opacity",
                 transformStyle: "preserve-3d",
-                textShadow: "0 0 20px hsla(220, 80%, 60%, 0.15)",
+              }}
+            >
+              {char}
+            </span>
+          ))}
+
+          <svg
+            ref={suitIconRef}
+            viewBox="0 0 64 72"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="inline-block"
+            style={{
+              width: "clamp(2.2rem, 7.5vw, 5.2rem)",
+              height: "clamp(2.6rem, 8.5vw, 6rem)",
+              marginInline: "clamp(0.1rem, 0.5vw, 0.4rem)",
+              marginBottom: "clamp(0.15rem, 0.4vw, 0.35rem)",
+              willChange: "transform, opacity",
+              filter: "drop-shadow(0 0 12px hsla(220, 80%, 60%, 0.2))",
+            }}
+            aria-hidden="true"
+          >
+            <defs>
+              <linearGradient id="suit-grad" x1="0" y1="0" x2="64" y2="72" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="hsl(220, 85%, 65%)" />
+                <stop offset="50%" stopColor="hsl(250, 75%, 62%)" />
+                <stop offset="100%" stopColor="hsl(175, 80%, 52%)" />
+              </linearGradient>
+              <linearGradient id="suit-lapel" x1="20" y1="10" x2="44" y2="60" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="hsl(225, 80%, 72%)" />
+                <stop offset="100%" stopColor="hsl(260, 70%, 60%)" />
+              </linearGradient>
+            </defs>
+
+            <path
+              d="M20 4 L10 18 L6 72 L28 72 L32 52 L36 72 L58 72 L54 18 L44 4 Z"
+              fill="url(#suit-grad)"
+              opacity="0.9"
+            />
+
+            <path
+              d="M20 4 L10 18 L18 38 L32 20 Z"
+              fill="url(#suit-lapel)"
+              opacity="0.7"
+            />
+            <path
+              d="M44 4 L54 18 L46 38 L32 20 Z"
+              fill="url(#suit-lapel)"
+              opacity="0.7"
+            />
+
+            <path
+              d="M32 20 L28 28 L32 52 L36 28 Z"
+              fill="hsl(220, 70%, 50%)"
+              opacity="0.5"
+            />
+
+            <line x1="30" y1="28" x2="32" y2="24" stroke="hsl(175, 80%, 55%)" strokeWidth="2.5" strokeLinecap="round" />
+            <line x1="34" y1="28" x2="32" y2="24" stroke="hsl(175, 80%, 55%)" strokeWidth="2.5" strokeLinecap="round" />
+
+            <circle cx="32" cy="34" r="1.8" fill="hsl(175, 80%, 55%)" />
+            <circle cx="32" cy="42" r="1.8" fill="hsl(175, 80%, 55%)" />
+
+            <path
+              d="M20 4 Q24 0 32 0 Q40 0 44 4"
+              stroke="hsl(220, 70%, 78%)"
+              strokeWidth="2"
+              fill="none"
+              strokeLinecap="round"
+              opacity="0.6"
+            />
+          </svg>
+
+          {BRAND_SUITE.split("").map((char, i) => (
+            <span
+              key={`s${i}`}
+              ref={(el) => { brandCharsRef.current[BRAND_WEB.length + i] = el; }}
+              className="font-black"
+              style={{
+                display: "inline-block",
+                fontSize: "clamp(3rem, 10vw, 7rem)",
+                lineHeight: 1,
+                letterSpacing: "-0.03em",
+                background: "linear-gradient(135deg, hsl(220 80% 68%), hsl(260 72% 65%), hsl(175 80% 55%))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                willChange: "transform, opacity",
+                transformStyle: "preserve-3d",
               }}
             >
               {char}
