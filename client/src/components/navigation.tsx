@@ -63,7 +63,7 @@ export function Navigation() {
           opacity: isVisible ? 1 : 0,
         }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden md:block"
+        className="fixed bottom-6 left-0 right-0 z-50 hidden md:flex md:justify-center"
       >
         <div className="glass-panel bg-card/90 border border-border/60 rounded-full px-2 py-2 shadow-lg flex items-center gap-1">
           <button
