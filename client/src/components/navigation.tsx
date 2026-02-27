@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, Layers, MessageCircle, X, ClipboardList } from "lucide-react";
 import { Link } from "wouter";
+import { WebSuiteLogo } from "./websuite-logo";
 
 const navItems = [
   { label: "ראשי", href: "#hero", icon: Home },
@@ -68,7 +69,7 @@ export function Navigation() {
             className="flex items-center gap-1.5 pl-3 pr-1"
             data-testid="link-logo"
           >
-            <img src="/logo-w13.png" alt="WebSuite" className="w-7 h-7 object-contain" draggable={false} />
+            <WebSuiteLogo size={28} gradientId="nav" />
           </button>
 
           <div className="w-px h-6 bg-border/60 mx-1" />
@@ -134,7 +135,7 @@ export function Navigation() {
             >
               <div className="flex items-center justify-between mb-3 px-1">
                 <div className="flex items-center gap-2">
-                  <img src="/logo-w13.png" alt="WebSuite" className="w-7 h-7 object-contain" draggable={false} />
+                  <WebSuiteLogo size={28} gradientId="mob" />
                   <span className="text-sm font-extrabold tracking-tight" style={{ background: "linear-gradient(135deg, hsl(220 80% 60%), hsl(260 70% 60%), hsl(170 80% 50%))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
                     WebSuite
                   </span>
@@ -212,10 +213,10 @@ export function Navigation() {
               })}
               <button
                 onClick={() => setIsMobileExpanded(true)}
-                className="w-11 h-11 rounded-full flex items-center justify-center p-1.5"
+                className="w-11 h-11 rounded-full flex items-center justify-center p-1"
                 data-testid="button-mobile-menu"
               >
-                <img src="/logo-w13.png" alt="WebSuite" className="w-full h-full object-contain" draggable={false} />
+                <WebSuiteLogo size={32} gradientId="mobc" />
               </button>
             </motion.div>
           )}

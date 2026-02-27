@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { WebSuiteLogo } from "@/components/websuite-logo";
 import {
   Form,
   FormControl,
@@ -479,7 +480,7 @@ export default function Onboarding() {
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" data-testid="link-back-home">
             <div className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity select-none">
-              <img src="/logo-w13.png" alt="WebSuite" className="w-9 h-9 sm:w-10 sm:h-10 object-contain" draggable={false} />
+              <WebSuiteLogo size={40} gradientId="onb" className="w-9 h-9 sm:w-10 sm:h-10" />
               <span
                 className="text-lg font-extrabold tracking-tight"
                 style={{

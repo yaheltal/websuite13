@@ -1,18 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import { WebSuiteLogo } from "./websuite-logo";
 
 export function SiteHeader() {
   const headerRef = useRef<HTMLElement>(null);
   const logoContainerRef = useRef<HTMLDivElement>(null);
-  const logoImgRef = useRef<HTMLImageElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    const logoImg = logoImgRef.current;
     const textEl = textRef.current;
     const container = logoContainerRef.current;
-    if (!logoImg || !textEl || !container) return;
+    if (!textEl || !container) return;
 
     const originalText = textEl.textContent || "";
 
@@ -20,13 +19,6 @@ export function SiteHeader() {
       const tl = gsap.timeline({ delay: 0.3 });
 
       tl.to(container, { opacity: 1, duration: 0.01 }, 0);
-
-      tl.fromTo(
-        logoImg,
-        { scale: 0.6, opacity: 0, rotation: -15 },
-        { scale: 1, opacity: 1, rotation: 0, duration: 0.8, ease: "back.out(1.7)" },
-        0.2
-      );
 
       const textChars: HTMLSpanElement[] = [];
       textEl.textContent = "";
@@ -46,7 +38,7 @@ export function SiteHeader() {
         duration: 0.5,
         stagger: 0.04,
         ease: "power3.out",
-      }, 0.6);
+      }, 0.9);
     });
 
     return () => {
@@ -102,14 +94,7 @@ export function SiteHeader() {
           data-testid="header-logo"
         >
           <div className="flex items-center gap-2.5 sm:gap-3 select-none">
-            <img
-              ref={logoImgRef}
-              src="/logo-w13.png"
-              alt="WebSuite"
-              className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
-              style={{ opacity: 0 }}
-              draggable={false}
-            />
+            <WebSuiteLogo size={48} animate={true} gradientId="hdr" className="w-10 h-10 sm:w-12 sm:h-12" />
             <span
               ref={textRef}
               className="text-xl sm:text-2xl font-extrabold tracking-tight"
