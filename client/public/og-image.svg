@@ -1,65 +1,52 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
   <defs>
     <linearGradient id="bg-grad" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#0a0a12"/>
-      <stop offset="40%" stop-color="#0d0d1a"/>
-      <stop offset="100%" stop-color="#080814"/>
+      <stop offset="0%" stop-color="#06060e"/>
+      <stop offset="50%" stop-color="#0a0a16"/>
+      <stop offset="100%" stop-color="#060610"/>
     </linearGradient>
-    <linearGradient id="accent" x1="300" y1="150" x2="900" y2="480" gradientUnits="userSpaceOnUse">
+    <linearGradient id="accent" x1="300" y1="200" x2="900" y2="430" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="hsl(220,85%,62%)"/>
       <stop offset="45%" stop-color="hsl(265,75%,60%)"/>
       <stop offset="100%" stop-color="hsl(175,80%,50%)"/>
     </linearGradient>
-    <linearGradient id="text-grad" x1="200" y1="200" x2="1000" y2="400" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="hsl(225,85%,72%)"/>
-      <stop offset="50%" stop-color="hsl(260,78%,68%)"/>
-      <stop offset="100%" stop-color="hsl(180,75%,58%)"/>
+    <linearGradient id="text-grad" x1="350" y1="280" x2="850" y2="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="hsl(225,80%,78%)"/>
+      <stop offset="50%" stop-color="hsl(260,70%,75%)"/>
+      <stop offset="100%" stop-color="hsl(180,70%,65%)"/>
     </linearGradient>
-    <linearGradient id="logo-fill" x1="0" y1="0" x2="130" y2="130" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="hsl(225,85%,65%)"/>
-      <stop offset="50%" stop-color="hsl(260,78%,62%)"/>
-      <stop offset="100%" stop-color="hsl(180,75%,52%)"/>
+    <linearGradient id="logo-fill" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="hsl(225,80%,72%)"/>
+      <stop offset="50%" stop-color="hsl(260,70%,68%)"/>
+      <stop offset="100%" stop-color="hsl(180,70%,58%)"/>
     </linearGradient>
-    <linearGradient id="logo-stroke" x1="0" y1="0" x2="130" y2="130" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="hsl(220,85%,62%)"/>
-      <stop offset="45%" stop-color="hsl(265,75%,60%)"/>
-      <stop offset="100%" stop-color="hsl(175,80%,50%)"/>
+    <linearGradient id="logo-stroke" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="hsl(220,70%,55%)"/>
+      <stop offset="45%" stop-color="hsl(265,60%,52%)"/>
+      <stop offset="100%" stop-color="hsl(175,65%,45%)"/>
     </linearGradient>
-    <linearGradient id="glow" x1="400" y1="250" x2="800" y2="380" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="hsl(220,80%,55%)" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="hsl(175,80%,50%)" stop-opacity="0.08"/>
+    <linearGradient id="sub-grad" x1="400" y1="400" x2="800" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7a7a9a"/>
+      <stop offset="100%" stop-color="#8a8aaa"/>
     </linearGradient>
-    <filter id="blur-glow">
-      <feGaussianBlur stdDeviation="40"/>
-    </filter>
+    <radialGradient id="center-glow" cx="50%" cy="45%" r="35%">
+      <stop offset="0%" stop-color="hsl(250,60%,50%)" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="hsl(250,60%,50%)" stop-opacity="0"/>
+    </radialGradient>
   </defs>
 
   <rect width="1200" height="630" fill="url(#bg-grad)"/>
+  <rect width="1200" height="630" fill="url(#center-glow)"/>
 
-  <ellipse cx="600" cy="315" rx="350" ry="200" fill="url(#glow)" filter="url(#blur-glow)"/>
-
-  <rect x="40" y="40" width="1120" height="550" rx="20" stroke="url(#accent)" stroke-width="1.5" fill="none" opacity="0.2"/>
-
-  <g transform="translate(535, 100) scale(1.15)">
-    <rect x="8" y="8" width="104" height="104" rx="26" stroke="url(#logo-stroke)" stroke-width="3.5" fill="none"/>
-    <path d="M28 42 L40 82 L52 58 L64 82 L76 42" stroke="url(#logo-fill)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <g transform="translate(555, 145) scale(1.05)">
+    <rect x="8" y="8" width="104" height="104" rx="26" stroke="url(#logo-stroke)" stroke-width="2.5" fill="none" opacity="0.9"/>
+    <path d="M28 42 L40 82 L52 58 L64 82 L76 42" stroke="url(#logo-fill)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     <text x="95" y="58" font-size="16" font-weight="800" fill="url(#logo-fill)" text-anchor="middle" font-family="system-ui,sans-serif" letter-spacing="-0.5">1</text>
     <text x="95" y="82" font-size="22" font-weight="800" fill="url(#logo-fill)" text-anchor="middle" font-family="system-ui,sans-serif" letter-spacing="-0.5">3</text>
-    <circle cx="100" cy="24" r="5" fill="hsl(175,80%,50%)"/>
+    <circle cx="100" cy="24" r="4.5" fill="hsl(175,80%,50%)" opacity="0.9"/>
   </g>
 
-  <text x="600" y="310" font-size="72" font-weight="800" fill="url(#text-grad)" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="8">WebSuite</text>
+  <text x="600" y="345" font-size="56" font-weight="700" fill="url(#text-grad)" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="12">WebSuite</text>
 
-  <line x1="380" y1="340" x2="820" y2="340" stroke="url(#accent)" stroke-width="1" opacity="0.3"/>
-
-  <text x="600" y="385" font-size="22" font-weight="400" fill="#b0b0c8" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="1" direction="rtl" unicode-bidi="bidi-override">עיצוב ופיתוח אתרים פרימיום</text>
-
-  <text x="600" y="425" font-size="16" font-weight="400" fill="#8080a0" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="0.5">Premium Web Design &amp; Development</text>
-
-  <circle cx="100" cy="100" r="3" fill="hsl(220,80%,55%)" opacity="0.4"/>
-  <circle cx="200" cy="80" r="2" fill="hsl(260,70%,55%)" opacity="0.3"/>
-  <circle cx="1050" cy="150" r="2.5" fill="hsl(175,80%,50%)" opacity="0.35"/>
-  <circle cx="1100" cy="520" r="3" fill="hsl(220,80%,55%)" opacity="0.3"/>
-  <circle cx="150" cy="500" r="2" fill="hsl(260,70%,55%)" opacity="0.25"/>
-  <circle cx="950" cy="80" r="2" fill="hsl(220,80%,55%)" opacity="0.3"/>
+  <text x="600" y="395" font-size="15" font-weight="300" fill="url(#sub-grad)" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="4" opacity="0.7">PREMIUM WEB DESIGN</text>
 </svg>
