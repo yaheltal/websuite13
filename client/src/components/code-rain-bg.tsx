@@ -158,7 +158,7 @@ export function CodeRainBg() {
       lines.forEach((line) => {
         const el = document.createElement("div");
         el.textContent = line;
-        const brightness = 0.06 + Math.random() * 0.1;
+        const brightness = 0.1 + Math.random() * 0.12;
         el.style.cssText = `
           font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
           font-size: 10px;
