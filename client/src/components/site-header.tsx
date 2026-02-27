@@ -149,8 +149,9 @@ export function SiteHeader() {
           <div className="flex items-center gap-2.5 sm:gap-3 select-none">
             <WebSuiteLogo size={48} animate={true} gradientId="hdr" className="w-10 h-10 sm:w-12 sm:h-12" />
             <span
+              dir="ltr"
               className="font-extrabold tracking-tight inline-flex"
-              style={{ fontSize: "clamp(1.25rem, 2.5vw, 1.6rem)" }}
+              style={{ fontSize: "clamp(1.25rem, 2.5vw, 1.6rem)", unicodeBidi: "bidi-override", direction: "ltr" }}
               data-testid="text-brand-name"
               aria-label="WebSuite"
             >

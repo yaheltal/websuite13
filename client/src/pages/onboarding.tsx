@@ -516,12 +516,15 @@ export default function Onboarding() {
             <div className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity select-none">
               <WebSuiteLogo size={40} gradientId="onb" className="w-9 h-9 sm:w-10 sm:h-10" />
               <span
+                dir="ltr"
                 className="text-lg font-extrabold tracking-tight"
                 style={{
                   background: "linear-gradient(135deg, hsl(220 80% 60%), hsl(260 70% 60%), hsl(170 80% 50%))",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
+                  unicodeBidi: "bidi-override",
+                  direction: "ltr",
                 }}
               >
                 WebSuite

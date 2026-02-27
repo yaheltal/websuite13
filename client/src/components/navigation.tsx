@@ -141,7 +141,7 @@ export function Navigation() {
               <div className="flex items-center justify-between mb-3 px-1">
                 <div className="flex items-center gap-2">
                   <WebSuiteLogo size={28} gradientId="mob" />
-                  <span className="text-sm font-extrabold tracking-tight" style={{ background: "linear-gradient(135deg, hsl(220 80% 60%), hsl(260 70% 60%), hsl(170 80% 50%))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                  <span dir="ltr" className="text-sm font-extrabold tracking-tight" style={{ background: "linear-gradient(135deg, hsl(220 80% 60%), hsl(260 70% 60%), hsl(170 80% 50%))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", unicodeBidi: "bidi-override", direction: "ltr" }}>
                     WebSuite
                   </span>
                 </div>
