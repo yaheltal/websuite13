@@ -354,8 +354,7 @@ export function ContactSection() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-extrabold text-white text-lg mb-0.5">WhatsApp</h3>
-                    <p className="text-white/60 text-xs mb-2">{t("contact.whatsapp.subtitle")}</p>
-                    <span className="inline-block text-white/90 text-sm font-bold tracking-wider bg-white/10 rounded-lg px-3 py-1" dir="ltr">054-796-6616</span>
+                    <p className="text-white/60 text-xs">{t("contact.whatsapp.subtitle")}</p>
                   </div>
                   <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
                     <ArrowLeft className="w-4 h-4 text-white/80" />
@@ -380,8 +379,7 @@ export function ContactSection() {
                   </div>
                   <div>
                     <h3 className="font-extrabold text-white text-sm mb-0.5">{t("contact.phone")}</h3>
-                    <p className="text-white/50 text-[10px] mb-2">{t("contact.phone.subtitle")}</p>
-                    <span className="text-white/90 text-xs font-bold tracking-wide" dir="ltr">054-796-6616</span>
+                    <p className="text-white/50 text-[10px]">{t("contact.phone.subtitle")}</p>
                   </div>
                 </div>
               </a>
