@@ -160,6 +160,9 @@ export function ScrollytellingSection() {
         const innerCard = el.querySelector("[data-card-inner]") as HTMLElement;
         if (!innerCard) return;
 
+        el.style.willChange = 'transform';
+        innerCard.style.willChange = 'transform, filter';
+
         gsap.to(innerCard, {
           x: `+=${m.hoverDx * (i % 2 === 0 ? 1 : -1)}`,
           y: `+=${m.hoverDy * (i % 2 === 0 ? -1 : 1)}`,

@@ -123,6 +123,11 @@ export function FaqSection() {
     const faqItems = items.querySelectorAll(".faq-item");
 
     const ctx = gsap.context(() => {
+      header.style.willChange = 'transform, opacity';
+      faqItems.forEach((item) => {
+        (item as HTMLElement).style.willChange = 'transform, opacity';
+      });
+
       gsap.fromTo(
         header,
         { opacity: 0, y: 50 },
@@ -136,6 +141,7 @@ export function FaqSection() {
             start: "top 85%",
             toggleActions: "play none none none",
           },
+          onComplete: () => { header.style.willChange = 'auto'; },
         }
       );
 
@@ -155,6 +161,7 @@ export function FaqSection() {
               start: "top 88%",
               toggleActions: "play none none none",
             },
+            onComplete: () => { (item as HTMLElement).style.willChange = 'auto'; },
           }
         );
       });

@@ -181,6 +181,9 @@ export function CodeRainBg() {
     }
 
     const ctx = gsap.context(() => {
+      columns.forEach((column) => {
+        column.style.willChange = 'transform';
+      });
       columns.forEach((column, colIdx) => {
         const speed = isMobile ? (10 + Math.random() * 8) : (6 + Math.random() * 8);
         const totalH = column.scrollHeight;

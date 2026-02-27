@@ -106,6 +106,8 @@ export function HeroSection() {
     });
 
     const ctx = gsap.context(() => {
+      brand.style.willChange = 'transform, opacity';
+
       const tl = gsap.timeline({ delay: 0.15 });
 
       gsap.set(brand, { opacity: 1 });
