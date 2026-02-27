@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 interface FloatingElementProps {
   children: React.ReactNode;
@@ -9,32 +8,33 @@ interface FloatingElementProps {
 
 export function MouseTrackingElement({ children, className = "", sensitivity = 0.02 }: FloatingElementProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
+    if (window.innerWidth < 768) return;
+    const el = ref.current;
+    if (!el) return;
+
     const handleMouseMove = (e: MouseEvent) => {
-      if (!ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      const deltaX = (e.clientX - centerX) * sensitivity;
-      const deltaY = (e.clientY - centerY) * sensitivity;
-      setOffset({ x: deltaX, y: deltaY });
+      const dx = (e.clientX - centerX) * sensitivity;
+      const dy = (e.clientY - centerY) * sensitivity;
+      el.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [sensitivity]);
 
   return (
-    <motion.div
+    <div
       ref={ref}
       className={className}
-      animate={{ x: offset.x, y: offset.y }}
-      transition={{ type: "spring", stiffness: 50, damping: 20 }}
+      style={{ transition: "transform 0.3s ease-out", willChange: "transform" }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -85,31 +85,38 @@ export function ParallaxSection({
   speed?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [scrollY, setScrollY] = useState(0);
+  const innerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (window.innerWidth < 768) return;
+    const container = ref.current;
+    const inner = innerRef.current;
+    if (!container || !inner) return;
+
+    let rafId: number;
     const handleScroll = () => {
-      if (!ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const viewportCenter = window.innerHeight / 2;
-      const elementCenter = rect.top + rect.height / 2;
-      const distance = elementCenter - viewportCenter;
-      setScrollY(distance * speed);
+      rafId = requestAnimationFrame(() => {
+        const rect = container.getBoundingClientRect();
+        const viewportCenter = window.innerHeight / 2;
+        const elementCenter = rect.top + rect.height / 2;
+        const distance = elementCenter - viewportCenter;
+        inner.style.transform = `translate3d(0, ${distance * speed}px, 0)`;
+      });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      cancelAnimationFrame(rafId);
+    };
   }, [speed]);
 
   return (
     <div ref={ref} className={className}>
-      <motion.div
-        style={{ y: scrollY }}
-        transition={{ type: "tween", duration: 0 }}
-      >
+      <div ref={innerRef} style={{ willChange: "transform" }}>
         {children}
-      </motion.div>
+      </div>
     </div>
   );
 }

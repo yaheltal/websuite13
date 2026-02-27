@@ -114,7 +114,11 @@ const CODE_SNIPPETS = [
   'crypto.randomUUID()',
 ];
 
-const COLUMN_COUNT = 20;
+const DESKTOP_COLUMNS = 20;
+const MOBILE_COLUMNS = 8;
+const MOBILE_LINES = 18;
+const DESKTOP_LINES_MIN = 30;
+const DESKTOP_LINES_EXTRA = 15;
 
 function shuffleArray<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -132,24 +136,28 @@ export function CodeRainBg() {
     const container = containerRef.current;
     if (!container) return;
 
+    const isMobile = window.innerWidth < 768;
+    const colCount = isMobile ? MOBILE_COLUMNS : DESKTOP_COLUMNS;
+
     const columns: HTMLDivElement[] = [];
 
-    for (let col = 0; col < COLUMN_COUNT; col++) {
+    for (let col = 0; col < colCount; col++) {
       const column = document.createElement("div");
       column.style.cssText = `
         position: absolute;
         top: 0;
-        left: ${(col / COLUMN_COUNT) * 100}%;
-        width: ${100 / COLUMN_COUNT}%;
+        left: ${(col / colCount) * 100}%;
+        width: ${100 / colCount}%;
         display: flex;
         flex-direction: column;
         gap: 3px;
         padding: 0 4px;
         white-space: nowrap;
         overflow: hidden;
+        will-change: transform;
       `;
 
-      const lineCount = 30 + Math.floor(Math.random() * 15);
+      const lineCount = isMobile ? MOBILE_LINES : DESKTOP_LINES_MIN + Math.floor(Math.random() * DESKTOP_LINES_EXTRA);
       const lines = shuffleArray(CODE_SNIPPETS).slice(0, Math.min(lineCount, CODE_SNIPPETS.length));
       while (lines.length < lineCount) {
         lines.push(...shuffleArray(CODE_SNIPPETS).slice(0, lineCount - lines.length));
@@ -174,7 +182,7 @@ export function CodeRainBg() {
 
     const ctx = gsap.context(() => {
       columns.forEach((column, colIdx) => {
-        const speed = 6 + Math.random() * 8;
+        const speed = isMobile ? (10 + Math.random() * 8) : (6 + Math.random() * 8);
         const totalH = column.scrollHeight;
         const startDelay = colIdx * 0.15 + Math.random() * 0.3;
         const direction = colIdx % 3 === 0 ? 1 : -1;
@@ -187,6 +195,7 @@ export function CodeRainBg() {
             ease: "none",
             repeat: -1,
             delay: startDelay,
+            force3D: true,
           });
         } else {
           gsap.set(column, { y: -totalH / 2 });
@@ -196,6 +205,7 @@ export function CodeRainBg() {
             ease: "none",
             repeat: -1,
             delay: startDelay,
+            force3D: true,
           });
         }
       });

@@ -102,7 +102,8 @@ function generateMockups(count: number): FloatingMockup[] {
   });
 }
 
-const MOCKUPS = generateMockups(25);
+const ALL_MOCKUPS = generateMockups(25);
+const MOBILE_MOCKUP_COUNT = 10;
 
 const BG_COLORS = [
   { r: 15, g: 10, b: 40 },
@@ -121,6 +122,9 @@ export function ScrollytellingSection() {
     title: t(`story.${key}.title`),
     text: t(`story.${key}.text`),
   }));
+
+  const isMobileInit = typeof window !== "undefined" && window.innerWidth < 768;
+  const MOCKUPS = isMobileInit ? ALL_MOCKUPS.slice(0, MOBILE_MOCKUP_COUNT) : ALL_MOCKUPS;
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
@@ -405,8 +409,7 @@ export function ScrollytellingSection() {
         data-testid="floating-gallery"
       >
         {MOCKUPS.map((m, i) => {
-          const isMobileWidth = typeof window !== "undefined" && window.innerWidth < 768;
-          const mobileScale = isMobileWidth ? 0.55 : 1;
+          const mobileScale = isMobileInit ? 0.55 : 1;
           return (
             <div
               key={m.id}
@@ -447,20 +450,23 @@ export function ScrollytellingSection() {
                   </div>
                 </div>
                 <img
-                  src={m.src}
+                  src={isMobileInit ? m.src.replace("w=500&h=340", "w=300&h=200") : m.src}
                   alt=""
                   loading="lazy"
+                  decoding="async"
                   className="w-full aspect-[3/2] object-cover"
                   style={{ display: "block" }}
                 />
-                <div
-                  ref={(el) => { glareRefs.current[i] = el; }}
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    background: "linear-gradient(120deg, rgba(255,255,255,0.12) 0%, transparent 50%, rgba(255,255,255,0.04) 100%)",
-                    mixBlendMode: "overlay",
-                  }}
-                />
+                {!isMobileInit && (
+                  <div
+                    ref={(el) => { glareRefs.current[i] = el; }}
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: "linear-gradient(120deg, rgba(255,255,255,0.12) 0%, transparent 50%, rgba(255,255,255,0.04) 100%)",
+                      mixBlendMode: "overlay",
+                    }}
+                  />
+                )}
               </div>
             </div>
           );

@@ -181,10 +181,11 @@ export function HeroSection() {
         );
       }
 
+      const isMobile = window.innerWidth < 768;
       const runShimmer = () => {
         const stl = gsap.timeline({
           onComplete: () => {
-            shimmerRef.current = gsap.delayedCall(4, runShimmer);
+            shimmerRef.current = gsap.delayedCall(isMobile ? 8 : 4, runShimmer);
           },
         });
 
