@@ -178,7 +178,7 @@ export function SiteHeader() {
 
         <button
           onClick={toggleLang}
-          className="pointer-events-auto flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95"
+          className="pointer-events-auto flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold"
           style={{
             background: "hsla(260, 30%, 15%, 0.6)",
             backdropFilter: "blur(12px)",
