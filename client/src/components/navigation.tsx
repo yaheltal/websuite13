@@ -16,7 +16,17 @@ export function Navigation() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
+  const [edgeHover, setEdgeHover] = useState(false);
   const { t } = useI18n();
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const nearEdge = e.clientX > window.innerWidth - 60;
+      setEdgeHover(nearEdge);
+    };
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,8 +69,8 @@ export function Navigation() {
         data-testid="navigation-bar"
         initial={{ x: 80, opacity: 0 }}
         animate={{
-          x: isVisible ? 0 : 80,
-          opacity: isVisible ? 1 : 0,
+          x: (isVisible || edgeHover) ? 0 : 80,
+          opacity: (isVisible || edgeHover) ? 1 : 0,
         }}
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:block"
