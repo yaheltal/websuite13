@@ -1,11 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3b6de0"/>
-      <stop offset="100%" style="stop-color:#5b3dbf"/>
+    <linearGradient id="g" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4776E6"/>
+      <stop offset="1" stop-color="#8E54E9"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
-  <text x="32" y="28" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="800" font-size="16" letter-spacing="-0.5">W</text>
-  <text x="32" y="50" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="800" font-size="20" letter-spacing="-0.5">13</text>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <g fill="#fff" fill-rule="evenodd">
+    <path d="M148 130 h44 v188 h-44 v-152 l-28 18 v-40z"/>
+    <path d="M240 200 q0-70 72-70 q72 0 72 62 q0 32-24 46 q28 12 28 52 q0 68-76 68 q-76 0-76-52h44 q0 20 32 20 q28 0 28-28 q0-32-32-32h-16 v-36h20 q28 0 28-26 q0-30-28-30 q-28 0-28 26h-44z"/>
+  </g>
 </svg>
