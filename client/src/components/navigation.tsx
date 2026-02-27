@@ -68,13 +68,7 @@ export function Navigation() {
             className="flex items-center gap-1.5 pl-3 pr-1"
             data-testid="link-logo"
           >
-            <svg viewBox="0 0 48 48" className="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="WEB13">
-              <rect x="2" y="2" width="44" height="44" rx="12" stroke="url(#nav-lg)" strokeWidth="2.5"/>
-              <path d="M14 18 L18 30 L22 22 L26 30 L30 18" stroke="url(#nav-lg)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <text x="34" y="31" fontSize="14" fontWeight="800" fill="url(#nav-lg)" textAnchor="middle" fontFamily="Assistant,sans-serif">13</text>
-              <circle cx="38" cy="12" r="3" fill="hsl(170 80% 50%)"/>
-              <defs><linearGradient id="nav-lg" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse"><stop stopColor="hsl(220 80% 65%)"/><stop offset=".5" stopColor="hsl(260 70% 65%)"/><stop offset="1" stopColor="hsl(170 80% 50%)"/></linearGradient></defs>
-            </svg>
+            <img src="/logo-w13.png" alt="WEB13" className="w-7 h-7 object-contain" draggable={false} />
           </button>
 
           <div className="w-px h-6 bg-border/60 mx-1" />
@@ -140,13 +134,7 @@ export function Navigation() {
             >
               <div className="flex items-center justify-between mb-3 px-1">
                 <div className="flex items-center gap-2">
-                  <svg viewBox="0 0 48 48" className="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="WEB13">
-                    <rect x="2" y="2" width="44" height="44" rx="12" stroke="url(#mob-lg)" strokeWidth="2.5"/>
-                    <path d="M14 18 L18 30 L22 22 L26 30 L30 18" stroke="url(#mob-lg)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    <text x="34" y="31" fontSize="14" fontWeight="800" fill="url(#mob-lg)" textAnchor="middle" fontFamily="Assistant,sans-serif">13</text>
-                    <circle cx="38" cy="12" r="3" fill="hsl(170 80% 50%)"/>
-                    <defs><linearGradient id="mob-lg" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse"><stop stopColor="hsl(220 80% 65%)"/><stop offset=".5" stopColor="hsl(260 70% 65%)"/><stop offset="1" stopColor="hsl(170 80% 50%)"/></linearGradient></defs>
-                  </svg>
+                  <img src="/logo-w13.png" alt="WEB13" className="w-7 h-7 object-contain" draggable={false} />
                   <span className="text-sm font-extrabold tracking-tight" style={{ background: "linear-gradient(135deg, hsl(220 80% 60%), hsl(260 70% 60%), hsl(170 80% 50%))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
                     WEB13
                   </span>
@@ -224,14 +212,10 @@ export function Navigation() {
               })}
               <button
                 onClick={() => setIsMobileExpanded(true)}
-                className="w-11 h-11 rounded-full flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))" }}
+                className="w-11 h-11 rounded-full flex items-center justify-center p-1.5"
                 data-testid="button-mobile-menu"
               >
-                <svg viewBox="0 0 48 48" className="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M14 18 L18 30 L22 22 L26 30 L30 18" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                  <text x="34" y="31" fontSize="14" fontWeight="800" fill="white" textAnchor="middle" fontFamily="Assistant,sans-serif">13</text>
-                </svg>
+                <img src="/logo-w13.png" alt="WEB13" className="w-full h-full object-contain" draggable={false} />
               </button>
             </motion.div>
           )}
