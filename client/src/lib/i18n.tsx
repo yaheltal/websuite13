@@ -122,7 +122,7 @@ const translations: Record<Lang, Record<string, string>> = {
     "contact.email.subtitle": "נחזור אליכם תוך 24 שעות",
     "contact.why": "למה WebSuite?",
     "contact.why.1": "איכות בוטיק במחירים תחרותיים",
-    "contact.why.2": "8+ שנות ניסיון בפיתוח",
+    "contact.why.2": "6+ שנות ניסיון בפיתוח",
     "contact.why.3": "100+ פרויקטים שהושלמו בהצלחה",
     "contact.why.4": "תמיכה טכנית צמודה אחרי ההשקה",
 
@@ -257,7 +257,7 @@ const translations: Record<Lang, Record<string, string>> = {
     "contact.email.subtitle": "Response guaranteed within 24 hours",
     "contact.why": "The WebSuite Advantage",
     "contact.why.1": "Boutique craftsmanship at competitive rates",
-    "contact.why.2": "Over 8 years of hands-on expertise",
+    "contact.why.2": "Over 6 years of hands-on expertise",
     "contact.why.3": "100+ projects delivered successfully",
     "contact.why.4": "Dedicated post-launch partnership & support",
 

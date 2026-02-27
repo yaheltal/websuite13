@@ -470,7 +470,7 @@ export function HeroSection() {
         >
           {[
             { value: "100+", label: t("hero.stat.projects") },
-            { value: "8+", label: t("hero.stat.experience") },
+            { value: "6+", label: t("hero.stat.experience") },
             { value: "98%", label: t("hero.stat.satisfaction") },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
