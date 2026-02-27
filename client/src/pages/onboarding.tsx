@@ -237,27 +237,56 @@ export default function Onboarding() {
     },
   });
 
+  const stateRef = useRef({
+    step, selectedService, questionnaireData, onboardingId,
+    chatMessages, chatSessionId, chatComplete, uploadedFiles,
+    completed, leadNotified,
+  });
+
+  useEffect(() => {
+    stateRef.current = {
+      step, selectedService, questionnaireData, onboardingId,
+      chatMessages, chatSessionId, chatComplete, uploadedFiles,
+      completed, leadNotified,
+    };
+  });
+
   const persistState = useCallback(() => {
+    const s = stateRef.current;
     const contactValues = contactForm.getValues();
     saveToStorage({
-      step,
-      selectedService,
-      questionnaireData,
-      onboardingId,
-      chatMessages,
-      chatSessionId,
-      chatComplete,
-      uploadedFiles,
-      completed,
-      leadNotified,
+      step: s.step,
+      selectedService: s.selectedService,
+      questionnaireData: s.questionnaireData,
+      onboardingId: s.onboardingId,
+      chatMessages: s.chatMessages,
+      chatSessionId: s.chatSessionId,
+      chatComplete: s.chatComplete,
+      uploadedFiles: s.uploadedFiles,
+      completed: s.completed,
+      leadNotified: s.leadNotified,
       contactName: contactValues.name,
       contactEmail: contactValues.email,
       contactPhone: contactValues.phone,
     });
-  }, [step, selectedService, questionnaireData, onboardingId, chatMessages, chatSessionId, chatComplete, uploadedFiles, completed, leadNotified, contactForm]);
+  }, [contactForm]);
 
   useEffect(() => {
     persistState();
+  }, [step, selectedService, questionnaireData, onboardingId, chatMessages, chatSessionId, chatComplete, uploadedFiles, completed, leadNotified, persistState]);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => persistState();
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [persistState]);
+
+  useEffect(() => {
+    const handleVisChange = () => {
+      if (document.visibilityState === "hidden") persistState();
+    };
+    document.addEventListener("visibilitychange", handleVisChange);
+    return () => document.removeEventListener("visibilitychange", handleVisChange);
   }, [persistState]);
 
   const hasShownWelcomeBack = useRef(false);
@@ -291,6 +320,7 @@ export default function Onboarding() {
   const handleServiceSelect = (serviceId: string) => {
     setSelectedService(serviceId);
     setStep(1);
+    saveToStorage({ selectedService: serviceId, step: 1 });
   };
 
   const handleContactSubmit = async () => {
@@ -316,10 +346,12 @@ export default function Onboarding() {
     }
 
     setStep(2);
+    saveToStorage({ step: 2, leadNotified: true });
   };
 
   const handleStartQuestionnaire = () => {
     setStep(3);
+    saveToStorage({ step: 3 });
   };
 
   const handleQuestionnaireSubmit = async () => {
@@ -345,6 +377,7 @@ export default function Onboarding() {
       const newId = data.id;
       setOnboardingId(newId);
       setStep(4);
+      saveToStorage({ step: 4, onboardingId: newId });
       startAiChat(newId);
     } catch {
       toast({ title: "שגיאה", description: "משהו השתבש, נסה שוב", variant: "destructive" });
@@ -429,6 +462,7 @@ export default function Onboarding() {
   const handleSkipChat = () => {
     setChatComplete(true);
     setStep(5);
+    saveToStorage({ chatComplete: true, step: 5 });
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
