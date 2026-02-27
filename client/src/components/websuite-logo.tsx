@@ -22,7 +22,7 @@ export function WebSuiteLogo({
     const svg = svgRef.current;
     const frame = svg.querySelector("[data-logo-frame]") as SVGRectElement;
     const wPath = svg.querySelector("[data-logo-w]") as SVGPathElement;
-    const oneThree = svg.querySelectorAll("[data-logo-digit]");
+    const digits = svg.querySelectorAll("[data-logo-digit]");
     const dot = svg.querySelector("[data-logo-dot]") as SVGCircleElement;
     const glow = svg.querySelector("[data-logo-glow]") as SVGRectElement;
 
@@ -46,7 +46,7 @@ export function WebSuiteLogo({
         strokeDashoffset: wLen,
         opacity: 1,
       });
-      gsap.set(oneThree, { opacity: 0, y: 6 });
+      gsap.set(digits, { opacity: 0, y: 6 });
       if (dot) gsap.set(dot, { opacity: 0, scale: 0, transformOrigin: "center" });
       if (glow) gsap.set(glow, { opacity: 0 });
 
@@ -66,7 +66,7 @@ export function WebSuiteLogo({
         ease: "power2.out",
       }, 0.35);
 
-      tl.to(oneThree, {
+      tl.to(digits, {
         opacity: 1,
         y: 0,
         duration: 0.35,
@@ -101,7 +101,7 @@ export function WebSuiteLogo({
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       style={animate ? { opacity: 0 } : undefined}
-      aria-label="WebSuite Logo"
+      aria-label="WebSuite W13 Logo"
       role="img"
     >
       <defs>
@@ -110,7 +110,7 @@ export function WebSuiteLogo({
           <stop offset="45%" stopColor="hsl(265, 75%, 60%)" />
           <stop offset="100%" stopColor="hsl(175, 80%, 50%)" />
         </linearGradient>
-        <linearGradient id={g2} x1="20" y1="30" x2="100" y2="95" gradientUnits="userSpaceOnUse">
+        <linearGradient id={g2} x1="10" y1="35" x2="110" y2="85" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="hsl(225, 85%, 65%)" />
           <stop offset="50%" stopColor="hsl(260, 78%, 62%)" />
           <stop offset="100%" stopColor="hsl(180, 75%, 52%)" />
@@ -138,9 +138,9 @@ export function WebSuiteLogo({
 
       <path
         data-logo-w
-        d="M28 42 L40 82 L52 58 L64 82 L76 42"
+        d="M18 40 L30 80 L42 56 L54 80 L66 40"
         stroke={`url(#${g2})`}
-        strokeWidth="5.5"
+        strokeWidth="5"
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
@@ -148,33 +148,36 @@ export function WebSuiteLogo({
 
       <text
         data-logo-digit
-        x="95" y="58"
-        fontSize="16"
+        x="80"
+        y="76"
+        fontSize="32"
         fontWeight="800"
         fill={`url(#${g2})`}
         textAnchor="middle"
         fontFamily="Assistant, system-ui, sans-serif"
-        letterSpacing="-0.5"
+        dominantBaseline="alphabetic"
       >
         1
       </text>
+
       <text
         data-logo-digit
-        x="95" y="82"
-        fontSize="22"
+        x="102"
+        y="76"
+        fontSize="32"
         fontWeight="800"
         fill={`url(#${g2})`}
         textAnchor="middle"
         fontFamily="Assistant, system-ui, sans-serif"
-        letterSpacing="-0.5"
+        dominantBaseline="alphabetic"
       >
         3
       </text>
 
       <circle
         data-logo-dot
-        cx="100" cy="24"
-        r="5"
+        cx="108" cy="28"
+        r="4.5"
         fill="hsl(175, 80%, 50%)"
       />
     </svg>
