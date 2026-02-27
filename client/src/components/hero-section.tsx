@@ -415,14 +415,14 @@ export function HeroSection() {
           style={{ fontSize: "clamp(2.2rem, 6vw, 5rem)" }}
           data-testid="text-hero-title"
         >
-          <span data-hero-line className="block overflow-hidden" style={{
+          <span data-hero-line className="block" style={{
             background: "linear-gradient(135deg, hsl(220 80% 65%), hsl(260 70% 60%), hsl(170 80% 50%))",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
           }}>{t("hero.line1")}</span>
-          <span data-hero-line className="overflow-hidden inline">{t("hero.line2")}</span>{" "}
-          <span data-hero-line className="overflow-hidden inline">{t("hero.line3")}</span>
+          <span data-hero-line className="inline">{t("hero.line2")}</span>{" "}
+          <span data-hero-line className="inline">{t("hero.line3")}</span>
         </h1>
 
         <p
