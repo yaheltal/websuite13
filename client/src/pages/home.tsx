@@ -1,4 +1,5 @@
 import { Navigation } from "@/components/navigation";
+import { SiteHeader } from "@/components/site-header";
 import { HeroSection } from "@/components/hero-section";
 import { ServicesSection } from "@/components/services-section";
 import { ScrollytellingSection } from "@/components/scrollytelling-section";
@@ -25,6 +26,7 @@ export default function Home() {
         </main>
         <Footer />
       </div>
+      <SiteHeader />
       <AiChatWidget />
     </div>
   );

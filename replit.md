@@ -12,8 +12,9 @@ A premium boutique web agency portfolio site with "market disruptor" branding �
 - **Uploads**: Multer for file uploads (logos, brand assets)
 
 ## Key Features
-- **Boutique Aesthetic**: Soft Sand, Muted Sage, Warm Off-White with Charcoal text and Copper accents
+- **Boutique Aesthetic**: Deep blues, purples, with cyan/emerald accents; charcoal text on light sections, white text on dark sections
 - **RTL Hebrew Support**: Full right-to-left layout with Assistant font
+- **Fixed Site Header**: SVG logo with GSAP stroke-draw animation (strokeDasharray reveal), char-level text stagger, 3D tilt on hover, dark gradient backdrop, z-index 999. Logo uses blue/purple/cyan gradient. Clear code comments for future logo replacement
 - **Scrollytelling Section**: Cinematic immersive section with deep violet/midnight-blue animated background (glowing orbs, scroll-driven color shifting), 25 floating 3D parallax website mockup cards with: continuous ambient hover animation (GSAP yoyo repeat:-1), depth-of-field blur (back-layer blurred, front sharp, scroll-animated focus transitions), translate3d parallax with z-depth, interactive mouse tracking (cards tilt opposite cursor on desktop), glass glare overlay that sweeps on scroll, scroll-velocity skewY distortion, word-level stagger text reveals, dark glassmorphism text containers with white text
 - **Onboarding Funnel**: 7-step flow: Service Selection → Contact Info (lead capture) → Incentive Hook → Questionnaire → AI Chat → File Upload → Summary
 - **AI Sales Agent (Gemini)**: Short, focused sales agent that asks one question at a time, never shows code/prompts to client. Uses <<COLLECTION_COMPLETE>> marker for auto-completion

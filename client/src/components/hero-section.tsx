@@ -6,7 +6,6 @@ import { Link } from "wouter";
 export function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const logoRef = useRef<HTMLDivElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
@@ -40,31 +39,22 @@ export function HeroSection() {
     });
 
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ delay: 0.2 });
-
-      if (logoRef.current) {
-        tl.fromTo(
-          logoRef.current,
-          { opacity: 0, scale: 0.7, y: 20 },
-          { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "back.out(1.7)" },
-          0
-        );
-      }
+      const tl = gsap.timeline({ delay: 0.3 });
 
       tl.to(chars, {
         opacity: 1,
         y: 0,
-        duration: 0.5,
+        duration: 0.6,
         stagger: 0.02,
         ease: "power3.out",
-      }, 0.3);
+      }, 0);
 
       if (subtitleRef.current) {
         tl.fromTo(
           subtitleRef.current,
           { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
-          "-=0.3"
+          { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" },
+          "-=0.2"
         );
       }
 
@@ -72,7 +62,7 @@ export function HeroSection() {
         tl.fromTo(
           ctaRef.current,
           { opacity: 0, y: 25 },
-          { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
+          { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" },
           "-=0.4"
         );
       }
@@ -106,7 +96,7 @@ export function HeroSection() {
             height: "min(700px, 80vw)",
             top: "10%",
             right: "-10%",
-            background: "radial-gradient(circle, hsla(28, 65%, 55%, 0.08) 0%, hsla(28, 60%, 48%, 0.02) 50%, transparent 70%)",
+            background: "radial-gradient(circle, hsla(220, 70%, 55%, 0.08) 0%, hsla(260, 60%, 48%, 0.02) 50%, transparent 70%)",
             filter: "blur(60px)",
             animation: "heroFloat 12s ease-in-out infinite",
           }}
@@ -118,7 +108,7 @@ export function HeroSection() {
             height: "min(500px, 60vw)",
             bottom: "5%",
             left: "-5%",
-            background: "radial-gradient(circle, hsla(140, 15%, 70%, 0.07) 0%, hsla(140, 12%, 78%, 0.02) 50%, transparent 70%)",
+            background: "radial-gradient(circle, hsla(170, 60%, 50%, 0.06) 0%, hsla(170, 50%, 60%, 0.02) 50%, transparent 70%)",
             filter: "blur(50px)",
             animation: "heroFloat 15s ease-in-out infinite reverse",
           }}
@@ -130,7 +120,7 @@ export function HeroSection() {
             height: "min(350px, 45vw)",
             top: "40%",
             left: "30%",
-            background: "radial-gradient(circle, hsla(28, 50%, 60%, 0.05) 0%, transparent 60%)",
+            background: "radial-gradient(circle, hsla(260, 50%, 60%, 0.05) 0%, transparent 60%)",
             filter: "blur(40px)",
             animation: "heroFloat 18s ease-in-out infinite 3s",
           }}
@@ -145,20 +135,6 @@ export function HeroSection() {
       />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div
-          ref={logoRef}
-          className="flex items-center justify-center gap-3 mb-10"
-          style={{ opacity: 0 }}
-          data-testid="link-logo"
-        >
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center shadow-md">
-            <span className="text-lg md:text-xl font-extrabold text-white">13</span>
-          </div>
-          <span className="text-2xl md:text-3xl font-extrabold tracking-tight text-charcoal">
-            WEB<span className="text-copper">13</span>
-          </span>
-        </div>
-
         <h1
           ref={titleRef}
           className="font-extrabold leading-[1.08] mb-6 text-charcoal"
@@ -166,7 +142,12 @@ export function HeroSection() {
           data-testid="text-hero-title"
         >
           <span data-hero-line className="block overflow-hidden">שוברים את השוק:</span>
-          <span data-hero-line className="block overflow-hidden text-copper">אתרים בוטיק</span>
+          <span data-hero-line className="block overflow-hidden" style={{
+            background: "linear-gradient(135deg, hsl(220 80% 65%), hsl(260 70% 60%), hsl(170 80% 50%))",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}>אתרים בוטיק</span>
           <span data-hero-line className="block overflow-hidden">במחירים שלא מאמינים</span>
         </h1>
 
@@ -188,7 +169,10 @@ export function HeroSection() {
           <Link href="/onboarding">
             <Button
               size="lg"
-              className="bg-gradient-to-l from-copper to-copper-dark text-white font-extrabold text-base px-8 py-3 min-h-[48px] border-0 shadow-lg w-full sm:w-auto"
+              className="text-white font-extrabold text-base px-8 py-3 min-h-[48px] border-0 shadow-lg w-full sm:w-auto"
+              style={{
+                background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))",
+              }}
               data-testid="button-hero-cta"
             >
               התחילו שאלון התאמה
@@ -216,7 +200,12 @@ export function HeroSection() {
             { value: "98%", label: "שביעות רצון" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
-              <p className="text-2xl md:text-3xl font-extrabold text-copper">{stat.value}</p>
+              <p className="text-2xl md:text-3xl font-extrabold" style={{
+                background: "linear-gradient(135deg, hsl(220 80% 65%), hsl(170 80% 50%))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}>{stat.value}</p>
               <p className="text-xs text-charcoal-light mt-0.5">{stat.label}</p>
             </div>
           ))}
