@@ -114,7 +114,7 @@ const CODE_SNIPPETS = [
   'crypto.randomUUID()',
 ];
 
-const COLUMN_COUNT = 14;
+const COLUMN_COUNT = 20;
 
 function shuffleArray<T>(arr: T[]): T[] {
   const a = [...arr];
