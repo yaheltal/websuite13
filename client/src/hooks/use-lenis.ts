@@ -34,6 +34,7 @@ export function useLenis() {
 
     return () => {
       window.removeEventListener('load', onLoad);
+      ScrollTrigger.normalizeScroll(false);
       gsap.ticker.remove(rafCallback);
       lenis.destroy();
       document.documentElement.style.scrollBehavior = "";

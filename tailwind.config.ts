@@ -86,9 +86,9 @@ export default {
           dark: "hsl(245 60% 48%)",
         },
         sand: {
-          DEFAULT: "hsl(36 33% 95%)",
-          light: "hsl(36 40% 97%)",
-          dark: "hsl(36 25% 88%)",
+          DEFAULT: "hsl(220 15% 95%)",
+          light: "hsl(220 20% 97%)",
+          dark: "hsl(220 12% 88%)",
         },
         sage: {
           DEFAULT: "hsl(140 12% 78%)",
