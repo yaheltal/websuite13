@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bg-grad" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0a0a12"/>
+      <stop offset="40%" stop-color="#0d0d1a"/>
+      <stop offset="100%" stop-color="#080814"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="300" y1="150" x2="900" y2="480" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="hsl(220,85%,62%)"/>
+      <stop offset="45%" stop-color="hsl(265,75%,60%)"/>
+      <stop offset="100%" stop-color="hsl(175,80%,50%)"/>
+    </linearGradient>
+    <linearGradient id="text-grad" x1="200" y1="200" x2="1000" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="hsl(225,85%,72%)"/>
+      <stop offset="50%" stop-color="hsl(260,78%,68%)"/>
+      <stop offset="100%" stop-color="hsl(180,75%,58%)"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="400" y1="250" x2="800" y2="380" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="hsl(220,80%,55%)" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="hsl(175,80%,50%)" stop-opacity="0.08"/>
+    </linearGradient>
+    <filter id="blur-glow">
+      <feGaussianBlur stdDeviation="40"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg-grad)"/>
+
+  <ellipse cx="600" cy="315" rx="350" ry="200" fill="url(#glow)" filter="url(#blur-glow)"/>
+
+  <rect x="40" y="40" width="1120" height="550" rx="20" stroke="url(#accent)" stroke-width="1.5" fill="none" opacity="0.2"/>
+
+  <g transform="translate(440, 180)">
+    <rect x="0" y="0" width="90" height="90" rx="22" stroke="url(#accent)" stroke-width="3" fill="none"/>
+    <path d="M18 28 L30 68 L42 48 L54 68 L66 28" stroke="url(#text-grad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="80" y="42" font-size="13" font-weight="800" fill="url(#text-grad)" text-anchor="middle" font-family="system-ui,sans-serif">1</text>
+    <text x="80" y="68" font-size="18" font-weight="800" fill="url(#text-grad)" text-anchor="middle" font-family="system-ui,sans-serif">3</text>
+    <circle cx="82" cy="14" r="4.5" fill="hsl(175,80%,50%)"/>
+  </g>
+
+  <text x="560" y="193" font-size="13" font-weight="700" fill="hsl(175,80%,50%)" text-anchor="start" font-family="system-ui,-apple-system,sans-serif" letter-spacing="3" opacity="0.9">&lt;</text>
+  <text x="575" y="260" font-size="13" font-weight="700" fill="hsl(175,80%,50%)" text-anchor="start" font-family="system-ui,-apple-system,sans-serif" letter-spacing="3" opacity="0.9">&gt;</text>
+
+  <text x="600" y="340" font-size="72" font-weight="800" fill="url(#text-grad)" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="8">WebSuite</text>
+
+  <line x1="380" y1="370" x2="820" y2="370" stroke="url(#accent)" stroke-width="1" opacity="0.3"/>
+
+  <text x="600" y="410" font-size="22" font-weight="400" fill="#b0b0c8" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="1" direction="rtl" unicode-bidi="bidi-override">עיצוב ופיתוח אתרים פרימיום</text>
+
+  <text x="600" y="450" font-size="16" font-weight="400" fill="#8080a0" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="0.5">Premium Web Design &amp; Development</text>
+
+  <circle cx="100" cy="100" r="3" fill="hsl(220,80%,55%)" opacity="0.4"/>
+  <circle cx="200" cy="80" r="2" fill="hsl(260,70%,55%)" opacity="0.3"/>
+  <circle cx="1050" cy="150" r="2.5" fill="hsl(175,80%,50%)" opacity="0.35"/>
+  <circle cx="1100" cy="520" r="3" fill="hsl(220,80%,55%)" opacity="0.3"/>
+  <circle cx="150" cy="500" r="2" fill="hsl(260,70%,55%)" opacity="0.25"/>
+  <circle cx="950" cy="80" r="2" fill="hsl(220,80%,55%)" opacity="0.3"/>
+</svg>
