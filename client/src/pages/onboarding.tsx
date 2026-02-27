@@ -478,12 +478,36 @@ export default function Onboarding() {
       <div className="sticky top-0 z-40 bg-card/90 backdrop-blur-md border-b border-border/40">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" data-testid="link-back-home">
-            <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-copper to-copper-dark flex items-center justify-center">
-                <span className="text-[10px] font-extrabold text-white">13</span>
-              </div>
-              <span className="text-lg font-extrabold text-charcoal">
-                WEB<span className="text-copper">13</span>
+            <div className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity select-none">
+              <svg
+                viewBox="0 0 48 48"
+                className="w-9 h-9 sm:w-10 sm:h-10"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-label="WEB13 Logo"
+              >
+                <rect x="2" y="2" width="44" height="44" rx="12" stroke="url(#onb-logo-grad)" strokeWidth="2.5" fill="none" />
+                <path d="M14 18 L18 30 L22 22 L26 30 L30 18" stroke="url(#onb-logo-grad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                <text x="34" y="31" fontSize="14" fontWeight="800" fill="url(#onb-logo-grad)" textAnchor="middle" fontFamily="Assistant, sans-serif">13</text>
+                <circle cx="38" cy="12" r="3" fill="hsl(170 80% 50%)" />
+                <defs>
+                  <linearGradient id="onb-logo-grad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="hsl(220 80% 65%)" />
+                    <stop offset="50%" stopColor="hsl(260 70% 65%)" />
+                    <stop offset="100%" stopColor="hsl(170 80% 50%)" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span
+                className="text-lg font-extrabold tracking-tight"
+                style={{
+                  background: "linear-gradient(135deg, hsl(220 80% 60%), hsl(260 70% 60%), hsl(170 80% 50%))",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                WEB13
               </span>
             </div>
           </Link>
