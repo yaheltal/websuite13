@@ -357,7 +357,7 @@ export function ContactSection() {
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-extrabold text-white text-lg mb-0.5">WhatsApp</h3>
+                    <h3 className="font-extrabold text-white text-lg mb-0.5">{lang === "he" ? "דברו איתנו עכשיו" : "Chat With Us Now"}</h3>
                     <p className="text-white/60 text-xs">{t("contact.whatsapp.subtitle")}</p>
                   </div>
                   <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 group-hover:-translate-x-1 transition-all duration-300">
