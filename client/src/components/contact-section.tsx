@@ -331,58 +331,85 @@ export function ContactSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="lg:col-span-2 space-y-5"
           >
-            {[
-              {
-                icon: MessageSquare,
-                title: "WhatsApp",
-                subtitle: t("contact.whatsapp.subtitle"),
-                value: "054-796-6616",
-                href: "https://wa.me/972547966616?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A2%D7%9C%20%D7%94%D7%A9%D7%99%D7%A8%D7%95%D7%AA%D7%99%D7%9D%20%D7%A9%D7%9C%D7%9B%D7%9D",
-                iconBg: "bg-green-500/10",
-                iconColor: "text-green-600",
-                testId: "link-contact-whatsapp",
-              },
-              {
-                icon: Phone,
-                title: t("contact.phone"),
-                subtitle: t("contact.phone.subtitle"),
-                value: "054-796-6616",
-                href: "tel:+972547966616",
-                iconBg: "bg-blue-500/10",
-                iconColor: "text-blue-500",
-                testId: "link-contact-phone",
-              },
-              {
-                icon: Mail,
-                title: t("contact.email"),
-                subtitle: t("contact.email.subtitle"),
-                value: "websuite153@gmail.com",
-                href: "mailto:websuite153@gmail.com",
-                iconBg: "bg-purple-500/10",
-                iconColor: "text-purple-500",
-                testId: "link-contact-email",
-              },
-            ].map((item) => (
-              <a
-                key={item.title}
-                href={item.href}
-                target={item.href.startsWith("http") ? "_blank" : undefined}
-                rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="block rounded-xl border border-border/50 bg-card p-5 shadow-sm hover:border-border hover:shadow-md transition-all group cursor-pointer"
-                data-testid={item.testId}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className={`w-10 h-10 rounded-lg ${item.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                    <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+            <a
+              href="https://wa.me/972547966616?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A2%D7%9C%20%D7%94%D7%A9%D7%99%D7%A8%D7%95%D7%AA%D7%99%D7%9D%20%D7%A9%D7%9C%D7%9B%D7%9D"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%)",
+              }}
+              data-testid="link-contact-whatsapp"
+            >
+              <div className="absolute top-0 left-0 w-full h-full opacity-10">
+                <div className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-white/20" />
+                <div className="absolute -bottom-4 -right-4 w-32 h-32 rounded-full bg-white/10" />
+              </div>
+              <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <MessageSquare className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-charcoal">{item.title}</h3>
-                    <p className="text-xs text-charcoal-light">{item.subtitle}</p>
+                    <h3 className="font-extrabold text-white text-base">WhatsApp</h3>
+                    <p className="text-white/70 text-xs">{t("contact.whatsapp.subtitle")}</p>
                   </div>
                 </div>
-                <p className="text-sm text-charcoal-light group-hover:text-charcoal transition-colors" dir="ltr">{item.value}</p>
-              </a>
-            ))}
+                <span className="text-white/90 text-sm font-bold tracking-wide" dir="ltr">054-796-6616</span>
+              </div>
+            </a>
+
+            <a
+              href="tel:+972547966616"
+              className="block relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, hsl(220 80% 55%) 0%, hsl(240 70% 50%) 50%, hsl(260 65% 48%) 100%)",
+              }}
+              data-testid="link-contact-phone"
+            >
+              <div className="absolute top-0 left-0 w-full h-full opacity-10">
+                <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-white/20" />
+                <div className="absolute -bottom-6 -left-6 w-28 h-28 rounded-full bg-white/10" />
+              </div>
+              <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Phone className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-white text-base">{t("contact.phone")}</h3>
+                    <p className="text-white/70 text-xs">{t("contact.phone.subtitle")}</p>
+                  </div>
+                </div>
+                <span className="text-white/90 text-sm font-bold tracking-wide" dir="ltr">054-796-6616</span>
+              </div>
+            </a>
+
+            <a
+              href="mailto:websuite153@gmail.com"
+              className="block relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, hsl(175 80% 40%) 0%, hsl(190 70% 38%) 50%, hsl(200 65% 42%) 100%)",
+              }}
+              data-testid="link-contact-email"
+            >
+              <div className="absolute top-0 left-0 w-full h-full opacity-10">
+                <div className="absolute -bottom-4 -right-8 w-24 h-24 rounded-full bg-white/20" />
+                <div className="absolute -top-6 -left-4 w-20 h-20 rounded-full bg-white/10" />
+              </div>
+              <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Mail className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-white text-base">{t("contact.email")}</h3>
+                    <p className="text-white/70 text-xs">{t("contact.email.subtitle")}</p>
+                  </div>
+                </div>
+                <span className="text-white/90 text-xs font-bold" dir="ltr">websuite153@gmail.com</span>
+              </div>
+            </a>
 
             <div className="rounded-xl border border-copper/15 bg-gradient-to-br from-copper/[0.03] to-sand-light p-5">
               <div className="flex items-center gap-2 mb-3">
