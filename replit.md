@@ -1,7 +1,7 @@
 # WEB13 - Boutique Web Agency "Market Disruptor" Platform
 
 ## Overview
-A premium boutique web agency portfolio site with "market disruptor" branding — high-end quality at competitive pricing. Features a warm boutique aesthetic with soft sand/sage/copper palette, browser preview modals, parallax scrolling, mouse-tracking floating elements, AI-powered onboarding funnel, GSAP scrollytelling, and full Hebrew RTL support.
+A premium boutique web agency portfolio site with "market disruptor" branding — high-end quality at competitive pricing. Features a premium blue/purple/cyan palette, browser preview modals, parallax scrolling, mouse-tracking floating elements, AI-powered onboarding funnel, GSAP scrollytelling, and full Hebrew RTL support.
 
 ## Architecture
 - **Frontend**: React + Tailwind CSS + Framer Motion + GSAP/ScrollTrigger + Lenis, multi-page with wouter routing
@@ -16,9 +16,10 @@ A premium boutique web agency portfolio site with "market disruptor" branding �
 - **RTL Hebrew Support**: Full right-to-left layout with Assistant font
 - **Fixed Site Header**: SVG logo with GSAP stroke-draw animation (strokeDasharray reveal), char-level text stagger, 3D tilt on hover, dark gradient backdrop, z-index 999. Logo uses blue/purple/cyan gradient. Clear code comments for future logo replacement
 - **Scrollytelling Section**: Cinematic immersive section with deep violet/midnight-blue animated background (glowing orbs, scroll-driven color shifting), 25 floating 3D parallax website mockup cards with: continuous ambient hover animation (GSAP yoyo repeat:-1), depth-of-field blur (back-layer blurred, front sharp, scroll-animated focus transitions), translate3d parallax with z-depth, interactive mouse tracking (cards tilt opposite cursor on desktop), glass glare overlay that sweeps on scroll, scroll-velocity skewY distortion, word-level stagger text reveals, dark glassmorphism text containers with white text
-- **Onboarding Funnel**: 7-step flow: Service Selection → Contact Info (lead capture) → Incentive Hook → Questionnaire → AI Chat → File Upload → Summary
-- **AI Sales Agent (Gemini)**: Short, focused sales agent that asks one question at a time, never shows code/prompts to client. Uses <<COLLECTION_COMPLETE>> marker for auto-completion
-- **Email Automation**: Dual-email system with 3-attempt retry logic. Contact form sends immediate email; onboarding sends comprehensive brief. Subject: `[URGENT] New WebSuite Lead - [Name]`. WhatsApp fallback shown on 3x failure. All to WEBSUITE153@GMAIL.COM
+- **Onboarding Funnel**: 7-step flow: Service Selection → Contact Info (lead capture) → Incentive Hook → Questionnaire → AI Chat → File Upload → Summary. Data persisted to sessionStorage (survives page refresh). Skip/finish button available in AI chat step.
+- **Early Lead Notification**: When user fills contact info in onboarding step 1, an immediate preliminary email is sent via `/api/onboarding/lead-notify` so you know someone started the process (even if they abandon)
+- **AI Sales Agent (Gemini)**: Short, focused sales agent that asks one question at a time, never shows code/prompts to client. Uses <<COLLECTION_COMPLETE>> marker for auto-completion. Skip button available after 2 messages.
+- **Email Automation**: Triple-email system with 3-attempt retry logic: 1) Early lead notify when contact info entered, 2) Contact form immediate email, 3) Full onboarding brief. Subject: `[URGENT] New WebSuite Lead - [Name]`. WhatsApp fallback shown on 3x failure. All to WEBSUITE153@GMAIL.COM
 - **Browser Preview Modals**: Realistic browser window mockups for each service
 - **Scroll Background**: Scattered website mockup thumbnails with parallax depth
 - **Floating Nav**: Bottom-centered capsule with "שאלון התאמה" button

@@ -56,10 +56,10 @@ export function FloatingShape({
   };
 
   const variantClasses = {
-    circle: "rounded-full bg-gradient-to-br from-copper/10 to-sage/10",
-    square: "rounded-xl bg-gradient-to-br from-sage/8 to-copper/5 rotate-12",
-    diamond: "rounded-lg bg-gradient-to-br from-copper/8 to-sand-dark/10 rotate-45",
-    ring: "rounded-full border-2 border-copper/15",
+    circle: "rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10",
+    square: "rounded-xl bg-gradient-to-br from-purple-500/8 to-blue-500/5 rotate-12",
+    diamond: "rounded-lg bg-gradient-to-br from-blue-500/8 to-cyan-500/10 rotate-45",
+    ring: "rounded-full border-2 border-blue-500/15",
   };
 
   const animationClasses = {

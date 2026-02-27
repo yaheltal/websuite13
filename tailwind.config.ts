@@ -81,9 +81,9 @@ export default {
           offline: "rgb(156 163 175)",
         },
         copper: {
-          DEFAULT: "hsl(28 60% 48%)",
-          light: "hsl(28 55% 62%)",
-          dark: "hsl(28 65% 38%)",
+          DEFAULT: "hsl(220 75% 55%)",
+          light: "hsl(220 70% 68%)",
+          dark: "hsl(245 60% 48%)",
         },
         sand: {
           DEFAULT: "hsl(36 33% 95%)",

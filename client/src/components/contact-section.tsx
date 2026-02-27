@@ -163,10 +163,10 @@ export function ContactSection() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 }}
-                      className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 w-full max-w-sm text-right"
+                      className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4 w-full max-w-sm text-right"
                       data-testid="fallback-whatsapp-notice"
                     >
-                      <p className="text-sm text-amber-800 mb-3">
+                      <p className="text-sm text-blue-800 mb-3">
                         הפרטים שלכם נשמרו בהצלחה. ניתן גם ליצור קשר ישיר דרך WhatsApp:
                       </p>
                       <a

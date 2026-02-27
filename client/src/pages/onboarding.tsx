@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,7 +35,31 @@ import {
   Zap,
   FileText,
   Sparkles,
+  SkipForward,
 } from "lucide-react";
+
+const STORAGE_KEY = "web13_onboarding";
+
+function saveToStorage(data: Record<string, any>) {
+  try {
+    const existing = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}");
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...data }));
+  } catch {}
+}
+
+function loadFromStorage(): Record<string, any> {
+  try {
+    return JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function clearStorage() {
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch {}
+}
 
 const services = [
   {
@@ -183,19 +207,21 @@ function ProgressBar({ stepsRemaining }: { stepsRemaining: number }) {
 }
 
 export default function Onboarding() {
-  const [step, setStep] = useState(0);
-  const [selectedService, setSelectedService] = useState<string>("");
-  const [questionnaireData, setQuestionnaireData] = useState<Record<string, string>>({});
-  const [onboardingId, setOnboardingId] = useState<number | null>(null);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const saved = loadFromStorage();
+  const [step, setStep] = useState(saved.step || 0);
+  const [selectedService, setSelectedService] = useState<string>(saved.selectedService || "");
+  const [questionnaireData, setQuestionnaireData] = useState<Record<string, string>>(saved.questionnaireData || {});
+  const [onboardingId, setOnboardingId] = useState<number | null>(saved.onboardingId || null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(saved.chatMessages || []);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
-  const [chatSessionId, setChatSessionId] = useState<string | null>(null);
-  const [chatComplete, setChatComplete] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const [chatSessionId, setChatSessionId] = useState<string | null>(saved.chatSessionId || null);
+  const [chatComplete, setChatComplete] = useState(saved.chatComplete || false);
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>(saved.uploadedFiles || []);
   const [uploading, setUploading] = useState(false);
   const [completing, setCompleting] = useState(false);
-  const [completed, setCompleted] = useState(false);
+  const [completed, setCompleted] = useState(saved.completed || false);
+  const [leadNotified, setLeadNotified] = useState(saved.leadNotified || false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -203,8 +229,35 @@ export default function Onboarding() {
 
   const contactForm = useForm<z.infer<typeof contactSchema>>({
     resolver: zodResolver(contactSchema),
-    defaultValues: { name: "", email: "", phone: "" },
+    defaultValues: {
+      name: saved.contactName || "",
+      email: saved.contactEmail || "",
+      phone: saved.contactPhone || "",
+    },
   });
+
+  const persistState = useCallback(() => {
+    const contactValues = contactForm.getValues();
+    saveToStorage({
+      step,
+      selectedService,
+      questionnaireData,
+      onboardingId,
+      chatMessages,
+      chatSessionId,
+      chatComplete,
+      uploadedFiles,
+      completed,
+      leadNotified,
+      contactName: contactValues.name,
+      contactEmail: contactValues.email,
+      contactPhone: contactValues.phone,
+    });
+  }, [step, selectedService, questionnaireData, onboardingId, chatMessages, chatSessionId, chatComplete, uploadedFiles, completed, leadNotified, contactForm]);
+
+  useEffect(() => {
+    persistState();
+  }, [persistState]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -221,6 +274,25 @@ export default function Onboarding() {
   const handleContactSubmit = async () => {
     const isValid = await contactForm.trigger();
     if (!isValid) return;
+
+    const contactValues = contactForm.getValues();
+
+    if (!leadNotified) {
+      setLeadNotified(true);
+      try {
+        fetch("/api/onboarding/lead-notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: contactValues.name,
+            email: contactValues.email,
+            phone: contactValues.phone,
+            service: selectedService,
+          }),
+        }).catch(() => {});
+      } catch {}
+    }
+
     setStep(2);
   };
 
@@ -332,6 +404,11 @@ export default function Onboarding() {
     setChatLoading(false);
   };
 
+  const handleSkipChat = () => {
+    setChatComplete(true);
+    setStep(5);
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || !onboardingId) return;
@@ -361,6 +438,7 @@ export default function Onboarding() {
     try {
       await apiRequest("POST", "/api/onboarding/complete", { onboardingId });
       setCompleted(true);
+      clearStorage();
     } catch {
       toast({ title: "שגיאה", variant: "destructive" });
     }
@@ -673,32 +751,43 @@ export default function Onboarding() {
                 </div>
 
                 <div className="px-3 py-3 border-t border-border/40" dir="rtl">
-                  <div className="flex gap-2 items-center">
-                    <input
-                      ref={chatInputRef}
-                      type="text"
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChatMessage(); } }}
-                      placeholder="כתוב הודעה..."
-                      className="flex-1 bg-muted/40 border border-border/40 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper/40 transition-all"
-                      data-testid="input-chat-message"
-                    />
-                    <Button onClick={sendChatMessage} disabled={!chatInput.trim() || chatLoading} size="icon" className="rounded-xl bg-copper hover:bg-copper-dark text-white h-10 w-10" data-testid="button-send-chat">
-                      <Send className="w-4 h-4 rotate-180" />
-                    </Button>
-                  </div>
+                  {!chatComplete && (
+                    <div className="flex gap-2 items-center">
+                      <input
+                        ref={chatInputRef}
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChatMessage(); } }}
+                        placeholder="כתוב הודעה..."
+                        className="flex-1 bg-muted/40 border border-border/40 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper/40 transition-all"
+                        data-testid="input-chat-message"
+                      />
+                      <Button onClick={sendChatMessage} disabled={!chatInput.trim() || chatLoading} size="icon" className="rounded-xl bg-copper hover:bg-copper-dark text-white h-10 w-10" data-testid="button-send-chat">
+                        <Send className="w-4 h-4 rotate-180" />
+                      </Button>
+                    </div>
+                  )}
+                  {chatComplete && (
+                    <div className="text-center py-2">
+                      <span className="text-sm text-green-600 font-medium flex items-center justify-center gap-1">
+                        <Check className="w-4 h-4" />
+                        השיחה הושלמה — אפשר להמשיך
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 flex items-center justify-between">
-                {chatMessages.length >= 4 && !chatComplete && (
-                  <Button variant="outline" onClick={() => setStep(5)} className="text-sm" data-testid="button-skip-to-upload">
-                    דלג להעלאת קבצים
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                  </Button>
-                )}
-                {!chatMessages.length && !chatComplete && <div />}
+                <div className="flex items-center gap-2">
+                  {chatMessages.length >= 2 && !chatComplete && (
+                    <Button variant="outline" onClick={handleSkipChat} className="text-sm gap-1" data-testid="button-skip-chat">
+                      <SkipForward className="w-4 h-4" />
+                      סיום השיחה והמשך
+                    </Button>
+                  )}
+                </div>
                 {chatComplete && (
                   <Button onClick={() => setStep(5)} className="bg-gradient-to-l from-copper to-copper-dark text-white mr-auto" data-testid="button-next-to-upload">
                     המשך להעלאת קבצים

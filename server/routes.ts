@@ -5,7 +5,7 @@ import { insertContactSchema } from "@shared/schema";
 import { z, ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { sendOnboardingEmail, sendContactEmail } from "./email";
+import { sendOnboardingEmail, sendContactEmail, sendLeadNotifyEmail } from "./email";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -261,6 +261,33 @@ export async function registerRoutes(
         console.error("Onboarding start error:", error);
         res.status(500).json({ message: "Internal server error" });
       }
+    }
+  });
+
+  app.post("/api/onboarding/lead-notify", async (req, res) => {
+    try {
+      const schema = z.object({
+        name: z.string().min(1),
+        email: z.string().email(),
+        phone: z.string().optional().default(""),
+        service: z.string().optional().default(""),
+      });
+      const parsed = schema.parse(req.body);
+
+      sendLeadNotifyEmail(parsed).then(result => {
+        if (result.success) {
+          console.log(`Early lead notification sent for: ${parsed.name}`);
+        } else {
+          console.error(`Early lead notification failed for: ${parsed.name}`);
+        }
+      }).catch(err => {
+        console.error("Lead notify email error:", err);
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Lead notify error:", error);
+      res.status(400).json({ message: "Invalid data" });
     }
   });
 

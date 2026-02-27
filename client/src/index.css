@@ -27,7 +27,7 @@
   --popover: 36 30% 97%;
   --popover-foreground: 220 15% 18%;
   --popover-border: 36 15% 88%;
-  --primary: 28 60% 48%;
+  --primary: 220 75% 55%;
   --primary-foreground: 0 0% 100%;
   --secondary: 140 12% 82%;
   --secondary-foreground: 140 12% 20%;
@@ -38,8 +38,8 @@
   --destructive: 0 72% 50%;
   --destructive-foreground: 0 72% 98%;
   --input: 36 12% 78%;
-  --ring: 28 60% 48%;
-  --chart-1: 28 60% 48%;
+  --ring: 220 75% 55%;
+  --chart-1: 220 75% 55%;
   --chart-2: 140 25% 45%;
   --chart-3: 280 45% 50%;
   --chart-4: 200 55% 45%;
@@ -90,15 +90,15 @@
   --sidebar: 30 8% 12%;
   --sidebar-foreground: 36 20% 90%;
   --sidebar-border: 30 8% 20%;
-  --sidebar-primary: 28 60% 55%;
+  --sidebar-primary: 220 75% 55%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 30 8% 18%;
   --sidebar-accent-foreground: 36 20% 90%;
-  --sidebar-ring: 28 60% 55%;
+  --sidebar-ring: 220 75% 55%;
   --popover: 30 8% 14%;
   --popover-foreground: 36 20% 90%;
   --popover-border: 30 8% 22%;
-  --primary: 28 60% 55%;
+  --primary: 220 75% 55%;
   --primary-foreground: 0 0% 100%;
   --secondary: 140 10% 22%;
   --secondary-foreground: 140 10% 90%;
@@ -109,8 +109,8 @@
   --destructive: 0 72% 55%;
   --destructive-foreground: 0 72% 98%;
   --input: 30 8% 30%;
-  --ring: 28 60% 55%;
-  --chart-1: 28 60% 60%;
+  --ring: 220 75% 55%;
+  --chart-1: 220 75% 60%;
   --chart-2: 140 25% 55%;
   --chart-3: 280 45% 60%;
   --chart-4: 200 55% 55%;
@@ -240,15 +240,15 @@
   }
 
   .text-copper {
-    color: hsl(28 60% 48%);
+    color: hsl(220 75% 55%);
   }
 
   .bg-copper {
-    background-color: hsl(28 60% 48%);
+    background-color: hsl(220 75% 55%);
   }
 
   .text-copper-light {
-    color: hsl(28 55% 62%);
+    color: hsl(220 70% 68%);
   }
 
   .glass-panel {

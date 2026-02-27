@@ -87,6 +87,51 @@ ${chatContext}
 - ביצועים מהירים, Lighthouse score גבוה`;
 }
 
+export async function sendLeadNotifyEmail(data: {
+  name: string;
+  email: string;
+  phone: string;
+  service: string;
+}): Promise<{ success: boolean; attempts: number }> {
+  const serviceName = SERVICE_NAMES[data.service] || data.service || "לא צוין";
+
+  const htmlBody = `
+    <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #3b6de0, #5b3dbf); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 24px;">WEB13</h1>
+        <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0;">ליד חדש התחיל שאלון</p>
+      </div>
+      
+      <div style="background: #faf8f5; padding: 30px; border: 1px solid #e8e4de; border-top: none;">
+        <h2 style="color: #2d3142; margin-top: 0;">פרטי לקוח (הודעה מקדימה)</h2>
+        <p style="color: #666; font-size: 14px; margin-bottom: 16px;">
+          לקוח התחיל למלא את השאלון והשאיר פרטים ראשונים. ייתכן שהוא עדיין באמצע התהליך או שעזב.
+        </p>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr><td style="padding: 8px 0; color: #666; width: 120px;">שם:</td><td style="padding: 8px 0; font-weight: bold;">${escapeHtml(data.name)}</td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">אימייל:</td><td style="padding: 8px 0;"><a href="mailto:${escapeHtml(data.email)}" style="color: #3b6de0;">${escapeHtml(data.email)}</a></td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">טלפון:</td><td style="padding: 8px 0;"><a href="tel:${escapeHtml(data.phone)}" style="color: #3b6de0; font-weight: bold;">${escapeHtml(data.phone || "לא צוין")}</a></td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">שירות מבוקש:</td><td style="padding: 8px 0; font-weight: bold; color: #3b6de0;">${escapeHtml(serviceName)}</td></tr>
+        </table>
+        <div style="background: #e8f0fe; border: 1px solid #a4c2f4; border-radius: 8px; padding: 12px; font-size: 13px; color: #1a4fa0;">
+          הודעה מקדימה - אם הלקוח ימשיך את התהליך, תקבל הודעה מלאה נוספת עם כל הפרטים.
+        </div>
+      </div>
+      
+      <div style="background: #f0ede8; padding: 16px 30px; border-radius: 0 0 16px 16px; text-align: center; border: 1px solid #e8e4de; border-top: none;">
+        <p style="color: #888; margin: 0; font-size: 12px;">נשלח אוטומטית מ-WEB13 — התראת ליד מוקדמת</p>
+      </div>
+    </div>
+  `;
+
+  return sendWithRetry({
+    from: `"WEB13" <${SENDER_EMAIL}>`,
+    to: RECIPIENT_EMAIL,
+    subject: `[LEAD] התחיל שאלון - ${data.name} | ${data.phone}`,
+    html: htmlBody,
+  });
+}
+
 export async function sendContactEmail(data: {
   name: string;
   email: string;
@@ -98,7 +143,7 @@ export async function sendContactEmail(data: {
 
   const htmlBody = `
     <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px;">
-      <div style="background: linear-gradient(135deg, #c27a3a, #9a5e2a); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+      <div style="background: linear-gradient(135deg, #3b6de0, #5b3dbf); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
         <h1 style="color: white; margin: 0; font-size: 24px;">WEB13</h1>
         <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0;">ליד חדש מטופס צור קשר</p>
       </div>
@@ -107,9 +152,9 @@ export async function sendContactEmail(data: {
         <h2 style="color: #2d3142; margin-top: 0;">פרטי לקוח</h2>
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
           <tr><td style="padding: 8px 0; color: #666; width: 120px;">שם:</td><td style="padding: 8px 0; font-weight: bold;">${escapeHtml(data.name)}</td></tr>
-          <tr><td style="padding: 8px 0; color: #666;">אימייל:</td><td style="padding: 8px 0;"><a href="mailto:${escapeHtml(data.email)}" style="color: #c27a3a;">${escapeHtml(data.email)}</a></td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">אימייל:</td><td style="padding: 8px 0;"><a href="mailto:${escapeHtml(data.email)}" style="color: #3b6de0;">${escapeHtml(data.email)}</a></td></tr>
           <tr><td style="padding: 8px 0; color: #666;">טלפון:</td><td style="padding: 8px 0;">${escapeHtml(data.phone || "לא צוין")}</td></tr>
-          <tr><td style="padding: 8px 0; color: #666;">שירות מבוקש:</td><td style="padding: 8px 0; font-weight: bold; color: #c27a3a;">${escapeHtml(serviceName)}</td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">שירות מבוקש:</td><td style="padding: 8px 0; font-weight: bold; color: #3b6de0;">${escapeHtml(serviceName)}</td></tr>
         </table>
 
         ${data.message ? `
@@ -173,7 +218,7 @@ export async function sendOnboardingEmail(data: {
 
   const htmlBody = `
     <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px;">
-      <div style="background: linear-gradient(135deg, #c27a3a, #9a5e2a); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+      <div style="background: linear-gradient(135deg, #3b6de0, #5b3dbf); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
         <h1 style="color: white; margin: 0; font-size: 24px;">WEB13</h1>
         <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0;">ליד חדש מתהליך ה-Onboarding</p>
       </div>
@@ -182,9 +227,9 @@ export async function sendOnboardingEmail(data: {
         <h2 style="color: #2d3142; margin-top: 0;">פרטי לקוח</h2>
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
           <tr><td style="padding: 8px 0; color: #666; width: 120px;">שם:</td><td style="padding: 8px 0; font-weight: bold;">${escapeHtml(data.clientName)}</td></tr>
-          <tr><td style="padding: 8px 0; color: #666;">אימייל:</td><td style="padding: 8px 0;"><a href="mailto:${escapeHtml(data.clientEmail)}" style="color: #c27a3a;">${escapeHtml(data.clientEmail)}</a></td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">אימייל:</td><td style="padding: 8px 0;"><a href="mailto:${escapeHtml(data.clientEmail)}" style="color: #3b6de0;">${escapeHtml(data.clientEmail)}</a></td></tr>
           <tr><td style="padding: 8px 0; color: #666;">טלפון:</td><td style="padding: 8px 0;">${escapeHtml(data.clientPhone || "לא צוין")}</td></tr>
-          <tr><td style="padding: 8px 0; color: #666;">סוג שירות:</td><td style="padding: 8px 0; font-weight: bold; color: #c27a3a;">${escapeHtml(serviceName)}</td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">סוג שירות:</td><td style="padding: 8px 0; font-weight: bold; color: #3b6de0;">${escapeHtml(serviceName)}</td></tr>
         </table>
         
         <h2 style="color: #2d3142;">תוצאות שאלון</h2>
