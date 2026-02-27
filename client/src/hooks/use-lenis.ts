@@ -12,9 +12,7 @@ export function useLenis() {
     document.documentElement.style.scrollBehavior = "auto";
 
     const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
+      gestureOrientation: 'vertical',
     });
 
     lenisRef.current = lenis;
@@ -27,6 +25,7 @@ export function useLenis() {
 
     gsap.ticker.add(rafCallback);
     gsap.ticker.lagSmoothing(0);
+    ScrollTrigger.normalizeScroll(true);
 
     ScrollTrigger.refresh();
 
