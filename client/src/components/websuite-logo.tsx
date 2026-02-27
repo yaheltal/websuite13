@@ -23,6 +23,7 @@ export function WebSuiteLogo({
     const frame = svg.querySelector("[data-logo-frame]") as SVGRectElement;
     const wPath = svg.querySelector("[data-logo-w]") as SVGPathElement;
     const digits = svg.querySelectorAll("[data-logo-digit]");
+    const brush = svg.querySelector("[data-logo-brush]") as SVGGElement;
     const dot = svg.querySelector("[data-logo-dot]") as SVGCircleElement;
     const glow = svg.querySelector("[data-logo-glow]") as SVGRectElement;
 
@@ -47,6 +48,7 @@ export function WebSuiteLogo({
         opacity: 1,
       });
       gsap.set(digits, { opacity: 0, y: 6 });
+      if (brush) gsap.set(brush, { opacity: 0, y: 6 });
       if (dot) gsap.set(dot, { opacity: 0, scale: 0, transformOrigin: "center" });
       if (glow) gsap.set(glow, { opacity: 0 });
 
@@ -66,13 +68,22 @@ export function WebSuiteLogo({
         ease: "power2.out",
       }, 0.35);
 
+      if (brush) {
+        tl.to(brush, {
+          opacity: 1,
+          y: 0,
+          duration: 0.35,
+          ease: "back.out(2)",
+        }, 0.6);
+      }
+
       tl.to(digits, {
         opacity: 1,
         y: 0,
         duration: 0.35,
         stagger: 0.08,
         ease: "back.out(2)",
-      }, 0.6);
+      }, 0.68);
 
       if (dot) {
         tl.to(dot, {
@@ -90,6 +101,7 @@ export function WebSuiteLogo({
   const g1 = `${gradientId}-main`;
   const g2 = `${gradientId}-fill`;
   const g3 = `${gradientId}-glow`;
+  const g4 = `${gradientId}-brush`;
 
   return (
     <svg
@@ -114,6 +126,10 @@ export function WebSuiteLogo({
           <stop offset="0%" stopColor="hsl(225, 85%, 65%)" />
           <stop offset="50%" stopColor="hsl(260, 78%, 62%)" />
           <stop offset="100%" stopColor="hsl(180, 75%, 52%)" />
+        </linearGradient>
+        <linearGradient id={g4} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="hsl(210, 90%, 62%)" />
+          <stop offset="100%" stopColor="hsl(230, 85%, 55%)" />
         </linearGradient>
         <radialGradient id={g3} cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="hsl(260, 80%, 70%)" stopOpacity="0.3" />
@@ -146,21 +162,33 @@ export function WebSuiteLogo({
         fill="none"
       />
 
-      <g data-logo-digit transform="translate(70, 42)">
+      <g data-logo-brush transform="translate(66, 28) rotate(-25, 16, 30)">
+        <line
+          x1="14" y1="0"
+          x2="14" y2="26"
+          stroke={`url(#${g4})`}
+          strokeWidth="5.5"
+          strokeLinecap="round"
+        />
+
+        <rect
+          x="7.5" y="25" width="13" height="6" rx="1.5"
+          fill="hsl(220, 60%, 42%)"
+        />
+        <line x1="9" y1="27" x2="19" y2="27" stroke="hsl(220, 50%, 55%)" strokeWidth="0.8" />
+        <line x1="9" y1="29" x2="19" y2="29" stroke="hsl(220, 50%, 55%)" strokeWidth="0.8" />
+
         <path
-          d="M13 0 L16.5 3.5 L8 12 L4.5 13.5 L3 14.5 L2 16 L1.5 18 L1.5 20 L2.5 22 L4 23.5 L3 25 L1.5 27 L1.5 29 L2.5 30.5 L4.5 31.5 L6.5 31 L8 29.5 L9 27.5 L8 25 L9.5 23.5 L11 22 L12.5 20 L12 18 L11 16 L9.5 14.5 L5.5 13 L7 11.5 L15.5 3 L18 5.5 L20 3.5 L16.5 0 Z"
-          fill="hsl(220, 85%, 60%)"
-          strokeWidth="0"
+          d="M7.5 31 Q6 37 5 43 Q4.5 46 7 48 Q10 49.5 14 49.5 Q18 49.5 21 48 Q23.5 46 23 43 Q22 37 20.5 31 Z"
+          fill={`url(#${g4})`}
         />
         <path
-          d="M5 25 Q3 28 4.5 30 Q6 31 7.5 29 Q8.5 27 7 25 Q6 24 5 25 Z"
-          fill="hsl(220, 80%, 50%)"
+          d="M9 33 Q8 37 7 42 Q6.5 44.5 9 46 Q11 47 14 47 Q17 47 19 46 Q21.5 44.5 21 42 Q20 37 19 33 Z"
+          fill="hsl(210, 90%, 72%)"
+          opacity="0.45"
         />
-        <path
-          d="M13 0 L16.5 3.5 L15.5 3 L18 5.5 L20 3.5 L16.5 0 Z"
-          fill="hsl(175, 80%, 50%)"
-          opacity="0.9"
-        />
+        <line x1="11" y1="35" x2="10" y2="44" stroke="hsl(220, 85%, 78%)" strokeWidth="1" strokeLinecap="round" opacity="0.5" />
+        <line x1="17" y1="35" x2="18" y2="44" stroke="hsl(220, 85%, 78%)" strokeWidth="1" strokeLinecap="round" opacity="0.5" />
       </g>
 
       <text
