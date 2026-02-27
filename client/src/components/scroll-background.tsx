@@ -18,6 +18,9 @@ interface Thumbnail {
   rotation: number;
   opacity: number;
   parallaxSpeed: number;
+  floatDuration: number;
+  floatDelay: number;
+  floatAmplitude: number;
 }
 
 function generateThumbnails(count: number, pageHeight: number): Thumbnail[] {
@@ -41,8 +44,11 @@ function generateThumbnails(count: number, pageHeight: number): Thumbnail[] {
       y: row * cellH + cellH / 2 + jitterY,
       width: 140 + rand() * 100,
       rotation: (rand() - 0.5) * 20,
-      opacity: 0.08 + rand() * 0.1,
+      opacity: 0.12 + rand() * 0.14,
       parallaxSpeed: 0.03 + rand() * 0.06,
+      floatDuration: 8 + rand() * 12,
+      floatDelay: rand() * -20,
+      floatAmplitude: 10 + rand() * 20,
     });
   }
 
@@ -102,6 +108,7 @@ export function ScrollBackground() {
               transform: `translate(-50%, -50%) rotate(${thumb.rotation}deg) translateY(${scrollY * thumb.parallaxSpeed}px)`,
               opacity: thumb.opacity,
               willChange: "transform",
+              animation: `bgFloat ${thumb.floatDuration}s ease-in-out ${thumb.floatDelay}s infinite`,
             }}
           >
             <img
@@ -115,8 +122,8 @@ export function ScrollBackground() {
         ))}
       </div>
 
-      <div className="absolute inset-0 bg-background/80" />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background/50" />
+      <div className="absolute inset-0 bg-background/60" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background/30" />
     </div>
   );
 }
