@@ -42,14 +42,14 @@ const STORAGE_KEY = "web13_onboarding";
 
 function saveToStorage(data: Record<string, any>) {
   try {
-    const existing = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}");
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...data }));
+    const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...data }));
   } catch {}
 }
 
 function loadFromStorage(): Record<string, any> {
   try {
-    return JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}");
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
   } catch {
     return {};
   }
@@ -57,7 +57,7 @@ function loadFromStorage(): Record<string, any> {
 
 function clearStorage() {
   try {
-    sessionStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
   } catch {}
 }
 
@@ -258,6 +258,27 @@ export default function Onboarding() {
   useEffect(() => {
     persistState();
   }, [persistState]);
+
+  const hasShownWelcomeBack = useRef(false);
+  useEffect(() => {
+    if (hasShownWelcomeBack.current) return;
+    hasShownWelcomeBack.current = true;
+    if (saved.step && saved.step > 0 && !saved.completed) {
+      toast({ title: "ברוכים השבים!", description: "שמרנו את ההתקדמות שלך — אפשר להמשיך מאיפה שהפסקת." });
+    }
+  }, []);
+
+  useEffect(() => {
+    const subscription = contactForm.watch(() => {
+      const contactValues = contactForm.getValues();
+      saveToStorage({
+        contactName: contactValues.name,
+        contactEmail: contactValues.email,
+        contactPhone: contactValues.phone,
+      });
+    });
+    return () => subscription.unsubscribe();
+  }, [contactForm]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
