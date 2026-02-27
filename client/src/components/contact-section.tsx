@@ -331,85 +331,84 @@ export function ContactSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="lg:col-span-2 space-y-5"
           >
-            <a
-              href="https://wa.me/972547966616?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A2%D7%9C%20%D7%94%D7%A9%D7%99%D7%A8%D7%95%D7%AA%D7%99%D7%9D%20%D7%A9%D7%9C%D7%9B%D7%9D"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%)",
-              }}
-              data-testid="link-contact-whatsapp"
-            >
-              <div className="absolute top-0 left-0 w-full h-full opacity-10">
-                <div className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-white/20" />
-                <div className="absolute -bottom-4 -right-4 w-32 h-32 rounded-full bg-white/10" />
-              </div>
-              <div className="relative flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <MessageSquare className="w-6 h-6 text-white" />
+            <div className="grid grid-cols-2 gap-3 auto-rows-auto">
+              <a
+                href="https://wa.me/972547966616?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A2%D7%9C%20%D7%94%D7%A9%D7%99%D7%A8%D7%95%D7%AA%D7%99%D7%9D%20%D7%A9%D7%9C%D7%9B%D7%9D"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="col-span-2 relative overflow-hidden rounded-2xl p-6 group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+                style={{
+                  background: "linear-gradient(160deg, #20b858 0%, #128c3e 100%)",
+                }}
+                data-testid="link-contact-whatsapp"
+              >
+                <svg className="absolute -bottom-8 -left-8 w-40 h-40 opacity-[0.08]" viewBox="0 0 100 100" fill="white">
+                  <circle cx="50" cy="50" r="50" />
+                </svg>
+                <svg className="absolute top-3 left-4 w-20 h-20 opacity-[0.06]" viewBox="0 0 100 100" fill="white">
+                  <rect x="10" y="10" width="80" height="80" rx="20" />
+                </svg>
+                <div className="relative flex items-center gap-5">
+                  <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:rotate-6 transition-transform duration-300">
+                    <MessageSquare className="w-7 h-7 text-white" />
                   </div>
-                  <div>
-                    <h3 className="font-extrabold text-white text-base">WhatsApp</h3>
-                    <p className="text-white/70 text-xs">{t("contact.whatsapp.subtitle")}</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-extrabold text-white text-lg mb-0.5">WhatsApp</h3>
+                    <p className="text-white/60 text-xs mb-2">{t("contact.whatsapp.subtitle")}</p>
+                    <span className="inline-block text-white/90 text-sm font-bold tracking-wider bg-white/10 rounded-lg px-3 py-1" dir="ltr">054-796-6616</span>
+                  </div>
+                  <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
+                    <ArrowLeft className="w-4 h-4 text-white/80" />
                   </div>
                 </div>
-                <span className="text-white/90 text-sm font-bold tracking-wide" dir="ltr">054-796-6616</span>
-              </div>
-            </a>
+              </a>
 
-            <a
-              href="tel:+972547966616"
-              className="block relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, hsl(220 80% 55%) 0%, hsl(240 70% 50%) 50%, hsl(260 65% 48%) 100%)",
-              }}
-              data-testid="link-contact-phone"
-            >
-              <div className="absolute top-0 left-0 w-full h-full opacity-10">
-                <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-white/20" />
-                <div className="absolute -bottom-6 -left-6 w-28 h-28 rounded-full bg-white/10" />
-              </div>
-              <div className="relative flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+              <a
+                href="tel:+972547966616"
+                className="col-span-1 relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+                style={{
+                  background: "linear-gradient(150deg, hsl(225 75% 52%) 0%, hsl(255 65% 45%) 100%)",
+                }}
+                data-testid="link-contact-phone"
+              >
+                <svg className="absolute -top-6 -right-6 w-28 h-28 opacity-[0.06]" viewBox="0 0 100 100" fill="white">
+                  <polygon points="50,5 95,30 95,70 50,95 5,70 5,30" />
+                </svg>
+                <div className="relative flex flex-col items-center text-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center group-hover:-rotate-12 transition-transform duration-300">
                     <Phone className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-white text-base">{t("contact.phone")}</h3>
-                    <p className="text-white/70 text-xs">{t("contact.phone.subtitle")}</p>
+                    <h3 className="font-extrabold text-white text-sm mb-0.5">{t("contact.phone")}</h3>
+                    <p className="text-white/50 text-[10px] mb-2">{t("contact.phone.subtitle")}</p>
+                    <span className="text-white/90 text-xs font-bold tracking-wide" dir="ltr">054-796-6616</span>
                   </div>
                 </div>
-                <span className="text-white/90 text-sm font-bold tracking-wide" dir="ltr">054-796-6616</span>
-              </div>
-            </a>
+              </a>
 
-            <a
-              href="mailto:websuite153@gmail.com"
-              className="block relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, hsl(175 80% 40%) 0%, hsl(190 70% 38%) 50%, hsl(200 65% 42%) 100%)",
-              }}
-              data-testid="link-contact-email"
-            >
-              <div className="absolute top-0 left-0 w-full h-full opacity-10">
-                <div className="absolute -bottom-4 -right-8 w-24 h-24 rounded-full bg-white/20" />
-                <div className="absolute -top-6 -left-4 w-20 h-20 rounded-full bg-white/10" />
-              </div>
-              <div className="relative flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+              <a
+                href="mailto:websuite153@gmail.com"
+                className="col-span-1 relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+                style={{
+                  background: "linear-gradient(150deg, hsl(180 65% 38%) 0%, hsl(195 60% 32%) 100%)",
+                }}
+                data-testid="link-contact-email"
+              >
+                <svg className="absolute -bottom-5 -left-5 w-24 h-24 opacity-[0.07]" viewBox="0 0 100 100" fill="white">
+                  <rect x="5" y="20" width="90" height="60" rx="12" />
+                </svg>
+                <div className="relative flex flex-col items-center text-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
                     <Mail className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-white text-base">{t("contact.email")}</h3>
-                    <p className="text-white/70 text-xs">{t("contact.email.subtitle")}</p>
+                    <h3 className="font-extrabold text-white text-sm mb-0.5">{t("contact.email")}</h3>
+                    <p className="text-white/50 text-[10px] mb-2">{t("contact.email.subtitle")}</p>
+                    <span className="text-white/90 text-[10px] font-bold" dir="ltr">websuite153@gmail.com</span>
                   </div>
                 </div>
-                <span className="text-white/90 text-xs font-bold" dir="ltr">websuite153@gmail.com</span>
-              </div>
-            </a>
+              </a>
+            </div>
 
             <div className="rounded-xl border border-copper/15 bg-gradient-to-br from-copper/[0.03] to-sand-light p-5">
               <div className="flex items-center gap-2 mb-3">
