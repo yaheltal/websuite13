@@ -28,25 +28,25 @@ export function HeroSection() {
   };
 
   const handleBrandHover = useCallback(() => {
-    const chars = brandCharsRef.current.filter(Boolean) as HTMLSpanElement[];
-    if (chars.length === 0) return;
-    const mid = (chars.length - 1) / 2;
+    const brand = brandRef.current;
+    if (!brand) return;
 
-    chars.forEach((char, i) => {
-      const offset = (i - mid) * 3.5;
-      gsap.to(char, {
-        x: offset,
-        scale: 1.08,
-        duration: 0.4,
-        ease: "power2.out",
-      });
+    gsap.to(brand, {
+      scale: 1.08,
+      letterSpacing: "0.15em",
+      duration: 0.4,
+      ease: "power2.out",
+    });
+
+    const chars = brandCharsRef.current.filter(Boolean) as HTMLSpanElement[];
+    chars.forEach((char) => {
       char.style.backgroundImage = "linear-gradient(135deg, hsl(175 90% 62%), hsl(220 85% 75%), hsl(260 80% 72%), hsl(175 90% 62%))";
     });
 
     const suit = suitIconRef.current;
     if (suit) {
       gsap.to(suit, {
-        scale: 1.15,
+        scale: 1.12,
         rotateZ: 5,
         duration: 0.4,
         ease: "power2.out",
@@ -55,15 +55,18 @@ export function HeroSection() {
   }, []);
 
   const handleBrandLeave = useCallback(() => {
-    const chars = brandCharsRef.current.filter(Boolean) as HTMLSpanElement[];
+    const brand = brandRef.current;
+    if (!brand) return;
 
+    gsap.to(brand, {
+      scale: 1,
+      letterSpacing: "-0.03em",
+      duration: 0.5,
+      ease: "power2.out",
+    });
+
+    const chars = brandCharsRef.current.filter(Boolean) as HTMLSpanElement[];
     chars.forEach((char) => {
-      gsap.to(char, {
-        x: 0,
-        scale: 1,
-        duration: 0.5,
-        ease: "power2.out",
-      });
       char.style.backgroundImage = "linear-gradient(135deg, hsl(220 80% 68%), hsl(260 72% 65%), hsl(175 80% 55%))";
     });
 
