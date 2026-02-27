@@ -57,24 +57,24 @@ export function Navigation() {
     <>
       <motion.nav
         data-testid="navigation-bar"
-        initial={{ y: 100, opacity: 0 }}
+        initial={{ x: 80, opacity: 0 }}
         animate={{
-          y: isVisible ? 0 : 100,
+          x: isVisible ? 0 : 80,
           opacity: isVisible ? 1 : 0,
         }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden md:block"
+        className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:block"
       >
-        <div className="glass-panel bg-card/90 border border-border/60 rounded-full px-2 py-2 shadow-lg flex items-center gap-1">
+        <div className="glass-panel bg-card/90 border border-border/60 rounded-2xl px-2 py-3 shadow-lg flex flex-col items-center gap-1">
           <button
             onClick={() => scrollToSection("#hero")}
-            className="flex items-center gap-1.5 pl-3 pr-1"
+            className="flex items-center justify-center p-2"
             data-testid="link-logo"
           >
             <WebSuiteLogo size={28} gradientId="nav" />
           </button>
 
-          <div className="w-px h-6 bg-border/60 mx-1" />
+          <div className="h-px w-6 bg-border/60 my-1" />
 
           {navKeys.map((item) => {
             const isActive = activeSection === item.href;
@@ -82,20 +82,20 @@ export function Navigation() {
               <button
                 key={item.href}
                 onClick={() => scrollToSection(item.href)}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                className={`relative flex items-center justify-center w-10 h-10 rounded-xl text-sm font-medium transition-all duration-300 ${
                   isActive
                     ? "text-blue-400"
                     : "text-charcoal-light hover:text-charcoal"
                 }`}
                 style={isActive ? { background: "hsla(220, 80%, 55%, 0.1)" } : undefined}
                 data-testid={`link-nav-${item.href.replace("#", "")}`}
+                title={t(item.key)}
               >
                 <item.icon className="w-4 h-4" />
-                <span>{t(item.key)}</span>
                 {isActive && (
                   <motion.div
                     layoutId="nav-indicator"
-                    className="absolute inset-0 rounded-full"
+                    className="absolute inset-0 rounded-xl"
                     style={{ border: "1px solid hsla(220, 80%, 55%, 0.2)" }}
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
@@ -104,16 +104,16 @@ export function Navigation() {
             );
           })}
 
-          <div className="w-px h-6 bg-border/60 mx-1" />
+          <div className="h-px w-6 bg-border/60 my-1" />
 
           <Link href="/onboarding">
             <button
-              className="flex items-center gap-2 text-white font-bold text-sm px-5 py-2 rounded-full transition-all duration-300 hover:shadow-lg"
+              className="flex items-center justify-center w-10 h-10 rounded-xl text-white transition-all duration-300 hover:shadow-lg"
               style={{ background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))" }}
               data-testid="button-nav-questionnaire"
+              title={t("nav.questionnaire")}
             >
               <ClipboardList className="w-4 h-4" />
-              {t("nav.questionnaire")}
             </button>
           </Link>
         </div>
