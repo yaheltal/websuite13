@@ -31,6 +31,7 @@ export function ServicesSection() {
       price: t("services.card.price"),
       tag: t("services.card.tag"),
       serviceType: "card" as const,
+      accent: "hsl(175, 80%, 50%)",
     },
     {
       id: "landing",
@@ -42,6 +43,7 @@ export function ServicesSection() {
       price: t("services.landing.price"),
       tag: t("services.landing.tag"),
       serviceType: "landing" as const,
+      accent: "hsl(220, 80%, 55%)",
     },
     {
       id: "ecommerce",
@@ -53,6 +55,7 @@ export function ServicesSection() {
       price: t("services.ecommerce.price"),
       tag: t("services.ecommerce.tag"),
       serviceType: "ecommerce" as const,
+      accent: "hsl(260, 70%, 55%)",
     },
   ];
 
@@ -72,14 +75,23 @@ export function ServicesSection() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16 md:mb-20"
           >
-            <Badge variant="secondary" className="mb-4 bg-copper/8 text-copper-dark border-copper/15">
+            <Badge variant="secondary" className="mb-4 border" style={{
+              background: "hsla(220, 80%, 55%, 0.08)",
+              color: "hsl(220, 80%, 45%)",
+              borderColor: "hsla(220, 80%, 55%, 0.15)",
+            }}>
               <Sparkles className="w-3 h-3 ml-1" />
               {t("services.badge")}
             </Badge>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 text-charcoal" data-testid="text-services-title">
               {t("services.title1")}
               <br />
-              <span className="text-copper">{t("services.title2")}</span>
+              <span style={{
+                background: "linear-gradient(135deg, hsl(220, 80%, 55%), hsl(260, 70%, 55%), hsl(175, 80%, 50%))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}>{t("services.title2")}</span>
             </h2>
             <p className="text-charcoal-light text-lg max-w-xl mx-auto">
               {t("services.subtitle")}
@@ -96,17 +108,26 @@ export function ServicesSection() {
                   transition={{ duration: 0.6, delay: index * 0.15 }}
                 >
                   <Card
-                    className="group relative bg-card border-border/50 p-6 md:p-8 transition-all duration-500 hover:border-copper/25 hover-elevate"
+                    className="group relative bg-card border-border/50 p-6 md:p-8 transition-all duration-500 hover-elevate"
+                    style={{ ["--hover-border" as string]: `${service.accent}40` }}
                     data-testid={`card-service-${service.id}`}
                   >
-                    <div className="absolute inset-0 rounded-[inherit] bg-gradient-to-b from-copper/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{
+                      background: `linear-gradient(to bottom, ${service.accent}08, transparent)`,
+                    }} />
 
                     <div className="relative space-y-6">
                       <div className="flex items-start justify-between gap-2">
-                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-copper/10 to-copper/5 flex items-center justify-center">
-                          <service.icon className="w-6 h-6 text-copper" />
+                        <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{
+                          background: `linear-gradient(135deg, ${service.accent}18, ${service.accent}08)`,
+                        }}>
+                          <service.icon className="w-6 h-6" style={{ color: service.accent }} />
                         </div>
-                        <Badge variant="secondary" className="bg-copper/8 text-copper-dark border-copper/15 text-[10px]">
+                        <Badge variant="secondary" className="text-[10px] border" style={{
+                          background: `${service.accent}10`,
+                          color: service.accent,
+                          borderColor: `${service.accent}20`,
+                        }}>
                           {service.tag}
                         </Badge>
                       </div>
@@ -121,8 +142,10 @@ export function ServicesSection() {
                       <ul className="space-y-2.5">
                         {service.features.map((feature) => (
                           <li key={feature} className="flex items-center gap-2.5 text-sm">
-                            <div className="w-5 h-5 rounded-full bg-sage/30 flex items-center justify-center flex-shrink-0">
-                              <Check className="w-3 h-3 text-sage-dark" />
+                            <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{
+                              background: `${service.accent}15`,
+                            }}>
+                              <Check className="w-3 h-3" style={{ color: service.accent }} />
                             </div>
                             <span className="text-charcoal">{feature}</span>
                           </li>
@@ -130,13 +153,22 @@ export function ServicesSection() {
                       </ul>
 
                       <div className="pt-2 border-t border-border/40 flex items-center justify-between gap-2">
-                        <span className="text-lg font-extrabold text-copper">{service.price}</span>
+                        <span className="text-lg font-extrabold" style={{
+                          background: `linear-gradient(135deg, ${service.accent}, hsl(175, 80%, 50%))`,
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                          backgroundClip: "text",
+                        }}>{service.price}</span>
                       </div>
 
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
-                          className="flex-1 border-copper/20 text-copper font-semibold"
+                          className="flex-1 font-semibold"
+                          style={{
+                            borderColor: `${service.accent}30`,
+                            color: service.accent,
+                          }}
                           onClick={() => openPreview(service.serviceType)}
                           data-testid={`button-preview-${service.id}`}
                         >
@@ -144,7 +176,10 @@ export function ServicesSection() {
                           {t("services.preview")}
                         </Button>
                         <Button
-                          className="flex-1 bg-gradient-to-l from-copper to-copper-dark text-white font-bold border-0"
+                          className="flex-1 text-white font-bold border-0"
+                          style={{
+                            background: `linear-gradient(135deg, hsl(220, 80%, 55%), hsl(260, 70%, 55%))`,
+                          }}
                           onClick={() => {
                             const el = document.querySelector("#contact");
                             if (el) el.scrollIntoView({ behavior: "smooth" });

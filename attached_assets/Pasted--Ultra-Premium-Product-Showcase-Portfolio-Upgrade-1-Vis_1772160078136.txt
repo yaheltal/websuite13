@@ -1,0 +1,35 @@
+# Ultra-Premium Product Showcase & Portfolio Upgrade
+
+## 1. Vision & Aesthetic Goal
+- **Objective:** Replace generic placeholders with high-fidelity, "Awwwards-winning" portfolio examples.
+- **Style:** Use stunning AI-generated imagery and advanced layouts to showcase products that look like real, high-budget, luxury brands.
+
+## 2. Portfolio Item 1: High-End E-Commerce (The "Luxury Boutique" Store)
+- **Visuals:** Showcase a luxury fashion or jewelry store using high-definition AI imagery.
+- **Advanced Functions:**
+    - **Animated Product Cards:** Hovering over a product reveals an alternate angle or a "Quick View" glassmorphism modal.
+    - **Interactive Cart:** A sleek, slide-out mini-cart with micro-animations.
+    - **Premium Features:** Dynamic pricing displays, elegant filter transitions, and a "Buy Now" button with the previously defined scale/click effects.
+
+## 3. Portfolio Item 2: Premium Landing Page (The "Lead Gen" Powerhouse)
+- **Visuals:** A cinematic, scrollytelling-driven landing page for a high-tech startup or a luxury service.
+- **Advanced Functions:**
+    - **Text Reveal Logic:** Use the line-by-line staggered reveal animation defined earlier.
+    - **Parallax Layers:** Deep 3D depth with abstract glowing background elements.
+    - **Conversion Focus:** A sticky, glassmorphism contact bar that follows the user discreetly.
+
+## 4. Portfolio Item 3: Advanced Digital Business Card (V-Card 2.0)
+- **Visuals:** A sleek, mobile-optimized card for a high-level executive or entrepreneur.
+- **Advanced Functions:**
+    - **Contact Integration:** A one-click "Add to Contacts" (VCF) button and direct WhatsApp/Social triggers.
+    - **Interactive Portfolio:** A mini-carousel inside the card to showcase the owner's best work.
+    - **Personalization:** Elegant bio section with a crisp, vector-rendered headshot container.
+
+## 5. UI/UX Consistency
+- **Responsive Layout:** Every example must work flawlessly on mobile browsers using dvh units.
+- **Global Interactions:** All buttons in these examples must use the 1.1x scale-up on hover and 0.95x compression on click.
+- **Branding:** Ensure all examples are watermarked or branded with the new "WebSuite" animated typography.
+
+## 6. Implementation Instruction
+- Update the "Work" (עבודות) or "Gallery" section to feature these three specific, high-detail categories.
+- Use CSS Grid/Flexbox to ensure they are presented in a clean, professional gallery layout.
