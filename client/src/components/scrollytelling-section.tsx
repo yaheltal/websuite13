@@ -2,41 +2,12 @@ import { useEffect, useRef, useCallback } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Sparkles, Zap, Palette, Rocket, Shield } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const storyBlocks = [
-  {
-    icon: Sparkles,
-    tagline: "01 — עיצוב",
-    title: "עיצוב ללא פשרות",
-    text: "כל פיקסל מתוכנן בקפידה. אנחנו לא משתמשים בתבניות מוכנות — כל אתר נבנה מאפס, בדיוק לפי החזון שלכם.",
-  },
-  {
-    icon: Zap,
-    tagline: "02 — ביצועים",
-    title: "ביצועים בלי תירוצים",
-    text: "מהירות טעינה מושלמת, ציון 100 ב-Google PageSpeed. הטכנולוגיות הכי מתקדמות — כדי שהלקוחות שלכם לא יחכו אפילו שנייה.",
-  },
-  {
-    icon: Palette,
-    tagline: "03 — המרה",
-    title: "חוויית משתמש שמוכרת",
-    text: "כל אלמנט מתוכנן להמרה. מהכפתור הראשון ועד לדף התשלום — מסלולים שהופכים מבקרים ללקוחות משלמים.",
-  },
-  {
-    icon: Rocket,
-    tagline: "04 — מהירות",
-    title: "השקה מהירה ומדויקת",
-    text: "תהליך עבודה שקוף ומהיר. מהבריף הראשוני ועד לעלייה לאוויר — תוך ימים בודדים, לא שבועות.",
-  },
-  {
-    icon: Shield,
-    tagline: "05 — ליווי",
-    title: "ליווי מלא אחרי ההשקה",
-    text: "לא נעלמים אחרי שהאתר עולה. תמיכה טכנית, עדכוני אבטחה, ואופטימיזציה שוטפת — תמיד ברמה הכי גבוהה.",
-  },
-];
+const storyIcons = [Sparkles, Zap, Palette, Rocket, Shield];
+const storyKeys = ["01", "02", "03", "04", "05"];
 
 interface FloatingMockup {
   id: number;
@@ -142,6 +113,15 @@ const BG_COLORS = [
 ];
 
 export function ScrollytellingSection() {
+  const { t } = useI18n();
+
+  const storyBlocks = storyKeys.map((key, i) => ({
+    icon: storyIcons[i],
+    tagline: t(`story.${key}.tagline`),
+    title: t(`story.${key}.title`),
+    text: t(`story.${key}.text`),
+  }));
+
   const sectionRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);

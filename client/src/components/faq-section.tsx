@@ -3,31 +3,9 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Badge } from "@/components/ui/badge";
 import { HelpCircle } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
-
-const faqs = [
-  {
-    question: "כמה זמן לוקח עד שהאתר עולה לאוויר?",
-    answer: "רוב הפרויקטים הפרימיום שלנו מוכנים תוך 7-14 ימי עסקים, בהתאם למורכבות הפתרון הדיגיטלי. אנחנו לא חותכים פינות — כל פרויקט מקבל את הזמן שמגיע לו.",
-  },
-  {
-    question: "האתר מותאם למובייל?",
-    answer: "בהחלט. אנחנו משתמשים ב-Dynamic Viewport Scaling (dvh) כדי להבטיח חוויה מושלמת בכל מכשיר — מ-iPhone ועד Galaxy, טאבלט ועד מסך רחב.",
-  },
-  {
-    question: "אני יכול לעדכן את התוכן בעצמי אחר כך?",
-    answer: "כן, אנחנו בונים את הפתרונות שלנו כדי שיהיו ידידותיים למשתמש. תוכלו לנהל את התוכן בקלות בלי צורך בידע טכני.",
-  },
-  {
-    question: "מה כולל המחיר?",
-    answer: "כל חבילה כוללת עיצוב מותאם אישית, פיתוח מלא, התאמה למובייל, והעלאה לאוויר. אין עלויות נסתרות.",
-  },
-  {
-    question: "יש תמיכה אחרי ההשקה?",
-    answer: "בוודאי. אנחנו מלווים את הלקוחות שלנו גם אחרי שהאתר באוויר — תמיכה טכנית, עדכוני אבטחה, ודואגים שהכל רץ חלק. הליווי הוא חלק מהשירות שלנו.",
-  },
-];
 
 function FaqItem({ question, answer, index }: { question: string; answer: string; index: number }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -122,9 +100,18 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
 }
 
 export function FaqSection() {
+  const { t, dir } = useI18n();
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const itemsRef = useRef<HTMLDivElement>(null);
+
+  const faqs = [
+    { question: t("faq.q1"), answer: t("faq.a1") },
+    { question: t("faq.q2"), answer: t("faq.a2") },
+    { question: t("faq.q3"), answer: t("faq.a3") },
+    { question: t("faq.q4"), answer: t("faq.a4") },
+    { question: t("faq.q5"), answer: t("faq.a5") },
+  ];
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -179,7 +166,7 @@ export function FaqSection() {
     <section
       ref={sectionRef}
       id="faq"
-      dir="rtl"
+      dir={dir}
       className="relative py-20 md:py-32 overflow-hidden"
       style={{
         background: "linear-gradient(180deg, rgb(15, 10, 40) 0%, rgb(10, 8, 30) 50%, rgb(15, 10, 40) 100%)",
@@ -220,13 +207,13 @@ export function FaqSection() {
             }}
           >
             <HelpCircle className="w-3 h-3 me-1" />
-            שאלות נפוצות
+            {t("faq.badge")}
           </Badge>
           <h2
             className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 text-white"
             data-testid="text-faq-title"
           >
-            שאלות
+            {t("faq.title1")}
             <span
               className="ms-2"
               style={{
@@ -236,11 +223,11 @@ export function FaqSection() {
                 backgroundClip: "text",
               }}
             >
-              ותשובות
+              {t("faq.title2")}
             </span>
           </h2>
           <p className="text-white/50 text-lg max-w-xl mx-auto">
-            כל מה שרציתם לדעת — במקום אחד
+            {t("faq.subtitle")}
           </p>
         </div>
 

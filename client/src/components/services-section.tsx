@@ -13,46 +13,48 @@ import {
 } from "lucide-react";
 import { BrowserPreviewModal } from "@/components/browser-preview-modal";
 import { ParallaxSection } from "@/components/floating-elements";
-
-const services = [
-  {
-    id: "card",
-    icon: Smartphone,
-    title: "כרטיס ביקור דיגיטלי",
-    subtitle: "הרושם הראשוני המושלם",
-    description: "כרטיס ביקור אינטראקטיבי ויוקרתי, מותאם למובייל עם שמירת איש קשר בקליק אחד",
-    features: ["עיצוב בוטיק מותאם", "שמירת איש קשר מיידית", "QR Code חכם", "שיתוף בכל הפלטפורמות"],
-    price: "החל מ-₪490",
-    tag: "מחיר השקה",
-    serviceType: "card" as const,
-  },
-  {
-    id: "landing",
-    icon: Layout,
-    title: "דף נחיתה",
-    subtitle: "ממיר לידים ומכירות",
-    description: "דפי נחיתה מעוצבים עם מיקוד בהמרה גבוהה, מותאמים לכל מכשיר ומהירים ברמה שגוגל אוהב",
-    features: ["עיצוב ממוקד המרה", "מהירות טעינה מושלמת", "אופטימיזציית SEO מלאה", "מעקב ואנליטיקס"],
-    price: "החל מ-₪1,490",
-    tag: "הכי פופולרי",
-    serviceType: "landing" as const,
-  },
-  {
-    id: "ecommerce",
-    icon: ShoppingCart,
-    title: "חנות אונליין מלאה",
-    subtitle: "פתרון מסחר ברמה הכי גבוהה",
-    description: "חנות מקצועית עם ניהול מוצרים, סליקת אשראי מאובטחת, ומערכת ניהול הזמנות חכמה",
-    features: ["ניהול מוצרים מתקדם", "סליקה מאובטחת", "מעקב הזמנות אוטומטי", "דוחות מכירות ואנליטיקס"],
-    price: "החל מ-₪4,990",
-    tag: "Premium",
-    serviceType: "ecommerce" as const,
-  },
-];
+import { useI18n } from "@/lib/i18n";
 
 export function ServicesSection() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewService, setPreviewService] = useState<"landing" | "card" | "ecommerce">("landing");
+  const { t } = useI18n();
+
+  const services = [
+    {
+      id: "card",
+      icon: Smartphone,
+      title: t("services.card.title"),
+      subtitle: t("services.card.subtitle"),
+      description: t("services.card.description"),
+      features: [t("services.card.f1"), t("services.card.f2"), t("services.card.f3"), t("services.card.f4")],
+      price: t("services.card.price"),
+      tag: t("services.card.tag"),
+      serviceType: "card" as const,
+    },
+    {
+      id: "landing",
+      icon: Layout,
+      title: t("services.landing.title"),
+      subtitle: t("services.landing.subtitle"),
+      description: t("services.landing.description"),
+      features: [t("services.landing.f1"), t("services.landing.f2"), t("services.landing.f3"), t("services.landing.f4")],
+      price: t("services.landing.price"),
+      tag: t("services.landing.tag"),
+      serviceType: "landing" as const,
+    },
+    {
+      id: "ecommerce",
+      icon: ShoppingCart,
+      title: t("services.ecommerce.title"),
+      subtitle: t("services.ecommerce.subtitle"),
+      description: t("services.ecommerce.description"),
+      features: [t("services.ecommerce.f1"), t("services.ecommerce.f2"), t("services.ecommerce.f3"), t("services.ecommerce.f4")],
+      price: t("services.ecommerce.price"),
+      tag: t("services.ecommerce.tag"),
+      serviceType: "ecommerce" as const,
+    },
+  ];
 
   const openPreview = (serviceType: "landing" | "card" | "ecommerce") => {
     setPreviewService(serviceType);
@@ -72,15 +74,15 @@ export function ServicesSection() {
           >
             <Badge variant="secondary" className="mb-4 bg-copper/8 text-copper-dark border-copper/15">
               <Sparkles className="w-3 h-3 ml-1" />
-              השירותים שלנו
+              {t("services.badge")}
             </Badge>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 text-charcoal" data-testid="text-services-title">
-              שלושה פתרונות,
+              {t("services.title1")}
               <br />
-              <span className="text-copper">אינסוף אפשרויות</span>
+              <span className="text-copper">{t("services.title2")}</span>
             </h2>
             <p className="text-charcoal-light text-lg max-w-xl mx-auto">
-              כל שירות מותאם אישית לעסק שלכם — מהעיצוב ועד השורה האחרונה בקוד
+              {t("services.subtitle")}
             </p>
           </motion.div>
 
@@ -139,7 +141,7 @@ export function ServicesSection() {
                           data-testid={`button-preview-${service.id}`}
                         >
                           <Eye className="w-4 h-4 ml-1.5" />
-                          צפו בדוגמה
+                          {t("services.preview")}
                         </Button>
                         <Button
                           className="flex-1 bg-gradient-to-l from-copper to-copper-dark text-white font-bold border-0"
@@ -149,7 +151,7 @@ export function ServicesSection() {
                           }}
                           data-testid={`button-service-${service.id}`}
                         >
-                          אני רוצה
+                          {t("services.cta")}
                         </Button>
                       </div>
                     </div>

@@ -1,8 +1,10 @@
 import { SiGithub, SiLinkedin, SiInstagram } from "react-icons/si";
 import { WebSuiteLogo } from "./websuite-logo";
+import { useI18n } from "@/lib/i18n";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const { t } = useI18n();
 
   return (
     <footer className="border-t border-border/40 py-10 md:py-14 bg-background/60 glass-panel" data-testid="section-footer">
@@ -16,7 +18,7 @@ export function Footer() {
           </div>
 
           <p className="text-sm text-charcoal-light" data-testid="text-copyright">
-            {currentYear} WebSuite. כל הזכויות שמורות.
+            {currentYear} {t("footer.copyright")}
           </p>
 
           <div className="flex items-center gap-3">

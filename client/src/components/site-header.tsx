@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { WebSuiteLogo } from "./websuite-logo";
+import { useI18n } from "@/lib/i18n";
+import { Globe } from "lucide-react";
 
 const BRAND_NAME = "WebSuite";
 
@@ -10,6 +12,7 @@ export function SiteHeader() {
   const charRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const shimmerTimerRef = useRef<gsap.core.Tween | null>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const { lang, setLang } = useI18n();
 
   useEffect(() => {
     const container = logoContainerRef.current;
@@ -120,6 +123,8 @@ export function SiteHeader() {
     }
   }, [isHovered]);
 
+  const toggleLang = () => setLang(lang === "he" ? "en" : "he");
+
   return (
     <header
       ref={headerRef}
@@ -169,6 +174,23 @@ export function SiteHeader() {
             </span>
           </div>
         </div>
+
+        <button
+          onClick={toggleLang}
+          className="pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 hover:scale-105"
+          style={{
+            background: "hsla(260, 30%, 15%, 0.6)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid hsla(220, 60%, 60%, 0.2)",
+            color: "hsla(220, 80%, 85%, 0.9)",
+          }}
+          data-testid="button-lang-toggle"
+          aria-label={lang === "he" ? "Switch to English" : "החלף לעברית"}
+        >
+          <Globe className="w-3.5 h-3.5" />
+          <span>{lang === "he" ? "EN" : "עב"}</span>
+        </button>
       </div>
     </header>
   );

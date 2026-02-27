@@ -27,17 +27,19 @@ import { insertContactSchema, type InsertContact } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { Send, CheckCircle2, MessageSquare, Phone, Mail, Clock, Award, ArrowLeft, Sparkles, Zap, FileText } from "lucide-react";
-
-const serviceOptions = [
-  { value: "business-card", label: "כרטיס ביקור דיגיטלי" },
-  { value: "landing-page", label: "דף נחיתה" },
-  { value: "ecommerce", label: "חנות אונליין מלאה" },
-  { value: "other", label: "אחר" },
-];
+import { useI18n } from "@/lib/i18n";
 
 export function ContactSection() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
+  const { t, lang } = useI18n();
+
+  const serviceOptions = [
+    { value: "business-card", label: t("contact.service.card") },
+    { value: "landing-page", label: t("contact.service.landing") },
+    { value: "ecommerce", label: t("contact.service.ecommerce") },
+    { value: "other", label: t("contact.service.other") },
+  ];
 
   const form = useForm<InsertContact>({
     resolver: zodResolver(insertContactSchema),
@@ -64,8 +66,8 @@ export function ContactSection() {
     },
     onError: () => {
       toast({
-        title: "שגיאה בשליחה",
-        description: "אנא נסו שוב מאוחר יותר",
+        title: t("contact.error.title"),
+        description: t("contact.error.desc"),
         variant: "destructive",
       });
     },
@@ -87,14 +89,14 @@ export function ContactSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12 md:mb-16"
         >
-          <Badge variant="secondary" className="mb-4 bg-copper/8 text-copper-dark border-copper/15">צור קשר</Badge>
+          <Badge variant="secondary" className="mb-4 bg-copper/8 text-copper-dark border-copper/15">{t("contact.badge")}</Badge>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 text-charcoal" data-testid="text-contact-title">
-            בואו נבנה משהו
+            {t("contact.title1")}
             <br />
-            <span className="text-copper">יוצא דופן ביחד</span>
+            <span className="text-copper">{t("contact.title2")}</span>
           </h2>
           <p className="text-charcoal-light text-lg max-w-xl mx-auto">
-            ספרו לנו על הפרויקט שלכם — נחזור אליכם תוך 24 שעות עם הצעה מותאמת
+            {t("contact.subtitle")}
           </p>
         </motion.div>
 
@@ -125,10 +127,10 @@ export function ContactSection() {
                   </motion.div>
 
                   <h3 className="text-2xl font-extrabold text-charcoal mb-3" data-testid="text-success-title">
-                    הפרטים שלכם בדרך אלינו
+                    {t("contact.success.title")}
                   </h3>
                   <p className="text-charcoal-light mb-6 max-w-sm mx-auto leading-relaxed">
-                    אנחנו כבר מתחילים לעבור על המידע. תקבלו מאיתנו הצעה מותאמת אישית תוך פחות מ-24 שעות.
+                    {t("contact.success.desc")}
                   </p>
 
                   <motion.div
@@ -139,9 +141,9 @@ export function ContactSection() {
                   >
                     <div className="space-y-3">
                       {[
-                        { icon: Clock, text: "הצעה מותאמת תוך 24 שעות" },
-                        { icon: Zap, text: "הצוות מגיע מוכן עם פתרונות לעסק שלך" },
-                        { icon: FileText, text: "שאלון קצר — פחות מ-2 דקות" },
+                        { icon: Clock, text: t("contact.success.item1") },
+                        { icon: Zap, text: t("contact.success.item2") },
+                        { icon: FileText, text: t("contact.success.item3") },
                       ].map((item, i) => (
                         <motion.div
                           key={i}
@@ -168,7 +170,7 @@ export function ContactSection() {
                       data-testid="fallback-whatsapp-notice"
                     >
                       <p className="text-sm text-blue-800 mb-3">
-                        הפרטים שלכם נשמרו בהצלחה. ניתן גם ליצור קשר ישיר דרך WhatsApp:
+                        {t("contact.fallback")}
                       </p>
                       <a
                         href="https://wa.me/972547966616?text=%D7%94%D7%99%D7%99%2C%20%D7%94%D7%A9%D7%90%D7%A8%D7%AA%D7%99%20%D7%A4%D7%A8%D7%98%D7%99%D7%9D%20%D7%91%D7%90%D7%AA%D7%A8%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%97%D7%96%D7%A8%D7%94"
@@ -178,7 +180,7 @@ export function ContactSection() {
                         data-testid="link-whatsapp-fallback"
                       >
                         <MessageSquare className="w-4 h-4" />
-                        שלחו לנו WhatsApp
+                        {t("contact.fallback.cta")}
                       </a>
                     </motion.div>
                   )}
@@ -195,7 +197,7 @@ export function ContactSection() {
                       data-testid="button-continue-onboarding"
                     >
                       <Sparkles className="w-5 h-5 ml-2" />
-                      בואו נתחיל עכשיו!
+                      {t("contact.success.cta")}
                       <ArrowLeft className="w-5 h-5 mr-2" />
                     </Button>
                     <button
@@ -203,7 +205,7 @@ export function ContactSection() {
                       className="text-sm text-charcoal-light hover:text-charcoal transition-colors"
                       data-testid="button-send-another"
                     >
-                      לא עכשיו, תודה
+                      {t("contact.success.dismiss")}
                     </button>
                   </motion.div>
                 </motion.div>
@@ -216,9 +218,9 @@ export function ContactSection() {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>שם מלא <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel>{t("contact.name")} <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
-                              <Input placeholder="הזינו את שמכם" {...field} data-testid="input-name" />
+                              <Input placeholder={t("contact.name.placeholder")} {...field} data-testid="input-name" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -229,7 +231,7 @@ export function ContactSection() {
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>אימייל <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel>{t("contact.email")} <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
                               <Input type="email" placeholder="name@example.com" dir="ltr" {...field} data-testid="input-email" />
                             </FormControl>
@@ -245,7 +247,7 @@ export function ContactSection() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>טלפון <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel>{t("contact.phone")} <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
                               <Input type="tel" placeholder="054-1234567" dir="ltr" {...field} value={field.value || ""} data-testid="input-phone" />
                             </FormControl>
@@ -258,11 +260,11 @@ export function ContactSection() {
                         name="service"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>שירות מבוקש <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel>{t("contact.service")} <span className="text-red-500">*</span></FormLabel>
                             <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger data-testid="select-service">
-                                  <SelectValue placeholder="בחרו שירות" />
+                                  <SelectValue placeholder={t("contact.service.placeholder")} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -284,10 +286,10 @@ export function ContactSection() {
                       name="message"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>ספרו לנו על הפרויקט <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel>{t("contact.message")} <span className="text-red-500">*</span></FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="מה אתם מחפשים? מה חשוב לכם? כל פרט עוזר לנו להתאים את ההצעה..."
+                              placeholder={t("contact.message.placeholder")}
                               className="min-h-[120px] resize-none"
                               {...field}
                               data-testid="textarea-message"
@@ -307,12 +309,12 @@ export function ContactSection() {
                       {mutation.isPending ? (
                         <span className="flex items-center gap-2">
                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          שולח...
+                          {t("contact.sending")}
                         </span>
                       ) : (
                         <span className="flex items-center gap-2">
                           <Send className="w-4 h-4" />
-                          שלחו הודעה
+                          {t("contact.submit")}
                         </span>
                       )}
                     </Button>
@@ -333,23 +335,23 @@ export function ContactSection() {
               {
                 icon: MessageSquare,
                 title: "WhatsApp",
-                subtitle: "זמינים בשעות העבודה",
+                subtitle: t("contact.whatsapp.subtitle"),
                 value: "054-796-6616",
                 iconBg: "bg-copper/10",
                 iconColor: "text-copper",
               },
               {
                 icon: Phone,
-                title: "טלפון",
-                subtitle: "א׳-ה׳ 9:00-18:00",
+                title: t("contact.phone"),
+                subtitle: t("contact.phone.subtitle"),
                 value: "054-796-6616",
                 iconBg: "bg-sage/20",
                 iconColor: "text-sage-dark",
               },
               {
                 icon: Mail,
-                title: "אימייל",
-                subtitle: "נחזור אליכם תוך 24 שעות",
+                title: t("contact.email"),
+                subtitle: t("contact.email.subtitle"),
                 value: "websuite153@gmail.com",
                 iconBg: "bg-copper/10",
                 iconColor: "text-copper",
@@ -372,14 +374,14 @@ export function ContactSection() {
             <div className="rounded-xl border border-copper/15 bg-gradient-to-br from-copper/[0.03] to-sand-light p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Award className="w-5 h-5 text-copper" />
-                <h3 className="font-extrabold text-sm text-charcoal">למה WebSuite?</h3>
+                <h3 className="font-extrabold text-sm text-charcoal">{t("contact.why")}</h3>
               </div>
               <ul className="space-y-2.5 text-sm text-charcoal-light">
                 {[
-                  "איכות בוטיק במחירים תחרותיים",
-                  "8+ שנות ניסיון בפיתוח",
-                  "100+ פרויקטים שהושלמו בהצלחה",
-                  "תמיכה טכנית צמודה אחרי ההשקה",
+                  t("contact.why.1"),
+                  t("contact.why.2"),
+                  t("contact.why.3"),
+                  t("contact.why.4"),
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
                     <Clock className="w-3.5 h-3.5 text-copper mt-0.5 flex-shrink-0" />

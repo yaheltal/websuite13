@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { useI18n } from "@/lib/i18n";
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -9,6 +10,7 @@ export function HeroSection() {
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
+  const { t, lang } = useI18n();
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
@@ -78,7 +80,7 @@ export function HeroSection() {
     }, section);
 
     return () => ctx.revert();
-  }, []);
+  }, [lang]);
 
   return (
     <section
@@ -137,6 +139,7 @@ export function HeroSection() {
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1
           ref={titleRef}
+          key={lang}
           className="font-extrabold leading-[1.08] mb-6 text-charcoal"
           style={{ fontSize: "clamp(2.2rem, 6vw, 5rem)" }}
           data-testid="text-hero-title"
@@ -146,9 +149,9 @@ export function HeroSection() {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
-          }}>אתר פרימיום.</span>
-          <span data-hero-line className="block overflow-hidden">מחיר נגיש.</span>
-          <span data-hero-line className="block overflow-hidden">אפס פשרות.</span>
+          }}>{t("hero.line1")}</span>
+          <span data-hero-line className="block overflow-hidden">{t("hero.line2")}</span>
+          <span data-hero-line className="block overflow-hidden">{t("hero.line3")}</span>
         </h1>
 
         <p
@@ -157,7 +160,7 @@ export function HeroSection() {
           style={{ opacity: 0, fontSize: "clamp(1rem, 2vw, 1.25rem)" }}
           data-testid="text-hero-subtitle"
         >
-          WebSuite הופכת את האתר שלכם לנכס הדיגיטלי הכי חזק בעסק. עיצוב עוצר נשימה במודל שמאפשר לכם לצמוח מהר יותר.
+          {t("hero.subtitle")}
         </p>
 
         <div
@@ -174,7 +177,7 @@ export function HeroSection() {
               }}
               data-testid="button-hero-cta"
             >
-              התחילו שאלון התאמה
+              {t("hero.cta")}
             </Button>
           </Link>
           <Button
@@ -184,7 +187,7 @@ export function HeroSection() {
             className="font-semibold text-base px-8 py-3 min-h-[48px] border-charcoal/15 text-charcoal w-full sm:w-auto"
             data-testid="button-hero-services"
           >
-            השירותים שלנו
+            {t("hero.services")}
           </Button>
         </div>
 
@@ -194,9 +197,9 @@ export function HeroSection() {
           style={{ opacity: 0 }}
         >
           {[
-            { value: "100+", label: "פרויקטים" },
-            { value: "8+", label: "שנות ניסיון" },
-            { value: "98%", label: "שביעות רצון" },
+            { value: "100+", label: t("hero.stat.projects") },
+            { value: "8+", label: t("hero.stat.experience") },
+            { value: "98%", label: t("hero.stat.satisfaction") },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <p className="text-2xl md:text-3xl font-extrabold" style={{

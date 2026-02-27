@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Home, Layers, MessageCircle, X, ClipboardList } from "lucide-react";
 import { Link } from "wouter";
 import { WebSuiteLogo } from "./websuite-logo";
+import { useI18n } from "@/lib/i18n";
 
-const navItems = [
-  { label: "ראשי", href: "#hero", icon: Home },
-  { label: "שירותים", href: "#services", icon: Layers },
-  { label: "צור קשר", href: "#contact", icon: MessageCircle },
+const navKeys = [
+  { key: "nav.home", href: "#hero", icon: Home },
+  { key: "nav.services", href: "#services", icon: Layers },
+  { key: "nav.contact", href: "#contact", icon: MessageCircle },
 ];
 
 export function Navigation() {
@@ -15,6 +16,7 @@ export function Navigation() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,7 +24,7 @@ export function Navigation() {
       setIsVisible(currentY < 100 || currentY < lastScrollY);
       setLastScrollY(currentY);
 
-      const sections = navItems.map((item) => ({
+      const sections = navKeys.map((item) => ({
         id: item.href,
         el: document.querySelector(item.href),
       }));
@@ -74,7 +76,7 @@ export function Navigation() {
 
           <div className="w-px h-6 bg-border/60 mx-1" />
 
-          {navItems.map((item) => {
+          {navKeys.map((item) => {
             const isActive = activeSection === item.href;
             return (
               <button
@@ -82,17 +84,19 @@ export function Navigation() {
                 onClick={() => scrollToSection(item.href)}
                 className={`relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                   isActive
-                    ? "bg-copper/10 text-copper"
+                    ? "text-blue-400"
                     : "text-charcoal-light hover:text-charcoal"
                 }`}
+                style={isActive ? { background: "hsla(220, 80%, 55%, 0.1)" } : undefined}
                 data-testid={`link-nav-${item.href.replace("#", "")}`}
               >
                 <item.icon className="w-4 h-4" />
-                <span>{item.label}</span>
+                <span>{t(item.key)}</span>
                 {isActive && (
                   <motion.div
                     layoutId="nav-indicator"
-                    className="absolute inset-0 rounded-full border border-copper/20"
+                    className="absolute inset-0 rounded-full"
+                    style={{ border: "1px solid hsla(220, 80%, 55%, 0.2)" }}
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
@@ -104,11 +108,12 @@ export function Navigation() {
 
           <Link href="/onboarding">
             <button
-              className="flex items-center gap-2 bg-gradient-to-l from-copper to-copper-dark text-white font-bold text-sm px-5 py-2 rounded-full transition-all duration-300 hover:shadow-lg"
+              className="flex items-center gap-2 text-white font-bold text-sm px-5 py-2 rounded-full transition-all duration-300 hover:shadow-lg"
+              style={{ background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))" }}
               data-testid="button-nav-questionnaire"
             >
               <ClipboardList className="w-4 h-4" />
-              שאלון התאמה
+              {t("nav.questionnaire")}
             </button>
           </Link>
         </div>
@@ -149,7 +154,7 @@ export function Navigation() {
                 </button>
               </div>
               <div className="space-y-1">
-                {navItems.map((item) => {
+                {navKeys.map((item) => {
                   const isActive = activeSection === item.href;
                   return (
                     <button
@@ -157,13 +162,14 @@ export function Navigation() {
                       onClick={() => scrollToSection(item.href)}
                       className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all min-h-[44px] ${
                         isActive
-                          ? "bg-copper/10 text-copper"
+                          ? "text-blue-400"
                           : "text-charcoal-light"
                       }`}
+                      style={isActive ? { background: "hsla(220, 80%, 55%, 0.1)" } : undefined}
                       data-testid={`link-mobile-${item.href.replace("#", "")}`}
                     >
                       <item.icon className="w-4 h-4" />
-                      {item.label}
+                      {t(item.key)}
                     </button>
                   );
                 })}
@@ -171,11 +177,12 @@ export function Navigation() {
               <div className="mt-3 pt-3 border-t border-border/40">
                 <Link href="/onboarding">
                   <button
-                    className="w-full bg-gradient-to-l from-copper to-copper-dark text-white font-bold text-sm py-3 rounded-xl flex items-center justify-center gap-2 min-h-[48px]"
+                    className="w-full text-white font-bold text-sm py-3 rounded-xl flex items-center justify-center gap-2 min-h-[48px]"
+                    style={{ background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))" }}
                     data-testid="button-mobile-questionnaire"
                   >
                     <ClipboardList className="w-4 h-4" />
-                    שאלון התאמה
+                    {t("nav.questionnaire")}
                   </button>
                 </Link>
               </div>
@@ -189,22 +196,24 @@ export function Navigation() {
               transition={{ duration: 0.25 }}
               className="glass-panel bg-card/90 border border-border/60 rounded-full shadow-lg flex items-center gap-1 p-1.5"
             >
-              {navItems.map((item) => {
+              {navKeys.map((item) => {
                 const isActive = activeSection === item.href;
                 return (
                   <button
                     key={item.href}
                     onClick={() => scrollToSection(item.href)}
                     className={`relative w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      isActive ? "bg-copper/10 text-copper" : "text-charcoal-light"
+                      isActive ? "text-blue-400" : "text-charcoal-light"
                     }`}
+                    style={isActive ? { background: "hsla(220, 80%, 55%, 0.1)" } : undefined}
                     data-testid={`link-mobile-icon-${item.href.replace("#", "")}`}
                   >
                     <item.icon className="w-4 h-4" />
                     {isActive && (
                       <motion.div
                         layoutId="mobile-nav-indicator"
-                        className="absolute inset-0 rounded-full border border-copper/20"
+                        className="absolute inset-0 rounded-full"
+                        style={{ border: "1px solid hsla(220, 80%, 55%, 0.2)" }}
                         transition={{ type: "spring", stiffness: 400, damping: 30 }}
                       />
                     )}
