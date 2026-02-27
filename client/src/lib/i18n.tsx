@@ -132,6 +132,18 @@ const translations: Record<Lang, Record<string, string>> = {
     "nav.questionnaire": "שאלון התאמה",
 
     "footer.copyright": "WebSuite. כל הזכויות שמורות.",
+    "footer.desc": "אתרים, לידים ונוכחות דיגיטלית לעסקים. אנחנו בונים את זה כדי שהעסק שלכם יצמח.",
+    "footer.services": "שירותים",
+    "footer.services.websites": "אתרים",
+    "footer.services.landing": "דפי נחיתה",
+    "footer.services.card": "כרטיס ביקור דיגיטלי",
+    "footer.contact": "צור קשר",
+    "footer.contact.quote": "קבלו הצעת מחיר",
+    "footer.contact.email": "שלחו מייל",
+    "footer.legal": "משפטי",
+    "footer.legal.privacy": "מדיניות פרטיות",
+    "footer.legal.terms": "תנאי שימוש",
+    "footer.legal.cookies": "מדיניות עוגיות",
   },
   en: {
     "hero.line1": "Exceptional Websites.",
@@ -255,6 +267,18 @@ const translations: Record<Lang, Record<string, string>> = {
     "nav.questionnaire": "Free Consultation",
 
     "footer.copyright": "WebSuite. All Rights Reserved.",
+    "footer.desc": "Websites, leads, and digital presence for businesses. We build it so your business can grow.",
+    "footer.services": "Services",
+    "footer.services.websites": "Websites",
+    "footer.services.landing": "Landing Pages",
+    "footer.services.card": "Digital Business Card",
+    "footer.contact": "Contact",
+    "footer.contact.quote": "Get a Quote",
+    "footer.contact.email": "Email Us",
+    "footer.legal": "Legal",
+    "footer.legal.privacy": "Privacy Policy",
+    "footer.legal.terms": "Terms of Service",
+    "footer.legal.cookies": "Cookie Policy",
   },
 };
 
