@@ -337,29 +337,42 @@ export function ContactSection() {
                 title: "WhatsApp",
                 subtitle: t("contact.whatsapp.subtitle"),
                 value: "054-796-6616",
-                iconBg: "bg-copper/10",
-                iconColor: "text-copper",
+                href: "https://wa.me/972547966616?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A2%D7%9C%20%D7%94%D7%A9%D7%99%D7%A8%D7%95%D7%AA%D7%99%D7%9D%20%D7%A9%D7%9C%D7%9B%D7%9D",
+                iconBg: "bg-green-500/10",
+                iconColor: "text-green-600",
+                testId: "link-contact-whatsapp",
               },
               {
                 icon: Phone,
                 title: t("contact.phone"),
                 subtitle: t("contact.phone.subtitle"),
                 value: "054-796-6616",
-                iconBg: "bg-sage/20",
-                iconColor: "text-sage-dark",
+                href: "tel:+972547966616",
+                iconBg: "bg-blue-500/10",
+                iconColor: "text-blue-500",
+                testId: "link-contact-phone",
               },
               {
                 icon: Mail,
                 title: t("contact.email"),
                 subtitle: t("contact.email.subtitle"),
                 value: "websuite153@gmail.com",
-                iconBg: "bg-copper/10",
-                iconColor: "text-copper",
+                href: "mailto:websuite153@gmail.com",
+                iconBg: "bg-purple-500/10",
+                iconColor: "text-purple-500",
+                testId: "link-contact-email",
               },
             ].map((item) => (
-              <div key={item.title} className="rounded-xl border border-border/50 bg-card p-5 shadow-sm">
+              <a
+                key={item.title}
+                href={item.href}
+                target={item.href.startsWith("http") ? "_blank" : undefined}
+                rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                className="block rounded-xl border border-border/50 bg-card p-5 shadow-sm hover:border-border hover:shadow-md transition-all group cursor-pointer"
+                data-testid={item.testId}
+              >
                 <div className="flex items-center gap-3 mb-2">
-                  <div className={`w-10 h-10 rounded-lg ${item.iconBg} flex items-center justify-center`}>
+                  <div className={`w-10 h-10 rounded-lg ${item.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
                     <item.icon className={`w-5 h-5 ${item.iconColor}`} />
                   </div>
                   <div>
@@ -367,8 +380,8 @@ export function ContactSection() {
                     <p className="text-xs text-charcoal-light">{item.subtitle}</p>
                   </div>
                 </div>
-                <p className="text-sm text-charcoal-light" dir="ltr">{item.value}</p>
-              </div>
+                <p className="text-sm text-charcoal-light group-hover:text-charcoal transition-colors" dir="ltr">{item.value}</p>
+              </a>
             ))}
 
             <div className="rounded-xl border border-copper/15 bg-gradient-to-br from-copper/[0.03] to-sand-light p-5">
