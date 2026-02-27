@@ -52,9 +52,69 @@ const CODE_SNIPPETS = [
   'module.exports = config;',
   'plugins: [react()],',
   'server { listen 443 ssl; }',
+  'if (err) throw err;',
+  'req.body.email',
+  'res.status(200).json(data);',
+  'margin: 0 auto;',
+  'overflow: hidden;',
+  'cursor: pointer;',
+  'const API = "/api/v1";',
+  'headers: { "Content-Type": "application/json" }',
+  'try { await save(); } catch(e) {}',
+  'router.get("/", handler);',
+  'WHERE id = $1',
+  'ORDER BY created_at DESC',
+  'LIMIT 50 OFFSET 0',
+  'INSERT INTO leads VALUES',
+  'UPDATE projects SET status',
+  'flex-direction: column;',
+  'align-items: center;',
+  'text-align: center;',
+  'max-width: 1200px;',
+  'border: 1px solid rgba(...);',
+  'backdrop-filter: blur(20px);',
+  'const token = jwt.sign(payload);',
+  'bcrypt.compare(password, hash);',
+  'process.env.DATABASE_URL',
+  'export const schema = pgTable(...);',
+  'app.use(cors({ origin: "*" }));',
+  'console.log("Server ready");',
+  'npm install --save',
+  'yarn add @tanstack/react-query',
+  'pnpm exec drizzle-kit push',
+  'const ctx = gsap.context(() => {});',
+  'tl.to(el, { opacity: 1 });',
+  'gsap.fromTo(chars, {...});',
+  'ease: "power3.out"',
+  'stagger: 0.04',
+  'duration: 0.8',
+  'repeat: -1',
+  'yoyo: true',
+  'delay: 0.2',
+  '.then(data => setData(data))',
+  'catch(err => console.error(err))',
+  'Promise.all([...requests])',
+  'async/await pattern',
+  'middleware(req, res, next)',
+  'session.destroy()',
+  'cookie: { secure: true }',
+  'ssl: { rejectUnauthorized: false }',
+  'pool.query(sql, params)',
+  'rows.map(r => r.name)',
+  'JSON.stringify(obj)',
+  'Object.keys(config)',
+  'Array.from(nodeList)',
+  'document.querySelector("#app")',
+  'window.scrollTo({ top: 0 })',
+  'addEventListener("click", fn)',
+  'removeEventListener("resize")',
+  'IntersectionObserver(callback)',
+  'requestAnimationFrame(loop)',
+  'performance.now()',
+  'crypto.randomUUID()',
 ];
 
-const COLUMN_COUNT = 8;
+const COLUMN_COUNT = 14;
 
 function shuffleArray<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -83,22 +143,27 @@ export function CodeRainBg() {
         width: ${100 / COLUMN_COUNT}%;
         display: flex;
         flex-direction: column;
-        gap: 6px;
-        padding: 0 8px;
+        gap: 3px;
+        padding: 0 4px;
         white-space: nowrap;
         overflow: hidden;
       `;
 
-      const lines = shuffleArray(CODE_SNIPPETS).slice(0, 14 + Math.floor(Math.random() * 6));
+      const lineCount = 30 + Math.floor(Math.random() * 15);
+      const lines = shuffleArray(CODE_SNIPPETS).slice(0, Math.min(lineCount, CODE_SNIPPETS.length));
+      while (lines.length < lineCount) {
+        lines.push(...shuffleArray(CODE_SNIPPETS).slice(0, lineCount - lines.length));
+      }
+
       lines.forEach((line) => {
         const el = document.createElement("div");
         el.textContent = line;
+        const brightness = 0.06 + Math.random() * 0.1;
         el.style.cssText = `
           font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-          font-size: 11px;
-          line-height: 1.6;
-          color: hsla(220, 60%, 65%, 0.12);
-          opacity: 0;
+          font-size: 10px;
+          line-height: 1.5;
+          color: hsla(220, 70%, 68%, ${brightness});
         `;
         column.appendChild(el);
       });
@@ -109,33 +174,30 @@ export function CodeRainBg() {
 
     const ctx = gsap.context(() => {
       columns.forEach((column, colIdx) => {
-        const children = column.children;
-        const delay = colIdx * 0.4 + Math.random() * 0.5;
+        const speed = 6 + Math.random() * 8;
+        const totalH = column.scrollHeight;
+        const startDelay = colIdx * 0.15 + Math.random() * 0.3;
+        const direction = colIdx % 3 === 0 ? 1 : -1;
 
-        gsap.fromTo(
-          children,
-          { opacity: 0, y: -10 },
-          {
-            opacity: 1,
+        if (direction === 1) {
+          gsap.set(column, { y: 0 });
+          gsap.to(column, {
+            y: -totalH / 2,
+            duration: speed,
+            ease: "none",
+            repeat: -1,
+            delay: startDelay,
+          });
+        } else {
+          gsap.set(column, { y: -totalH / 2 });
+          gsap.to(column, {
             y: 0,
-            duration: 0.4,
-            stagger: 0.08,
-            delay,
-            ease: "power1.out",
-          }
-        );
-
-        const speed = 25 + Math.random() * 15;
-        const totalH = column.scrollHeight + 100;
-
-        gsap.set(column, { y: 0 });
-        gsap.to(column, {
-          y: -totalH / 2,
-          duration: speed,
-          ease: "none",
-          repeat: -1,
-          delay: delay + 1.5,
-        });
+            duration: speed,
+            ease: "none",
+            repeat: -1,
+            delay: startDelay,
+          });
+        }
       });
     }, container);
 
@@ -150,9 +212,8 @@ export function CodeRainBg() {
       ref={containerRef}
       className="absolute inset-0 pointer-events-none overflow-hidden"
       style={{
-        maskImage: "radial-gradient(ellipse 80% 70% at 50% 50%, black 20%, transparent 70%)",
-        WebkitMaskImage: "radial-gradient(ellipse 80% 70% at 50% 50%, black 20%, transparent 70%)",
-        opacity: 0.9,
+        maskImage: "radial-gradient(ellipse 90% 80% at 50% 50%, black 10%, transparent 65%)",
+        WebkitMaskImage: "radial-gradient(ellipse 90% 80% at 50% 50%, black 10%, transparent 65%)",
       }}
       aria-hidden="true"
     />
