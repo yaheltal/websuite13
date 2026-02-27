@@ -101,7 +101,7 @@ export function WebSuiteLogo({
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       style={animate ? { opacity: 0 } : undefined}
-      aria-label="WebSuite W13 Logo"
+      aria-label="WebSuite Logo"
       role="img"
     >
       <defs>
@@ -146,19 +146,22 @@ export function WebSuiteLogo({
         fill="none"
       />
 
-      <text
-        data-logo-digit
-        x="80"
-        y="76"
-        fontSize="32"
-        fontWeight="800"
-        fill={`url(#${g2})`}
-        textAnchor="middle"
-        fontFamily="Assistant, system-ui, sans-serif"
-        dominantBaseline="alphabetic"
-      >
-        1
-      </text>
+      <g data-logo-digit transform="translate(70, 42)">
+        <path
+          d="M13 0 L16.5 3.5 L8 12 L4.5 13.5 L3 14.5 L2 16 L1.5 18 L1.5 20 L2.5 22 L4 23.5 L3 25 L1.5 27 L1.5 29 L2.5 30.5 L4.5 31.5 L6.5 31 L8 29.5 L9 27.5 L8 25 L9.5 23.5 L11 22 L12.5 20 L12 18 L11 16 L9.5 14.5 L5.5 13 L7 11.5 L15.5 3 L18 5.5 L20 3.5 L16.5 0 Z"
+          fill="hsl(220, 85%, 60%)"
+          strokeWidth="0"
+        />
+        <path
+          d="M5 25 Q3 28 4.5 30 Q6 31 7.5 29 Q8.5 27 7 25 Q6 24 5 25 Z"
+          fill="hsl(220, 80%, 50%)"
+        />
+        <path
+          d="M13 0 L16.5 3.5 L15.5 3 L18 5.5 L20 3.5 L16.5 0 Z"
+          fill="hsl(175, 80%, 50%)"
+          opacity="0.9"
+        />
+      </g>
 
       <text
         data-logo-digit
