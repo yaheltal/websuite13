@@ -398,7 +398,9 @@ export function ContactSection() {
               </a>
 
               <a
-                href="mailto:websuite153@gmail.com"
+                href="https://mail.google.com/mail/?view=cm&to=websuite153@gmail.com&su=%D7%A4%D7%A0%D7%99%D7%99%D7%94%20%D7%9E%D7%90%D7%AA%D7%A8%20WebSuite"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="col-span-2 relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
                 style={{
                   background: "linear-gradient(150deg, hsl(180 65% 38%) 0%, hsl(195 60% 32%) 100%)",
