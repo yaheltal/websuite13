@@ -15,10 +15,19 @@
       <stop offset="50%" stop-color="hsl(260,78%,68%)"/>
       <stop offset="100%" stop-color="hsl(180,75%,58%)"/>
     </linearGradient>
+    <linearGradient id="logo-fill" x1="540" y1="120" x2="660" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="hsl(225,85%,65%)"/>
+      <stop offset="50%" stop-color="hsl(260,78%,62%)"/>
+      <stop offset="100%" stop-color="hsl(180,75%,52%)"/>
+    </linearGradient>
     <linearGradient id="glow" x1="400" y1="250" x2="800" y2="380" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="hsl(220,80%,55%)" stop-opacity="0.15"/>
       <stop offset="100%" stop-color="hsl(175,80%,50%)" stop-opacity="0.08"/>
     </linearGradient>
+    <radialGradient id="logo-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="hsl(260,80%,70%)" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="hsl(260,80%,70%)" stop-opacity="0"/>
+    </radialGradient>
     <filter id="blur-glow">
       <feGaussianBlur stdDeviation="40"/>
     </filter>
@@ -30,24 +39,27 @@
 
   <rect x="40" y="40" width="1120" height="550" rx="20" stroke="url(#accent)" stroke-width="1.5" fill="none" opacity="0.2"/>
 
-  <g transform="translate(440, 180)">
+  <g transform="translate(555, 115)">
+    <rect x="0" y="0" width="90" height="90" rx="22" fill="url(#logo-glow)" opacity="0.08"/>
     <rect x="0" y="0" width="90" height="90" rx="22" stroke="url(#accent)" stroke-width="3" fill="none"/>
-    <path d="M18 28 L30 68 L42 48 L54 68 L66 28" stroke="url(#text-grad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    <text x="80" y="42" font-size="13" font-weight="800" fill="url(#text-grad)" text-anchor="middle" font-family="system-ui,sans-serif">1</text>
-    <text x="80" y="68" font-size="18" font-weight="800" fill="url(#text-grad)" text-anchor="middle" font-family="system-ui,sans-serif">3</text>
-    <circle cx="82" cy="14" r="4.5" fill="hsl(175,80%,50%)"/>
+
+    <path d="M16 38 L10 52 L16 66" stroke="url(#logo-fill)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.5"/>
+    <path d="M74 38 L80 52 L74 66" stroke="url(#logo-fill)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.5"/>
+
+    <path d="M22 34 L32 64 L42 46 L52 64 L62 34" stroke="url(#logo-fill)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+    <path d="M64 42 Q70 38 74 42 Q78 48 72 52 Q64 56 68 60 Q72 66 78 60" stroke="url(#logo-fill)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+    <circle cx="82" cy="18" r="4" fill="hsl(175,80%,50%)"/>
   </g>
 
-  <text x="560" y="193" font-size="13" font-weight="700" fill="hsl(175,80%,50%)" text-anchor="start" font-family="system-ui,-apple-system,sans-serif" letter-spacing="3" opacity="0.9">&lt;</text>
-  <text x="575" y="260" font-size="13" font-weight="700" fill="hsl(175,80%,50%)" text-anchor="start" font-family="system-ui,-apple-system,sans-serif" letter-spacing="3" opacity="0.9">&gt;</text>
+  <text x="600" y="280" font-size="72" font-weight="800" fill="url(#text-grad)" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="8">WebSuite</text>
 
-  <text x="600" y="340" font-size="72" font-weight="800" fill="url(#text-grad)" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="8">WebSuite</text>
+  <line x1="380" y1="310" x2="820" y2="310" stroke="url(#accent)" stroke-width="1" opacity="0.3"/>
 
-  <line x1="380" y1="370" x2="820" y2="370" stroke="url(#accent)" stroke-width="1" opacity="0.3"/>
+  <text x="600" y="360" font-size="22" font-weight="400" fill="#b0b0c8" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="1" direction="rtl" unicode-bidi="bidi-override">עיצוב ופיתוח אתרים פרימיום</text>
 
-  <text x="600" y="410" font-size="22" font-weight="400" fill="#b0b0c8" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="1" direction="rtl" unicode-bidi="bidi-override">עיצוב ופיתוח אתרים פרימיום</text>
-
-  <text x="600" y="450" font-size="16" font-weight="400" fill="#8080a0" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="0.5">Premium Web Design &amp; Development</text>
+  <text x="600" y="400" font-size="16" font-weight="400" fill="#8080a0" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="0.5">Premium Web Design &amp; Development</text>
 
   <circle cx="100" cy="100" r="3" fill="hsl(220,80%,55%)" opacity="0.4"/>
   <circle cx="200" cy="80" r="2" fill="hsl(260,70%,55%)" opacity="0.3"/>
