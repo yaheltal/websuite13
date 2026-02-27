@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { gsap } from "gsap";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
@@ -26,6 +26,57 @@ export function HeroSection() {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  const handleBrandHover = useCallback(() => {
+    const chars = brandCharsRef.current.filter(Boolean) as HTMLSpanElement[];
+    if (chars.length === 0) return;
+    const mid = (chars.length - 1) / 2;
+
+    chars.forEach((char, i) => {
+      const offset = (i - mid) * 3.5;
+      gsap.to(char, {
+        x: offset,
+        scale: 1.08,
+        duration: 0.4,
+        ease: "power2.out",
+      });
+      char.style.backgroundImage = "linear-gradient(135deg, hsl(175 90% 62%), hsl(220 85% 75%), hsl(260 80% 72%), hsl(175 90% 62%))";
+    });
+
+    const suit = suitIconRef.current;
+    if (suit) {
+      gsap.to(suit, {
+        scale: 1.15,
+        rotateZ: 5,
+        duration: 0.4,
+        ease: "power2.out",
+      });
+    }
+  }, []);
+
+  const handleBrandLeave = useCallback(() => {
+    const chars = brandCharsRef.current.filter(Boolean) as HTMLSpanElement[];
+
+    chars.forEach((char) => {
+      gsap.to(char, {
+        x: 0,
+        scale: 1,
+        duration: 0.5,
+        ease: "power2.out",
+      });
+      char.style.backgroundImage = "linear-gradient(135deg, hsl(220 80% 68%), hsl(260 72% 65%), hsl(175 80% 55%))";
+    });
+
+    const suit = suitIconRef.current;
+    if (suit) {
+      gsap.to(suit, {
+        scale: 1,
+        rotateZ: 0,
+        duration: 0.5,
+        ease: "power2.out",
+      });
+    }
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -232,12 +283,14 @@ export function HeroSection() {
         <div
           ref={brandRef}
           dir="ltr"
-          className="mb-4 sm:mb-5 mt-6 sm:mt-8 inline-flex items-end justify-center select-none"
+          className="mb-4 sm:mb-5 mt-6 sm:mt-8 inline-flex items-end justify-center select-none cursor-pointer"
           style={{
             opacity: 0,
             perspective: "800px",
             transformStyle: "preserve-3d",
           }}
+          onMouseEnter={handleBrandHover}
+          onMouseLeave={handleBrandLeave}
           data-testid="text-hero-brand"
         >
           {BRAND_WEB.split("").map((char, i) => (
