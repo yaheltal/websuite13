@@ -35,7 +35,7 @@ button, [role="button"], a {
 
 .grain-overlay {
   opacity: 0.055;
-  background-image: url('/grain.png');
+  background-image: url('/grain.webp');
 }
 
 h1, h2 {

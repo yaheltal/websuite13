@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 
-const siteImages = Array.from({ length: 10 }, (_, i) => `/images/site-${i + 1}.png`);
+const siteImages = Array.from({ length: 10 }, (_, i) => `/images/site-${i + 1}.webp`);
 
 function seededRandom(seed: number) {
   let s = seed;
@@ -114,6 +114,8 @@ export function ScrollBackground() {
             <img
               src={thumb.src}
               alt=""
+              width={thumb.width}
+              height={thumb.width}
               className="w-full h-auto block"
               loading="lazy"
               decoding="async"

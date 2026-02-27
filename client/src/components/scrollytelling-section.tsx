@@ -81,7 +81,7 @@ function generateMockups(count: number): FloatingMockup[] {
 
     return {
       id: i,
-      src: `https://images.unsplash.com/${UNSPLASH_IMAGES[i % UNSPLASH_IMAGES.length]}?w=500&h=340&fit=crop&q=75`,
+      src: `https://images.unsplash.com/${UNSPLASH_IMAGES[i % UNSPLASH_IMAGES.length]}?w=500&h=340&fit=crop&q=75&auto=format`,
       x: -15 + s1 * 115,
       y: s2 * 95,
       z: baseZ + (s5 - 0.5) * 250,
@@ -455,6 +455,8 @@ export function ScrollytellingSection() {
                 <img
                   src={isMobileInit ? m.src.replace("w=500&h=340", "w=300&h=200") : m.src}
                   alt=""
+                  width={isMobileInit ? 300 : 500}
+                  height={isMobileInit ? 200 : 340}
                   loading="lazy"
                   decoding="async"
                   className="w-full aspect-[3/2] object-cover"
