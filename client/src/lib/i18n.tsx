@@ -85,6 +85,8 @@ const translations: Record<Lang, Record<string, string>> = {
     "faq.a4": "כל חבילה כוללת עיצוב מותאם אישית, פיתוח מלא, התאמה למובייל, והעלאה לאוויר. אין עלויות נסתרות.",
     "faq.q5": "יש תמיכה אחרי ההשקה?",
     "faq.a5": "בוודאי. אנחנו מלווים את הלקוחות שלנו גם אחרי שהאתר באוויר — תמיכה טכנית, עדכוני אבטחה, ודואגים שהכל רץ חלק. הליווי הוא חלק מהשירות שלנו.",
+    "faq.q6": "מה קורה כשלקוח משאיר פרטים באתר?",
+    "faq.a6": "ברגע שלקוח ממלא את טופס יצירת הקשר, הפרטים עוברים אימות מיידי ונשלחים ישירות למייל העבודה שלכם — בזמן אמת, 24/7. ככה אף ליד לא הולך לאיבוד, ותוכלו לחזור ללקוח תוך דקות. המערכת מאובטחת, אמינה, ועובדת אוטומטית בלי שתצטרכו לגעת בשום דבר.",
 
     "contact.badge": "צור קשר",
     "contact.title1": "בואו נבנה משהו",
@@ -206,6 +208,8 @@ const translations: Record<Lang, Record<string, string>> = {
     "faq.a4": "Every package covers custom design, full-stack development, mobile optimization, and live deployment. The price you see is the price you pay — no hidden fees, ever.",
     "faq.q5": "Do you offer support after the site goes live?",
     "faq.a5": "Always. We provide ongoing technical support, proactive security updates, and performance monitoring. Think of us as your long-term digital partner, not just a vendor.",
+    "faq.q6": "What happens when a customer submits their details on the site?",
+    "faq.a6": "The moment a visitor fills out your contact form, their details are instantly validated and delivered straight to your business email — in real time, around the clock. No lead ever slips through the cracks, so you can respond within minutes. The system is fully automated, secure, and requires zero maintenance on your end.",
 
     "contact.badge": "Get in Touch",
     "contact.title1": "Let's Create Something",
