@@ -3,6 +3,7 @@ import { gsap } from "gsap";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useI18n } from "@/lib/i18n";
+import { CodeRainBg } from "./code-rain-bg";
 
 const BRAND = "WebSuite";
 
@@ -200,6 +201,8 @@ export function HeroSection() {
           }}
         />
       </div>
+
+      <CodeRainBg />
 
       <div className="absolute inset-0 pointer-events-none opacity-[0.015]"
         style={{
