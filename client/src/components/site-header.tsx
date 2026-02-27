@@ -128,6 +128,7 @@ export function SiteHeader() {
   return (
     <header
       ref={headerRef}
+      dir="ltr"
       className="fixed top-0 left-0 right-0 pointer-events-none"
       style={{ zIndex: 999 }}
       data-testid="site-header"
@@ -149,9 +150,8 @@ export function SiteHeader() {
           <div className="flex items-center gap-2.5 sm:gap-3 select-none">
             <WebSuiteLogo size={48} animate={true} gradientId="hdr" className="w-10 h-10 sm:w-12 sm:h-12" />
             <span
-              dir="ltr"
               className="font-extrabold tracking-tight inline-flex"
-              style={{ fontSize: "clamp(1.25rem, 2.5vw, 1.6rem)", unicodeBidi: "bidi-override", direction: "ltr" }}
+              style={{ fontSize: "clamp(1.25rem, 2.5vw, 1.6rem)" }}
               data-testid="text-brand-name"
               aria-label="WebSuite"
             >
@@ -178,19 +178,19 @@ export function SiteHeader() {
 
         <button
           onClick={toggleLang}
-          className="pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 hover:scale-105"
+          className="pointer-events-auto flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95"
           style={{
             background: "hsla(260, 30%, 15%, 0.6)",
             backdropFilter: "blur(12px)",
             WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid hsla(220, 60%, 60%, 0.2)",
-            color: "hsla(220, 80%, 85%, 0.9)",
+            border: "1px solid hsla(220, 60%, 60%, 0.25)",
+            color: "hsla(220, 80%, 90%, 0.95)",
           }}
           data-testid="button-lang-toggle"
-          aria-label={lang === "he" ? "Switch to English" : "החלף לעברית"}
+          aria-label={lang === "he" ? "Switch to English" : "Switch to Hebrew"}
         >
-          <Globe className="w-3.5 h-3.5" />
-          <span>{lang === "he" ? "EN" : "עב"}</span>
+          <Globe className="w-4 h-4" />
+          <span>{lang === "he" ? "English" : "עברית"}</span>
         </button>
       </div>
     </header>
