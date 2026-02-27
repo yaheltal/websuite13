@@ -22,8 +22,9 @@ export function WebSuiteLogo({
     const svg = svgRef.current;
     const frame = svg.querySelector("[data-logo-frame]") as SVGRectElement;
     const wPath = svg.querySelector("[data-logo-w]") as SVGPathElement;
-    const digits = svg.querySelectorAll("[data-logo-digit]");
-    const brush = svg.querySelector("[data-logo-brush]") as SVGGElement;
+    const sPath = svg.querySelector("[data-logo-s]") as SVGPathElement;
+    const bracketL = svg.querySelector("[data-logo-bracket-l]") as SVGPathElement;
+    const bracketR = svg.querySelector("[data-logo-bracket-r]") as SVGPathElement;
     const dot = svg.querySelector("[data-logo-dot]") as SVGCircleElement;
     const glow = svg.querySelector("[data-logo-glow]") as SVGRectElement;
 
@@ -31,6 +32,7 @@ export function WebSuiteLogo({
 
     const frameLen = frame.getTotalLength?.() || 600;
     const wLen = wPath.getTotalLength?.() || 200;
+    const sLen = sPath?.getTotalLength?.() || 100;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ delay: 0.2 });
@@ -47,8 +49,15 @@ export function WebSuiteLogo({
         strokeDashoffset: wLen,
         opacity: 1,
       });
-      gsap.set(digits, { opacity: 0, y: 6 });
-      if (brush) gsap.set(brush, { opacity: 0, y: 6 });
+      if (sPath) {
+        gsap.set(sPath, {
+          strokeDasharray: sLen,
+          strokeDashoffset: sLen,
+          opacity: 1,
+        });
+      }
+      if (bracketL) gsap.set(bracketL, { opacity: 0, x: 8 });
+      if (bracketR) gsap.set(bracketR, { opacity: 0, x: -8 });
       if (dot) gsap.set(dot, { opacity: 0, scale: 0, transformOrigin: "center" });
       if (glow) gsap.set(glow, { opacity: 0 });
 
@@ -68,22 +77,20 @@ export function WebSuiteLogo({
         ease: "power2.out",
       }, 0.35);
 
-      if (brush) {
-        tl.to(brush, {
-          opacity: 1,
-          y: 0,
-          duration: 0.35,
-          ease: "back.out(2)",
-        }, 0.6);
+      if (sPath) {
+        tl.to(sPath, {
+          strokeDashoffset: 0,
+          duration: 0.45,
+          ease: "power2.out",
+        }, 0.55);
       }
 
-      tl.to(digits, {
-        opacity: 1,
-        y: 0,
-        duration: 0.35,
-        stagger: 0.08,
-        ease: "back.out(2)",
-      }, 0.68);
+      if (bracketL) {
+        tl.to(bracketL, { opacity: 1, x: 0, duration: 0.35, ease: "back.out(2)" }, 0.6);
+      }
+      if (bracketR) {
+        tl.to(bracketR, { opacity: 1, x: 0, duration: 0.35, ease: "back.out(2)" }, 0.65);
+      }
 
       if (dot) {
         tl.to(dot, {
@@ -101,7 +108,6 @@ export function WebSuiteLogo({
   const g1 = `${gradientId}-main`;
   const g2 = `${gradientId}-fill`;
   const g3 = `${gradientId}-glow`;
-  const g4 = `${gradientId}-brush`;
 
   return (
     <svg
@@ -127,10 +133,6 @@ export function WebSuiteLogo({
           <stop offset="50%" stopColor="hsl(260, 78%, 62%)" />
           <stop offset="100%" stopColor="hsl(180, 75%, 52%)" />
         </linearGradient>
-        <linearGradient id={g4} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="hsl(210, 90%, 62%)" />
-          <stop offset="100%" stopColor="hsl(230, 85%, 55%)" />
-        </linearGradient>
         <radialGradient id={g3} cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="hsl(260, 80%, 70%)" stopOpacity="0.3" />
           <stop offset="100%" stopColor="hsl(260, 80%, 70%)" stopOpacity="0" />
@@ -153,61 +155,50 @@ export function WebSuiteLogo({
       />
 
       <path
-        data-logo-w
-        d="M18 40 L30 80 L42 56 L54 80 L66 40"
+        data-logo-bracket-l
+        d="M22 38 L14 60 L22 82"
         stroke={`url(#${g2})`}
-        strokeWidth="5"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+        opacity="0.5"
+      />
+
+      <path
+        data-logo-bracket-r
+        d="M98 38 L106 60 L98 82"
+        stroke={`url(#${g2})`}
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+        opacity="0.5"
+      />
+
+      <path
+        data-logo-w
+        d="M28 42 L40 78 L52 54 L64 78 L76 42"
+        stroke={`url(#${g2})`}
+        strokeWidth="5.5"
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
       />
 
-      <g data-logo-brush transform="translate(66, 28) rotate(-25, 16, 30)">
-        <line
-          x1="14" y1="0"
-          x2="14" y2="26"
-          stroke={`url(#${g4})`}
-          strokeWidth="5.5"
-          strokeLinecap="round"
-        />
-
-        <rect
-          x="7.5" y="25" width="13" height="6" rx="1.5"
-          fill="hsl(220, 60%, 42%)"
-        />
-        <line x1="9" y1="27" x2="19" y2="27" stroke="hsl(220, 50%, 55%)" strokeWidth="0.8" />
-        <line x1="9" y1="29" x2="19" y2="29" stroke="hsl(220, 50%, 55%)" strokeWidth="0.8" />
-
-        <path
-          d="M7.5 31 Q6 37 5 43 Q4.5 46 7 48 Q10 49.5 14 49.5 Q18 49.5 21 48 Q23.5 46 23 43 Q22 37 20.5 31 Z"
-          fill={`url(#${g4})`}
-        />
-        <path
-          d="M9 33 Q8 37 7 42 Q6.5 44.5 9 46 Q11 47 14 47 Q17 47 19 46 Q21.5 44.5 21 42 Q20 37 19 33 Z"
-          fill="hsl(210, 90%, 72%)"
-          opacity="0.45"
-        />
-        <line x1="11" y1="35" x2="10" y2="44" stroke="hsl(220, 85%, 78%)" strokeWidth="1" strokeLinecap="round" opacity="0.5" />
-        <line x1="17" y1="35" x2="18" y2="44" stroke="hsl(220, 85%, 78%)" strokeWidth="1" strokeLinecap="round" opacity="0.5" />
-      </g>
-
-      <text
-        data-logo-digit
-        x="102"
-        y="76"
-        fontSize="32"
-        fontWeight="800"
-        fill={`url(#${g2})`}
-        textAnchor="middle"
-        fontFamily="Assistant, system-ui, sans-serif"
-        dominantBaseline="alphabetic"
-      >
-        3
-      </text>
+      <path
+        data-logo-s
+        d="M80 52 Q88 46 92 52 Q96 58 88 62 Q80 66 84 72 Q88 78 96 72"
+        stroke={`url(#${g2})`}
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
 
       <circle
         data-logo-dot
-        cx="108" cy="28"
+        cx="100" cy="28"
         r="4.5"
         fill="hsl(175, 80%, 50%)"
       />
