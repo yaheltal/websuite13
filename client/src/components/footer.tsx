@@ -32,9 +32,9 @@ export function Footer() {
             <p className="text-sm text-charcoal-light leading-relaxed mb-4" data-testid="text-footer-desc">
               {t("footer.desc")}
             </p>
-            <p className="text-sm text-charcoal-light" dir="ltr">
+            <a href="mailto:websuite153@gmail.com" className="text-sm text-charcoal-light hover:text-charcoal transition-colors inline-block" dir="ltr">
               websuite153@gmail.com
-            </p>
+            </a>
           </div>
 
           <div>

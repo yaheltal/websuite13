@@ -132,7 +132,7 @@ const translations: Record<Lang, Record<string, string>> = {
     "nav.questionnaire": "שאלון התאמה",
 
     "footer.copyright": "WebSuite. כל הזכויות שמורות.",
-    "footer.desc": "אתרים, לידים ונוכחות דיגיטלית לעסקים. אנחנו בונים את זה כדי שהעסק שלכם יצמח.",
+    "footer.desc": "עיצוב ופיתוח אתרים ברמה הכי גבוהה — דפי נחיתה, חנויות אונליין וכרטיסי ביקור דיגיטליים. הנוכחות הדיגיטלית שלכם מתחילה כאן.",
     "footer.services": "שירותים",
     "footer.services.websites": "אתרים",
     "footer.services.landing": "דפי נחיתה",
@@ -267,7 +267,7 @@ const translations: Record<Lang, Record<string, string>> = {
     "nav.questionnaire": "Free Consultation",
 
     "footer.copyright": "WebSuite. All Rights Reserved.",
-    "footer.desc": "Websites, leads, and digital presence for businesses. We build it so your business can grow.",
+    "footer.desc": "Premium web design and development — landing pages, e-commerce stores, and digital business cards. Your digital presence starts here.",
     "footer.services": "Services",
     "footer.services.websites": "Websites",
     "footer.services.landing": "Landing Pages",
