@@ -1,0 +1,31 @@
+# High-End Brand Identity & Animation Implementation: Vector Logo (SVG)
+**CRITICAL REQUIREMENT:** Do not use or reference the provided blurred raster image for the logo. The user needs a pixel-perfect, modern, high-definition asset generated from scratch to meet ultra-premium standards. Additionally, this asset must feature a captivating entry animation when the website loads.
+
+## 1. Problem Definition
+The current brand image (see screenshot) is blurry, low-resolution, static, and unacceptable for a high-end web brand. The user is demanding a complete replacement with a high-fidelity vector version that is also animated.
+
+## 2. Mandatory Solution
+You must engineer a clean, sharp, professional SVG asset that recreates the core identity from scratch, ensuring it is visually aesthetic and has crisp, perfect edges at any zoom level. The final result must be an "Awwwards-winning level" of visual refinement. This vector asset must then be animated to create a seamless, engaging entry sequence.
+
+## 3. Brand Re-Creation Specifications
+Generate a modern, minimalist SVG logo based on these parameters:
+- **Core Symbol:** Recreate the stylistically distinct "W13" emblem. Ensure the letters are cleanly formed and visually balanced.
+- **Container:** Place the symbol inside an elegant, smooth-cornered square frame.
+- **Color Palette & Finishes:**
+    - Use premium gradients to create a professional look.
+    - The frame must feature a subtle, modern gradient effect.
+    - The colors must be vibrant and deep (e.g., modern purples and cyans) to signify high technology and innovation.
+- **Optimization:** Render the final result with clean SVG code. Add subtle visual refinements to the vectors to elevate the overall feel and ensure it looks like a curated, high-budget brand asset.
+
+## 4. Animation Specifications (Intro Sequence)
+Implement a sophisticated, high-end animation using GSAP or standard Web Animations API for the newly created SVG logo. The animation must be smooth, performance-optimized, and triggered immediately upon website load.
+- **Animation Style:** Create an "unveiling" or "assembling" effect.
+    - First, the frame should gracefully form (e.g., a smooth draw-on effect or a subtle gradient fade-in with scaling).
+    - Next, the "W13" symbol should elegantly assemble from its component parts or slide into place with a staggered, upward motion.
+- **Timing:** Keep the entire animation concise (max 1.5 seconds) so it does not delay the user's interaction with the site.
+- **Micro-Interactions:** Ensure the final state is a pristine, static logo, but consider a subtle pulsing or interactive effect upon hover.
+
+## 5. Scope of Implementation
+- **Browser Tab:** Replace the current blurred favicon with the perfect new SVG asset. Ensure the brand name "WEB13" is also rendered clearly in the browser tab.
+- **Website UI:** Use the newly created vector asset throughout the user interface, including the headers and any brand-specific components.
+- **Responsive Check:** Confirm the logo renders and animates perfectly across all screen resolutions and browser types, from desktops to iPhones.

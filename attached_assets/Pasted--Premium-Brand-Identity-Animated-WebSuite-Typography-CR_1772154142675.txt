@@ -1,0 +1,24 @@
+# Premium Brand Identity: Animated "WebSuite" Typography
+**CRITICAL REQUIREMENT:** The company name "WebSuite" (or "Web Suite") must be rendered as a high-end, animated typographic element. This is the core brand identity and must look "mind-blowing" and professional.
+
+## 1. Typography & Visual Style
+- **Text Content:** Use "WebSuite" with an elegant, modern sans-serif font.
+- **Aesthetic:** Apply a subtle metallic or glassmorphism gradient to the text to match the premium theme.
+- **Spacing:** Ensure perfect kerning (letter-spacing) to signify high-end boutique quality.
+
+## 2. Advanced Typography Animation
+Implement a sophisticated GSAP-based animation for the "WebSuite" title that triggers upon page load:
+- **Entrance Effect:** Use a "Letter-by-Letter" reveal. Each character should emerge with a staggered upward motion (y: 30 to 0) and a fade-in (opacity: 0 to 1).
+- **Dynamic Glow:** Add a subtle "shimmer" or "glint" effect that passes across the text from left to right every few seconds to draw the eye.
+- **Hover Interaction:** When the user hovers over the name, the letters should respond with a slight, elegant expansion or a subtle color shift in the gradient.
+
+## 3. Scrollytelling & Layout Integration
+- **Positioning:** The title should be centrally placed in the Hero section or as the lead element in the header.
+- **Scroll Response:** As the user scrolls, the title can subtly scale down or fade into the background parallax layers to maintain the 3D cinematic depth.
+
+## 4. Mobile & Performance Excellence
+- **Responsive Scaling:** Ensure the animation and font size scale perfectly using fluid typography (rem/em) to fit both iPhone and Android screens without breaking lines.
+- **Smoothness:** Optimize the animation to ensure a constant 60fps, avoiding any stutter during the reveal.
+
+## 5. Final Brand Polish
+- The final result must look like a curated, expensive digital asset, reinforcing WebSuite's position as a leader in premium web solutions.

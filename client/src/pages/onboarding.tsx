@@ -479,7 +479,7 @@ export default function Onboarding() {
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" data-testid="link-back-home">
             <div className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity select-none">
-              <img src="/logo-w13.png" alt="WEB13" className="w-9 h-9 sm:w-10 sm:h-10 object-contain" draggable={false} />
+              <img src="/logo-w13.png" alt="WebSuite" className="w-9 h-9 sm:w-10 sm:h-10 object-contain" draggable={false} />
               <span
                 className="text-lg font-extrabold tracking-tight"
                 style={{
@@ -489,7 +489,7 @@ export default function Onboarding() {
                   backgroundClip: "text",
                 }}
               >
-                WEB13
+                WebSuite
               </span>
             </div>
           </Link>
@@ -734,7 +734,7 @@ export default function Onboarding() {
                     <Bot className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm">סוכן AI — WEB13</h3>
+                    <h3 className="font-semibold text-sm">סוכן AI — WebSuite</h3>
                     <span className="text-[11px] text-white/70">סוכן מכירות ושירות</span>
                   </div>
                 </div>
@@ -958,15 +958,16 @@ export default function Onboarding() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", damping: 15, delay: 0.2 }}
-                className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6"
+                className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
+                style={{ background: "linear-gradient(135deg, hsl(160 60% 92%), hsl(170 50% 88%))" }}
               >
-                <CheckCircle2 className="w-10 h-10 text-green-600" />
+                <CheckCircle2 className="w-10 h-10" style={{ color: "hsl(160 55% 42%)" }} />
               </motion.div>
               <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-completion-title">
-                תודה רבה!
+                הפרטים שלכם בדרך אלינו
               </h2>
-              <p className="text-charcoal-light mb-2">
-                הנתונים התקבלו בהצלחה. הצוות שלנו יעבור על הכל ונחזור אליך בהקדם לתיאום המשך עבודה.
+              <p className="text-charcoal-light mb-2 max-w-md mx-auto leading-relaxed">
+                אנחנו כבר מתחילים לעבור על המידע. תקבלו מאיתנו הצעה מותאמת אישית תוך פחות מ-24 שעות.
               </p>
               <Link href="/">
                 <Button variant="outline" className="mt-6" data-testid="button-back-home">

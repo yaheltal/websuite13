@@ -8,14 +8,14 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
-            <img src="/logo-w13.png" alt="WEB13" className="w-8 h-8 object-contain" draggable={false} />
+            <img src="/logo-w13.png" alt="WebSuite" className="w-8 h-8 object-contain" draggable={false} />
             <span className="text-lg font-extrabold tracking-tight" style={{ background: "linear-gradient(135deg, hsl(220 80% 60%), hsl(260 70% 60%), hsl(170 80% 50%))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              WEB13
+              WebSuite
             </span>
           </div>
 
           <p className="text-sm text-charcoal-light" data-testid="text-copyright">
-            {currentYear} WEB13. כל הזכויות שמורות.
+            {currentYear} WebSuite. כל הזכויות שמורות.
           </p>
 
           <div className="flex items-center gap-3">

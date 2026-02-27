@@ -118,16 +118,17 @@ export function ContactSection() {
                     initial={{ scale: 0.6, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.1, type: "spring", damping: 15 }}
-                    className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-5"
+                    className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
+                    style={{ background: "linear-gradient(135deg, hsl(160 60% 92%), hsl(170 50% 88%))" }}
                   >
-                    <CheckCircle2 className="w-10 h-10 text-green-600" />
+                    <CheckCircle2 className="w-10 h-10" style={{ color: "hsl(160 55% 42%)" }} />
                   </motion.div>
 
-                  <h3 className="text-2xl font-extrabold text-charcoal mb-2" data-testid="text-success-title">
-                    מעולה! קיבלנו את הפרטים שלך
+                  <h3 className="text-2xl font-extrabold text-charcoal mb-3" data-testid="text-success-title">
+                    הפרטים שלכם בדרך אלינו
                   </h3>
                   <p className="text-charcoal-light mb-6 max-w-sm mx-auto leading-relaxed">
-                    כדי לדלג על שיחות ההכרות ולקבל הצעת מחיר מותאמת תוך 24 שעות — המשיכו לשאלון הדיגיטלי וסוכן ה-AI שלנו.
+                    אנחנו כבר מתחילים לעבור על המידע. תקבלו מאיתנו הצעה מותאמת אישית תוך פחות מ-24 שעות.
                   </p>
 
                   <motion.div
@@ -371,7 +372,7 @@ export function ContactSection() {
             <div className="rounded-xl border border-copper/15 bg-gradient-to-br from-copper/[0.03] to-sand-light p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Award className="w-5 h-5 text-copper" />
-                <h3 className="font-extrabold text-sm text-charcoal">למה WEB13?</h3>
+                <h3 className="font-extrabold text-sm text-charcoal">למה WebSuite?</h3>
               </div>
               <ul className="space-y-2.5 text-sm text-charcoal-light">
                 {[

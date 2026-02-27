@@ -105,7 +105,7 @@ export function SiteHeader() {
             <img
               ref={logoImgRef}
               src="/logo-w13.png"
-              alt="WEB13"
+              alt="WebSuite"
               className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
               style={{ opacity: 0 }}
               draggable={false}
@@ -120,7 +120,7 @@ export function SiteHeader() {
                 backgroundClip: "text",
               }}
             >
-              WEB13
+              WebSuite
             </span>
           </div>
         </div>

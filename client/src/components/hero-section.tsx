@@ -141,14 +141,14 @@ export function HeroSection() {
           style={{ fontSize: "clamp(2.2rem, 6vw, 5rem)" }}
           data-testid="text-hero-title"
         >
-          <span data-hero-line className="block overflow-hidden">שוברים את השוק:</span>
           <span data-hero-line className="block overflow-hidden" style={{
             background: "linear-gradient(135deg, hsl(220 80% 65%), hsl(260 70% 60%), hsl(170 80% 50%))",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
-          }}>אתרים בוטיק</span>
-          <span data-hero-line className="block overflow-hidden">במחירים שלא מאמינים</span>
+          }}>אתר פרימיום.</span>
+          <span data-hero-line className="block overflow-hidden">מחיר נגיש.</span>
+          <span data-hero-line className="block overflow-hidden">אפס פשרות.</span>
         </h1>
 
         <p
@@ -157,8 +157,7 @@ export function HeroSection() {
           style={{ opacity: 0, fontSize: "clamp(1rem, 2vw, 1.25rem)" }}
           data-testid="text-hero-subtitle"
         >
-          איכות של בוטיק פרימיום, מחיר שמפתיע. אנחנו מוכיחים שאתר
-          ברמה הכי גבוהה לא חייב לעלות הון — הוא רק חייב להיות שלנו
+          WebSuite הופכת את האתר שלכם לנכס הדיגיטלי הכי חזק בעסק. עיצוב עוצר נשימה במודל שמאפשר לכם לצמוח מהר יותר.
         </p>
 
         <div
@@ -185,7 +184,7 @@ export function HeroSection() {
             className="font-semibold text-base px-8 py-3 min-h-[48px] border-charcoal/15 text-charcoal w-full sm:w-auto"
             data-testid="button-hero-services"
           >
-            גלו את השירותים שלנו
+            השירותים שלנו
           </Button>
         </div>
 
