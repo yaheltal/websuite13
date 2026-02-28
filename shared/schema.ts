@@ -19,7 +19,11 @@ export const insertContactSchema = createInsertSchema(contactSubmissions).omit({
 }).extend({
   email: z.string().email("אנא הזן כתובת אימייל תקינה"),
   name: z.string().min(2, "שם חייב להכיל לפחות 2 תווים"),
-  phone: z.string().min(9, "אנא הזן מספר טלפון תקין"),
+  phone: z
+    .string()
+    .optional()
+    .default("")
+    .refine((v) => !v || v.replace(/\D/g, "").length >= 9, "אנא הזן מספר טלפון תקין (9 ספרות לפחות)"),
   message: z.string().min(10, "ההודעה חייבת להכיל לפחות 10 תווים"),
   service: z.string().min(1, "אנא בחר שירות"),
 });

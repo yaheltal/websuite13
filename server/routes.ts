@@ -355,15 +355,12 @@ export async function registerRoutes(
       });
       const parsed = schema.parse(req.body);
 
-      sendLeadNotifyEmail(parsed).then(result => {
-        if (result.success) {
-          console.log(`Early lead notification sent for: ${parsed.name}`);
-        } else {
-          console.error(`Early lead notification failed for: ${parsed.name}`);
-        }
-      }).catch(err => {
-        console.error("Lead notify email error:", err);
-      });
+      const result = await sendLeadNotifyEmail(parsed);
+      if (result.success) {
+        console.log(`Early lead notification sent for: ${parsed.name}`);
+      } else {
+        console.error(`Early lead notification failed for: ${parsed.name}`);
+      }
 
       res.json({ success: true });
     } catch (error) {

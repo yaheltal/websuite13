@@ -355,17 +355,20 @@ export default function Onboarding() {
     if (!leadNotified) {
       setLeadNotified(true);
       try {
-        fetch("/api/onboarding/lead-notify", {
+        await fetch("/api/onboarding/lead-notify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             name: contactValues.name,
             email: contactValues.email,
-            phone: contactValues.phone,
+            phone: contactValues.phone ?? "",
             service: selectedService,
           }),
-        }).catch(() => {});
-      } catch {}
+        });
+      } catch {
+        // Continue to step 2 even if lead-notify fails (e.g. no backend on static host)
+      }
     }
 
     setStep(2);
