@@ -51,7 +51,7 @@ export function ContactSection() {
 
   const mutation = useMutation({
     mutationFn: async (data: InsertContact) => {
-      const res = await fetch(API_BASE + "/api/contact", {
+      const res = await fetch(API_BASE + "/api/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -59,7 +59,12 @@ export function ContactSection() {
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const msg = typeof body?.message === "string" ? body.message : t("contact.error.desc");
+        const msg =
+          typeof body?.message === "string"
+            ? body.message
+            : typeof body?.error === "string"
+              ? body.error
+              : t("contact.error.desc");
         const err = new Error(msg) as Error & { status?: number; body?: unknown };
         err.status = res.status;
         err.body = body;
@@ -75,8 +80,9 @@ export function ContactSection() {
     },
     onError: (err: Error & { status?: number; body?: unknown }) => {
       let description = t("contact.error.desc");
-      if (err.status === 400 && err.body && typeof err.body === "object" && "message" in err.body) {
-        description = String((err.body as { message: string }).message);
+      if (err.status === 400 && err.body && typeof err.body === "object") {
+        const b = err.body as { message?: string; error?: string };
+        description = typeof b.message === "string" ? b.message : typeof b.error === "string" ? b.error : description;
       } else if (err.status === 404) {
         description = "שירות השליחה לא זמין. ב־Vercel: וודא ש־Root Directory ריק ועשה Redeploy.";
       } else if (err.message?.includes("Failed to fetch") || err.message?.includes("NetworkError")) {
