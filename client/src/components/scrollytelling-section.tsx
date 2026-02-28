@@ -81,7 +81,7 @@ function generateMockups(count: number): FloatingMockup[] {
 
     return {
       id: i,
-      src: `https://images.unsplash.com/${UNSPLASH_IMAGES[i % UNSPLASH_IMAGES.length]}?w=500&h=340&fit=crop&q=75&auto=format`,
+      src: `https://images.unsplash.com/${UNSPLASH_IMAGES[i % UNSPLASH_IMAGES.length]}?w=400&h=270&fit=crop&q=60&auto=format`,
       x: -15 + s1 * 115,
       y: s2 * 95,
       z: baseZ + (s5 - 0.5) * 250,
@@ -102,8 +102,8 @@ function generateMockups(count: number): FloatingMockup[] {
   });
 }
 
-const ALL_MOCKUPS = generateMockups(25);
-const MOBILE_MOCKUP_COUNT = 10;
+const ALL_MOCKUPS = generateMockups(14);
+const MOBILE_MOCKUP_COUNT = 6;
 
 const BG_COLORS = [
   { r: 15, g: 10, b: 40 },
@@ -472,7 +472,7 @@ export function ScrollytellingSection() {
                   </div>
                 </div>
                 <img
-                  src={isMobileInit ? m.src.replace("w=500&h=340", "w=300&h=200") : m.src}
+                  src={isMobileInit ? m.src.replace("w=400&h=270", "w=250&h=170").replace("q=60", "q=50") : m.src}
                   alt=""
                   width={isMobileInit ? 300 : 500}
                   height={isMobileInit ? 200 : 340}
