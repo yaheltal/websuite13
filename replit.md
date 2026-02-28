@@ -17,7 +17,7 @@ A premium boutique web agency portfolio site with "market disruptor" branding �
 - **Bilingual Support (i18n)**: Full Hebrew/English translation system via `client/src/lib/i18n.tsx`. Language toggle in site header. Translations cover hero, services, scrollytelling, FAQ, contact, nav, footer sections. Language persisted in localStorage (`websuite_lang`). Document dir dynamically toggles between RTL (Hebrew) and LTR (English).
 - **RTL Hebrew Support**: Full right-to-left layout with Assistant font, dynamically switched via i18n
 - **Fixed Site Header**: SVG logo with GSAP stroke-draw animation, char-level text stagger, 3D tilt on hover, language toggle button (Globe icon). z-index 999.
-- **Scrollytelling Section**: Cinematic immersive section with deep violet/midnight-blue animated background, 25 floating 3D parallax website mockup cards, glass glare, scroll-velocity skewY distortion, word-level stagger text reveals
+- **Scrollytelling Section**: Cinematic immersive section with deep violet/midnight-blue animated background, 25 floating 3D parallax website mockup cards (scale + z-depth animation, brightness modulation, throttled filter updates), glass glare with dynamic intensity, scroll-velocity skewY distortion, cinematic word-level blur-reveal stagger, icon spin entrance (back.out easing), hover glow on glass cards
 - **Onboarding Funnel**: 7-step flow: Service Selection → Contact Info → Incentive Hook → Questionnaire → AI Chat → File Upload → Summary. Data persisted to sessionStorage.
 - **Early Lead Notification**: When user fills contact info in onboarding step 1, an immediate preliminary email is sent
 - **AI Sales Agent (Gemini)**: Short, focused sales agent using <<COLLECTION_COMPLETE>> marker for auto-completion

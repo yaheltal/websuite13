@@ -100,6 +100,7 @@ export function HeroSection() {
         span.style.display = "inline-block";
         span.style.opacity = "0";
         span.style.transform = "translateY(100%)";
+        span.style.filter = "blur(8px)";
         line.appendChild(span);
         chars.push(span);
       });
@@ -151,7 +152,8 @@ export function HeroSection() {
       tl.to(chars, {
         opacity: 1,
         y: 0,
-        duration: 0.6,
+        filter: "blur(0px)",
+        duration: 0.7,
         stagger: 0.02,
         ease: "power3.out",
       }, 0.55);
@@ -159,8 +161,8 @@ export function HeroSection() {
       if (subtitleRef.current) {
         tl.fromTo(
           subtitleRef.current,
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" },
+          { opacity: 0, y: 30, filter: "blur(10px)" },
+          { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "expo.out" },
           "-=0.2"
         );
       }
@@ -168,8 +170,8 @@ export function HeroSection() {
       if (ctaRef.current) {
         tl.fromTo(
           ctaRef.current,
-          { opacity: 0, y: 25 },
-          { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" },
+          { opacity: 0, y: 25, scale: 0.9 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "expo.out" },
           "-=0.4"
         );
       }
@@ -177,8 +179,8 @@ export function HeroSection() {
       if (statsRef.current) {
         tl.fromTo(
           statsRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.8, ease: "power2.out" },
+          { opacity: 0, y: 15, filter: "blur(5px)" },
+          { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8, ease: "power2.out" },
           "-=0.3"
         );
       }

@@ -130,11 +130,12 @@ export function FaqSection() {
 
       gsap.fromTo(
         header,
-        { opacity: 0, y: 50 },
+        { opacity: 0, y: 50, filter: "blur(10px)" },
         {
           opacity: 1,
           y: 0,
-          duration: 0.8,
+          filter: "blur(0px)",
+          duration: 0.9,
           ease: "power3.out",
           scrollTrigger: {
             trigger: header,
@@ -148,13 +149,14 @@ export function FaqSection() {
       faqItems.forEach((item, i) => {
         gsap.fromTo(
           item,
-          { opacity: 0, y: 40, scale: 0.97 },
+          { opacity: 0, y: 40, scale: 0.95, filter: "blur(6px)" },
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 0.6,
-            delay: i * 0.1,
+            filter: "blur(0px)",
+            duration: 0.7,
+            delay: i * 0.12,
             ease: "power3.out",
             scrollTrigger: {
               trigger: item,

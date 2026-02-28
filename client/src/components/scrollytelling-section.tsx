@@ -154,6 +154,8 @@ export function ScrollytellingSection() {
     }
 
     const ctx = gsap.context(() => {
+      const lastProgByMockup: number[] = new Array(MOCKUPS.length).fill(-1);
+
       mockupRefs.current.forEach((el, i) => {
         if (!el) return;
         const m = MOCKUPS[i];
@@ -182,36 +184,44 @@ export function ScrollytellingSection() {
         const scrollTween = gsap.fromTo(
           el,
           {
-            y: -yTravel * 0.3 * mobileFactor,
-            z: m.z,
-            rotateX: m.rotateX * 0.4,
-            rotateY: m.rotateY * 0.4,
-            rotateZ: m.rotateZ * 0.3,
+            y: -yTravel * 0.4 * mobileFactor,
+            z: m.z - 100,
+            rotateX: m.rotateX * 0.6,
+            rotateY: m.rotateY * 0.6,
+            rotateZ: m.rotateZ * 0.4,
+            scale: 0.85,
           },
           {
             y: yTravel * mobileFactor,
-            z: m.z + zDrift,
-            rotateX: m.rotateX * 2,
-            rotateY: m.rotateY * 2,
-            rotateZ: m.rotateZ * 1.5,
+            z: m.z + zDrift + 50,
+            rotateX: m.rotateX * 2.5,
+            rotateY: m.rotateY * 2.5,
+            rotateZ: m.rotateZ * 2,
+            scale: 1.1,
             ease: "none",
             force3D: true,
             scrollTrigger: {
               trigger: section,
               start: "top bottom",
               end: "bottom top",
-              scrub: 1,
+              scrub: 0.8,
               onUpdate: (self) => {
                 const prog = self.progress;
+                if (Math.abs(prog - lastProgByMockup[i]) < 0.008) return;
+                lastProgByMockup[i] = prog;
                 const focusFactor = 1 - Math.abs(prog - 0.5) * 2;
-                const blur = m.blurBase * (1 - focusFactor * 0.9);
+                const blur = m.blurBase * (1 - focusFactor * 0.95);
+                const brightness = 0.7 + focusFactor * 0.3;
                 if (innerCard) {
-                  innerCard.style.filter = `blur(${blur}px)`;
+                  innerCard.style.filter = `blur(${blur.toFixed(1)}px) brightness(${brightness.toFixed(2)})`;
                 }
-                const glare = glareRefs.current[i];
-                if (glare) {
-                  const angle = 120 + prog * 120;
-                  glare.style.background = `linear-gradient(${angle}deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)`;
+                if (!isMobile) {
+                  const glare = glareRefs.current[i];
+                  if (glare) {
+                    const angle = 100 + prog * 160;
+                    const intensity = 0.08 + focusFactor * 0.12;
+                    glare.style.background = `linear-gradient(${angle}deg, rgba(255,255,255,${intensity.toFixed(2)}) 0%, transparent 50%, rgba(255,255,255,${(intensity * 0.3).toFixed(2)}) 100%)`;
+                  }
                 }
               },
             },
@@ -219,6 +229,7 @@ export function ScrollytellingSection() {
         );
       });
 
+      let lastOrbProg = -1;
       ScrollTrigger.create({
         trigger: section,
         start: "top bottom",
@@ -226,12 +237,16 @@ export function ScrollytellingSection() {
         scrub: true,
         onUpdate: (self) => {
           const p = self.progress;
-          orbRefs.current.forEach((orb, i) => {
-            if (!orb) return;
-            const shift = Math.sin(p * Math.PI * 2 + i * 1.2) * 15;
-            const vShift = Math.cos(p * Math.PI * 1.5 + i * 0.8) * 10;
-            orb.style.transform = `translate(${shift}%, ${vShift}%)`;
-          });
+          if (Math.abs(p - lastOrbProg) > 0.005) {
+            lastOrbProg = p;
+            orbRefs.current.forEach((orb, i) => {
+              if (!orb) return;
+              const shift = Math.sin(p * Math.PI * 2.5 + i * 1.5) * 25;
+              const vShift = Math.cos(p * Math.PI * 2 + i * 1.1) * 18;
+              const orbScale = 1 + Math.sin(p * Math.PI + i) * 0.15;
+              orb.style.transform = `translate(${shift}%, ${vShift}%) scale(${orbScale})`;
+            });
+          }
 
           const ci = Math.floor(p * (BG_COLORS.length - 1));
           const ni = Math.min(ci + 1, BG_COLORS.length - 1);
@@ -304,19 +319,23 @@ export function ScrollytellingSection() {
         });
 
         if (icon) {
-          tl.fromTo(icon, { opacity: 0, scale: 0.5, y: 25 }, { opacity: 1, scale: 1, y: 0, duration: 0.2 }, 0);
+          tl.fromTo(icon, { opacity: 0, scale: 0, rotateZ: -45, y: 30 }, { opacity: 1, scale: 1, rotateZ: 0, y: 0, duration: 0.25, ease: "back.out(2)" }, 0);
         }
         if (tagline) {
-          tl.fromTo(tagline, { opacity: 0, y: 20, clipPath: "inset(0 100% 0 0)" }, { opacity: 1, y: 0, clipPath: "inset(0 0% 0 0)", duration: 0.3 }, 0.05);
+          tl.fromTo(tagline, { opacity: 0, y: 20, clipPath: "inset(0 100% 0 0)", filter: "blur(8px)" }, { opacity: 1, y: 0, clipPath: "inset(0 0% 0 0)", filter: "blur(0px)", duration: 0.3 }, 0.05);
         }
         titleWords.forEach((word, wi) => {
-          tl.fromTo(word, { opacity: 0, y: 50, rotateX: -15 }, { opacity: 1, y: 0, rotateX: 0, duration: 0.35 }, 0.1 + wi * 0.06);
+          tl.fromTo(word,
+            { opacity: 0, y: 60, rotateX: -25, filter: "blur(12px)", scale: 0.8 },
+            { opacity: 1, y: 0, rotateX: 0, filter: "blur(0px)", scale: 1, duration: 0.4 },
+            0.08 + wi * 0.07
+          );
         });
         if (body) {
-          tl.fromTo(body, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4 }, 0.3);
+          tl.fromTo(body, { opacity: 0, y: 40, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.4 }, 0.35);
         }
         if (divider) {
-          tl.fromTo(divider, { scaleX: 0 }, { scaleX: 1, duration: 0.3 }, 0.5);
+          tl.fromTo(divider, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.3 }, 0.55);
         }
       });
     }, section);
@@ -334,8 +353,8 @@ export function ScrollytellingSection() {
         mockupRefs.current.forEach((el, i) => {
           if (!el || !quickXSetters[i]) return;
           const m = MOCKUPS[i];
-          const sensitivity = (m.zIndex / 3) * 0.6;
-          const shiftX = -mx * 15 * sensitivity;
+          const sensitivity = (m.zIndex / 3) * 0.8;
+          const shiftX = -mx * 22 * sensitivity;
           quickXSetters[i](shiftX);
         });
       };
@@ -407,7 +426,7 @@ export function ScrollytellingSection() {
       <div
         ref={galleryRef}
         className="absolute inset-0 pointer-events-none"
-        style={{ perspective: "1400px", perspectiveOrigin: "50% 50%" }}
+        style={{ perspective: "1200px", perspectiveOrigin: "50% 45%" }}
         aria-hidden="true"
         data-testid="floating-gallery"
       >
@@ -459,7 +478,7 @@ export function ScrollytellingSection() {
                   height={isMobileInit ? 200 : 340}
                   loading="lazy"
                   decoding="async"
-                  className="w-full aspect-[3/2] object-cover"
+                  className="w-full aspect-[3/2] object-cover transition-transform duration-700"
                   style={{ display: "block" }}
                 />
                 {!isMobileInit && (
@@ -488,10 +507,10 @@ export function ScrollytellingSection() {
               style={{ willChange: "transform" }}
               data-testid={`text-story-block-${index}`}
             >
-              <div className="scrollytelling-glass-card rounded-2xl p-7 sm:p-8 border border-white/15 shadow-2xl backdrop-blur-xl">
+              <div className="scrollytelling-glass-card rounded-2xl p-7 sm:p-8 border border-white/15 shadow-2xl backdrop-blur-xl transition-shadow duration-500 hover:shadow-[0_0_60px_-15px_hsla(260,70%,60%,0.3)]">
                 <div className="absolute inset-0 rounded-2xl pointer-events-none"
                   style={{
-                    background: "linear-gradient(135deg, hsla(270, 50%, 60%, 0.06) 0%, transparent 50%)",
+                    background: "linear-gradient(135deg, hsla(270, 50%, 60%, 0.08) 0%, hsla(220, 60%, 50%, 0.04) 50%, transparent 70%)",
                   }}
                 />
 
