@@ -1,4 +1,5 @@
 import { useEffect, useRef, useMemo, useState } from "react";
+import { throttle } from "@/lib/performance";
 
 const siteImages = Array.from({ length: 10 }, (_, i) => `/images/site-${i + 1}.webp`);
 
@@ -61,7 +62,6 @@ export function ScrollBackground() {
   const [pageHeight, setPageHeight] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const thumbElsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const ticking = useRef(false);
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   const count = isMobile ? 12 : 40;
@@ -82,22 +82,17 @@ export function ScrollBackground() {
     const els = thumbElsRef.current;
     if (!wrapper) return;
 
-    const handleScroll = () => {
-      if (ticking.current) return;
-      ticking.current = true;
-      requestAnimationFrame(() => {
-        const sy = window.scrollY;
-        wrapper.style.transform = `translateY(${-sy * 0.85}px)`;
-        for (let i = 0; i < els.length; i++) {
-          const el = els[i];
-          if (!el) continue;
-          const thumb = thumbnails[i];
-          if (!thumb) continue;
-          el.style.transform = `translate(-50%, -50%) rotate(${thumb.rotation}deg) translateY(${sy * thumb.parallaxSpeed}px)`;
-        }
-        ticking.current = false;
-      });
-    };
+    const handleScroll = throttle(() => {
+      const sy = window.scrollY;
+      wrapper.style.transform = `translateY(${-sy * 0.85}px)`;
+      for (let i = 0; i < els.length; i++) {
+        const el = els[i];
+        if (!el) continue;
+        const thumb = thumbnails[i];
+        if (!thumb) continue;
+        el.style.transform = `translate(-50%, -50%) rotate(${thumb.rotation}deg) translateY(${sy * thumb.parallaxSpeed}px)`;
+      }
+    }, 16);
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
