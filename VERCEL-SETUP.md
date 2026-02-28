@@ -22,8 +22,13 @@
    `https://my-web-project-jet.vercel.app/api/hello`  
    אמור להופיע: `{"ok":true,"message":"API works"}`
 
-2. אם `/api/hello` **לא** מחזיר את זה — ה־API לא רץ ב־Vercel.  
+2. **בדיקה אם Gmail מוגדר:**  
+   פתחי:  
+   `https://my-web-project-jet.vercel.app/api/check-email`  
+   - אם מופיע `"configured": true` — המשתנה GMAIL_APP_PASSWORD מוגדר.  
+   - אם מופיע `"configured": false` — הוסיפי ב־Vercel → Settings → Environment Variables את `GMAIL_APP_PASSWORD` ועשי Redeploy.
+
+3. אם `/api/hello` **לא** מחזיר את זה — ה־API לא רץ ב־Vercel.  
    בדקי שוב ש־**Root Directory** ריק וש־**Redeploy** בוצע אחרי שינוי.
 
-3. אם `/api/hello` **עובד** אבל טופס צור קשר לא שולח מייל —  
-   בדקי ב־Vercel → **Deployments** → **Functions** / **Logs** שיש קריאות ל־`/api/contact` ושהשגיאות (אם יש) קשורות ל־`GMAIL_APP_PASSWORD`.
+4. אם הטופס מצליח אבל **המייל לא מגיע** — בדקי בתיבת הדואר **דואר זבל** ב־websuite153@gmail.com, וודאי ש־`/api/check-email` מחזיר `configured: true`.

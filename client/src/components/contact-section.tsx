@@ -47,6 +47,7 @@ export function ContactSection() {
   });
 
   const [emailFailed, setEmailFailed] = useState(false);
+  const [emailFailHint, setEmailFailHint] = useState("");
 
   const mutation = useMutation({
     mutationFn: async (data: InsertContact) => {
@@ -64,11 +65,12 @@ export function ContactSection() {
         err.body = body;
         throw err;
       }
-      return body as { fallback?: boolean };
+      return body as { fallback?: boolean; hint?: string };
     },
-    onSuccess: (result: { fallback?: boolean }) => {
+    onSuccess: (result: { fallback?: boolean; hint?: string }) => {
       if (result?.fallback) {
         setEmailFailed(true);
+        setEmailFailHint(result?.hint ?? "");
       }
     },
     onError: (err: Error & { status?: number; body?: unknown }) => {
@@ -90,6 +92,7 @@ export function ContactSection() {
 
   const onSubmit = (data: InsertContact) => {
     setEmailFailed(false);
+    setEmailFailHint("");
     mutation.mutate(data);
   };
 
@@ -184,6 +187,7 @@ export function ContactSection() {
                       className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4 w-full max-w-sm text-right"
                       data-testid="fallback-whatsapp-notice"
                     >
+                      {emailFailHint && <p className="text-xs text-amber-800 mb-2">{emailFailHint}</p>}
                       <p className="text-sm text-blue-800 mb-3">
                         {t("contact.fallback")}
                       </p>

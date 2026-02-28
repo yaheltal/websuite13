@@ -23,13 +23,15 @@ interface Thumbnail {
   floatAmplitude: number;
 }
 
-function generateThumbnails(count: number, pageHeight: number): Thumbnail[] {
+function generateThumbnails(count: number, pageHeight: number, isMobile = false): Thumbnail[] {
   const rand = seededRandom(42);
   const thumbnails: Thumbnail[] = [];
-  const cols = 4;
+  const cols = isMobile ? 3 : 4;
   const rows = Math.ceil(count / cols);
   const cellW = 100 / cols;
   const cellH = pageHeight > 0 ? (100 / rows) : (25);
+  const widthMin = isMobile ? 70 : 140;
+  const widthRange = isMobile ? 40 : 100;
 
   for (let i = 0; i < count; i++) {
     const col = i % cols;
@@ -42,7 +44,7 @@ function generateThumbnails(count: number, pageHeight: number): Thumbnail[] {
       src,
       x: col * cellW + cellW / 2 + jitterX,
       y: row * cellH + cellH / 2 + jitterY,
-      width: 140 + rand() * 100,
+      width: widthMin + rand() * widthRange,
       rotation: (rand() - 0.5) * 20,
       opacity: 0.12 + rand() * 0.14,
       parallaxSpeed: 0.03 + rand() * 0.06,
@@ -61,7 +63,9 @@ export function ScrollBackground() {
   const thumbElsRef = useRef<(HTMLDivElement | null)[]>([]);
   const ticking = useRef(false);
 
-  const thumbnails = useMemo(() => generateThumbnails(40, pageHeight), [pageHeight]);
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const count = isMobile ? 12 : 40;
+  const thumbnails = useMemo(() => generateThumbnails(count, pageHeight, isMobile), [pageHeight, count, isMobile]);
 
   useEffect(() => {
     const updateHeight = () => {

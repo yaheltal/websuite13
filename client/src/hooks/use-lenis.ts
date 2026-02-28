@@ -4,7 +4,6 @@ export function useLenis() {
   const lenisRef = useRef<unknown>(null);
 
   useEffect(() => {
-    // Force scroll to top on page load/refresh
     if ("scrollRestoration" in history) {
       history.scrollRestoration = "manual";
     }
@@ -13,11 +12,15 @@ export function useLenis() {
     let cleanup: (() => void) | null = null;
     let destroyed = false;
 
-    Promise.all([
-      import("lenis"),
-      import("gsap"),
-      import("gsap/ScrollTrigger"),
-    ]).then(([LenisModule, gsapModule, stModule]) => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+    const delay = isMobile ? 1500 : 0;
+
+    const loadLenis = () => {
+      Promise.all([
+        import("lenis"),
+        import("gsap"),
+        import("gsap/ScrollTrigger"),
+      ]).then(([LenisModule, gsapModule, stModule]) => {
       if (destroyed) return;
 
       const Lenis = LenisModule.default;
@@ -58,7 +61,17 @@ export function useLenis() {
         ScrollTrigger.refresh();
       };
     });
+    };
 
+    if (delay > 0) {
+      const t = setTimeout(loadLenis, delay);
+      return () => {
+        destroyed = true;
+        clearTimeout(t);
+        cleanup?.();
+      };
+    }
+    loadLenis();
     return () => {
       destroyed = true;
       cleanup?.();
