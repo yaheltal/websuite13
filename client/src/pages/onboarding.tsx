@@ -389,21 +389,40 @@ export default function Onboarding() {
     const contactValues = contactForm.getValues();
 
     try {
-      const response = await apiRequest("POST", "/api/onboarding/start", {
-        name: contactValues.name,
-        email: contactValues.email,
-        phone: contactValues.phone,
-        service: selectedService,
-        questionnaireData,
+      const response = await fetch("/api/onboarding/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: contactValues.name,
+          email: contactValues.email,
+          phone: contactValues.phone,
+          service: selectedService,
+          questionnaireData,
+        }),
       });
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const msg =
+          typeof data?.message === "string"
+            ? data.message
+            : response.status === 404
+              ? "השירות לא זמין כרגע. אם האתר מונח על Vercel או אירוח סטטי — צריך להריץ גם את השרת (Backend) או לפרוס אותו."
+              : "משהו השתבש, נסה שוב";
+        toast({ title: "שגיאה", description: msg, variant: "destructive" });
+        return;
+      }
       const newId = data.id;
       setOnboardingId(newId);
       setStep(4);
       saveToStorage({ step: 4, onboardingId: newId });
       startAiChat(newId);
-    } catch {
-      toast({ title: "שגיאה", description: "משהו השתבש, נסה שוב", variant: "destructive" });
+    } catch (err) {
+      const description =
+        err instanceof Error && err.message.includes("Failed to fetch")
+          ? "אין חיבור לשרת. וודא שהשרת רץ או שהאתר מחובר ל-Backend."
+          : "משהו השתבש, נסה שוב";
+      toast({ title: "שגיאה", description, variant: "destructive" });
     }
   };
 
