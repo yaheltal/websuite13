@@ -100,5 +100,10 @@ app.use((req, res, next) => {
       : { port, host: "0.0.0.0", reusePort: true };
   httpServer.listen(listenOpts, () => {
     log(`serving on port ${port}`);
+    if (!process.env.GMAIL_APP_PASSWORD?.trim()) {
+      console.warn(
+        "[email] GMAIL_APP_PASSWORD is not set in .env — contact form and questionnaire emails will NOT be sent. Data will still be saved to the database. Add a Gmail App Password to enable email."
+      );
+    }
   });
 })();
