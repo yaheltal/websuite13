@@ -2,7 +2,6 @@ import { lazy, Suspense } from "react";
 import { Navigation } from "@/components/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { HeroSection } from "@/components/hero-section";
-import { ScrollBackground } from "@/components/scroll-background";
 import { useLenis } from "@/hooks/use-lenis";
 
 const ServicesSection = lazy(() =>
@@ -23,6 +22,9 @@ const Footer = lazy(() =>
 const AiChatWidget = lazy(() =>
   import("@/components/ai-chat-widget").then((m) => ({ default: m.AiChatWidget }))
 );
+const ScrollBackground = lazy(() =>
+  import("@/components/scroll-background").then((m) => ({ default: m.ScrollBackground }))
+);
 
 function BelowFoldFallback() {
   return <div className="min-h-[60vh]" aria-hidden="true" />;
@@ -34,7 +36,9 @@ export default function Home() {
   return (
     <div className="min-h-screen overflow-x-hidden w-full" data-testid="page-home">
       <div className="grain-overlay" aria-hidden="true" />
-      <ScrollBackground />
+      <Suspense fallback={null}>
+        <ScrollBackground />
+      </Suspense>
       <div className="relative z-10">
         <Navigation />
         <main>

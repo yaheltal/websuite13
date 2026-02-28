@@ -134,6 +134,7 @@ export function ScrollBackground() {
               className="w-full h-auto block"
               loading="lazy"
               decoding="async"
+              fetchPriority="low"
             />
           </div>
         ))}

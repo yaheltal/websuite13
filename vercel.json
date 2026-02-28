@@ -1,0 +1,13 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/public",
+  "framework": null,
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
+  "functions": {
+    "api/contact.ts": { "includeFiles": "server/email.ts" },
+    "api/onboarding/lead-notify.ts": { "includeFiles": "server/email.ts" },
+    "api/onboarding/start.ts": { "includeFiles": "server/email.ts" }
+  }
+}

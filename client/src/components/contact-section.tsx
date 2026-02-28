@@ -72,9 +72,14 @@ export function ContactSection() {
       }
     },
     onError: (err: Error & { status?: number; body?: unknown }) => {
-      const description = err.status === 400 && err.body && typeof err.body === "object" && "message" in err.body
-        ? String((err.body as { message: string }).message)
-        : t("contact.error.desc");
+      let description = t("contact.error.desc");
+      if (err.status === 400 && err.body && typeof err.body === "object" && "message" in err.body) {
+        description = String((err.body as { message: string }).message);
+      } else if (err.status === 404) {
+        description = "שירות השליחה לא זמין. ב־Vercel: וודא ש־Root Directory ריק ועשה Redeploy.";
+      } else if (err.message?.includes("Failed to fetch") || err.message?.includes("NetworkError")) {
+        description = "אין חיבור לשרת. בדוק חיבור לאינטרנט או נסה שוב.";
+      }
       toast({
         title: t("contact.error.title"),
         description,
