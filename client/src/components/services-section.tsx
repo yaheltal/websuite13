@@ -15,6 +15,10 @@ import { BrowserPreviewModal } from "@/components/browser-preview-modal";
 import { ParallaxSection } from "@/components/floating-elements";
 import { useI18n } from "@/lib/i18n";
 
+function withAlpha(hsl: string, alpha: number) {
+  return hsl.replace('hsl(', 'hsla(').replace(')', `, ${alpha})`);
+}
+
 export function ServicesSection() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewService, setPreviewService] = useState<"landing" | "card" | "ecommerce">("landing");
@@ -109,24 +113,24 @@ export function ServicesSection() {
                 >
                   <Card
                     className="group relative bg-card border-border/50 p-6 md:p-8 transition-all duration-500 hover-elevate"
-                    style={{ ["--hover-border" as string]: `${service.accent}40` }}
+                    style={{ ["--hover-border" as string]: withAlpha(service.accent, 0.3) }}
                     data-testid={`card-service-${service.id}`}
                   >
                     <div className="absolute inset-0 rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{
-                      background: `linear-gradient(to bottom, ${service.accent}08, transparent)`,
+                      background: `linear-gradient(to bottom, ${withAlpha(service.accent, 0.06)}, transparent)`,
                     }} />
 
                     <div className="relative space-y-6">
                       <div className="flex items-start justify-between gap-2">
                         <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{
-                          background: `linear-gradient(135deg, ${service.accent}18, ${service.accent}08)`,
+                          background: `linear-gradient(135deg, ${withAlpha(service.accent, 0.15)}, ${withAlpha(service.accent, 0.06)})`,
                         }}>
                           <service.icon className="w-6 h-6" style={{ color: service.accent }} />
                         </div>
-                        <Badge variant="secondary" className="text-[10px] border" style={{
-                          background: `${service.accent}10`,
+                        <Badge variant="secondary" className="text-[10px] font-bold border px-2 py-0.5" style={{
+                          background: withAlpha(service.accent, 0.15),
                           color: service.accent,
-                          borderColor: `${service.accent}20`,
+                          borderColor: withAlpha(service.accent, 0.3),
                         }}>
                           {service.tag}
                         </Badge>
@@ -143,7 +147,7 @@ export function ServicesSection() {
                         {service.features.map((feature) => (
                           <li key={feature} className="flex items-center gap-2.5 text-sm">
                             <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{
-                              background: `${service.accent}15`,
+                              background: withAlpha(service.accent, 0.12),
                             }}>
                               <Check className="w-3 h-3" style={{ color: service.accent }} />
                             </div>
@@ -166,7 +170,7 @@ export function ServicesSection() {
                           variant="outline"
                           className="flex-1 font-semibold"
                           style={{
-                            borderColor: `${service.accent}30`,
+                            borderColor: withAlpha(service.accent, 0.25),
                             color: service.accent,
                           }}
                           onClick={() => openPreview(service.serviceType)}
