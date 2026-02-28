@@ -5,7 +5,8 @@ import { insertContactSchema } from "@shared/schema";
 import { z, ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { sendOnboardingEmail, sendContactEmail, sendLeadNotifyEmail } from "./email";
+import { sendOnboardingEmail, sendContactEmail, sendLeadNotifyEmail, getOnboardingEmailContent } from "./email";
+import { requireAdmin } from "./auth";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -100,7 +101,7 @@ const chatSessions = new Map<string, { history: Array<{ role: string; parts: Arr
 
 setInterval(() => {
   const now = Date.now();
-  for (const [id, session] of chatSessions) {
+  for (const [id, session] of Array.from(chatSessions.entries())) {
     if (now - session.lastAccess > SESSION_TTL_MS) {
       chatSessions.delete(id);
     }
@@ -111,35 +112,95 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  app.post("/api/contact", async (req, res) => {
-    try {
-      const data = insertContactSchema.parse(req.body);
-      const contact = await storage.createContact(data);
+  // Preview of questionnaire-completion email (תצוגה מקדימה של מייל סיום שאלון)
+  app.get("/api/dev/email-preview/onboarding", (_req, res) => {
+    const { html } = getOnboardingEmailContent({
+      clientName: "דוגמה לקוח",
+      clientEmail: "client@example.com",
+      clientPhone: "050-1234567",
+      service: "landing-page",
+      questionnaireData: {
+        businessName: "חנות הפרחים",
+        businessField: "מכירת פרחים ומתנות",
+        targetAudience: "חתונות ואירועים",
+        mainGoal: "לידים והזמנות אונליין",
+        brandColors: "#e91e63, #2d2d2d",
+      },
+      chatSummary: "",
+      uploadedFiles: [],
+    });
+    res.type("html").send(html);
+  });
 
-      const emailResult = await sendContactEmail({
+  // Send a real test email (מייל ניסיון) to RECIPIENT_EMAIL — requires GMAIL_APP_PASSWORD in .env
+  app.post("/api/dev/send-test-email", async (_req, res) => {
+    const testData = {
+      clientName: "מייל ניסיון / Test",
+      clientEmail: "test@example.com",
+      clientPhone: "050-0000000",
+      service: "landing-page",
+      questionnaireData: {
+        businessName: "עסק לדוגמה",
+        businessField: "שירותים",
+        targetAudience: "לקוחות פרטיים",
+        mainGoal: "לידים",
+        brandColors: "#3b82f6",
+      },
+      chatSummary: "",
+      uploadedFiles: [],
+    };
+    try {
+      const result = await sendOnboardingEmail(testData);
+      if (result.success) {
+        res.json({ ok: true, message: "מייל הניסיון נשלח בהצלחה ל-" + "WEBSUITE153@GMAIL.COM" });
+      } else {
+        res.status(500).json({ ok: false, message: "שליחת המייל נכשלה אחרי " + result.attempts + " ניסיונות" });
+      }
+    } catch (err: any) {
+      console.error("Test email error:", err);
+      res.status(500).json({ ok: false, message: err?.message || "שגיאה בשליחת מייל ניסיון" });
+    }
+  });
+
+  // --- Case 1: Contact form (צור קשר) ---
+  app.post("/api/contact", async (req, res) => {
+    let data: z.infer<typeof insertContactSchema>;
+    try {
+      data = insertContactSchema.parse(req.body);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      throw error;
+    }
+
+    let contact: { id: number; name: string; email: string; phone: string | null; service: string; message: string; createdAt: Date } | null = null;
+    try {
+      contact = await storage.createContact(data);
+    } catch (dbError) {
+      console.error("Contact DB save failed (will still try to send email):", dbError);
+    }
+
+    let emailResult: { success: boolean; attempts: number } = { success: false, attempts: 0 };
+    try {
+      emailResult = await sendContactEmail({
         name: data.name,
         email: data.email,
         phone: data.phone || "",
         service: data.service || "",
         message: data.message || "",
       });
-
-      if (emailResult.success) {
-        console.log(`Contact email dispatched for: ${data.name} (attempt ${emailResult.attempts})`);
-        res.status(201).json({ ...contact, emailSent: true });
-      } else {
-        console.error(`Contact email failed after ${emailResult.attempts} attempts for: ${data.name}. Data saved to DB.`);
-        res.status(201).json({ ...contact, emailSent: false, fallback: true });
-      }
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ message: validationError.message });
-      } else {
-        console.error("Error creating contact:", error);
-        res.status(500).json({ message: "Internal server error" });
-      }
+    } catch (emailError) {
+      console.error("Contact email threw an exception:", emailError);
     }
+
+    if (emailResult.success) {
+      console.log(`Contact email dispatched for: ${data.name} (attempt ${emailResult.attempts})`);
+      return res.status(201).json({ ...(contact || {}), emailSent: true, fallback: false });
+    }
+    console.error(`Contact email failed for: ${data.name}.${contact ? " Data saved to DB." : " DB was unavailable."}`);
+    return res.status(201).json({ ...(contact || {}), emailSent: false, fallback: true });
   });
 
   app.get("/api/contacts", async (_req, res) => {
@@ -187,7 +248,7 @@ export async function registerRoutes(
         if (chatSessions.size >= MAX_SESSIONS) {
           let oldest: string | null = null;
           let oldestTime = Infinity;
-          for (const [id, s] of chatSessions) {
+          for (const [id, s] of Array.from(chatSessions.entries())) {
             if (s.lastAccess < oldestTime) { oldest = id; oldestTime = s.lastAccess; }
           }
           if (oldest) chatSessions.delete(oldest);
@@ -229,6 +290,7 @@ export async function registerRoutes(
     }
   });
 
+  // --- Case 3: End of questionnaire (סוף השאלון) — full details + Replit & Cursor prompts ---
   app.post("/api/onboarding/start", async (req, res) => {
     try {
       const validationSchema = z.object({
@@ -252,6 +314,24 @@ export async function registerRoutes(
         uploadedFiles: null,
       });
 
+      sendOnboardingEmail({
+        clientName: onboarding.name,
+        clientEmail: onboarding.email,
+        clientPhone: onboarding.phone || "",
+        service: onboarding.service,
+        questionnaireData: (onboarding.questionnaireData as Record<string, any>) || {},
+        chatSummary: "",
+        uploadedFiles: [],
+      }).then((result) => {
+        if (result.success) {
+          console.log(`Onboarding email (with Replit+Cursor prompts) sent for: ${onboarding.name}`);
+        } else {
+          console.error(`Onboarding email failed for: ${onboarding.name}`);
+        }
+      }).catch((err) => {
+        console.error("Onboarding email error:", err);
+      });
+
       res.status(201).json({ id: onboarding.id });
     } catch (error) {
       if (error instanceof ZodError) {
@@ -264,6 +344,7 @@ export async function registerRoutes(
     }
   });
 
+  // --- Case 2: Start of questionnaire (התראה על תחילת מילוי שאלון) ---
   app.post("/api/onboarding/lead-notify", async (req, res) => {
     try {
       const schema = z.object({
@@ -319,7 +400,7 @@ export async function registerRoutes(
         if (chatSessions.size >= MAX_SESSIONS) {
           let oldest: string | null = null;
           let oldestTime = Infinity;
-          for (const [id, s] of chatSessions) {
+          for (const [id, s] of Array.from(chatSessions.entries())) {
             if (s.lastAccess < oldestTime) {
               oldestTime = s.lastAccess;
               oldest = id;
@@ -380,23 +461,7 @@ export async function registerRoutes(
           generatedPrompt: chatSummary,
           chatHistory: session.history as any,
         });
-
-        const onboarding = await storage.getOnboarding(onboardingId);
-        if (onboarding) {
-          try {
-            await sendOnboardingEmail({
-              clientName: onboarding.name,
-              clientEmail: onboarding.email,
-              clientPhone: onboarding.phone || "",
-              service: onboarding.service,
-              questionnaireData: onboarding.questionnaireData as Record<string, any> || {},
-              chatSummary,
-              uploadedFiles: onboarding.uploadedFiles as string[] || [],
-            });
-          } catch (emailErr) {
-            console.error("Auto email error:", emailErr);
-          }
-        }
+        // Email is sent only in 3 cases: (1) contact form, (2) lead-notify, (3) end of questionnaire. No email here.
       }
 
       res.json({ reply: cleanReply, sessionId: sid, isComplete });
@@ -449,33 +514,31 @@ export async function registerRoutes(
       if (!onboarding) {
         return res.status(404).json({ message: "Onboarding not found" });
       }
-
-      let chatSummary = "";
-      if (onboarding.chatHistory) {
-        chatSummary = (onboarding.chatHistory as Array<{ role: string; parts: Array<{ text: string }> }>)
-          .map(h => `${h.role === "user" ? "לקוח" : "סוכן"}: ${h.parts.map(p => p.text).join(" ")}`)
-          .join("\n");
-      }
-
-      const emailResult = await sendOnboardingEmail({
-        clientName: onboarding.name,
-        clientEmail: onboarding.email,
-        clientPhone: onboarding.phone || "",
-        service: onboarding.service,
-        questionnaireData: onboarding.questionnaireData as Record<string, any> || {},
-        chatSummary,
-        uploadedFiles: onboarding.uploadedFiles as string[] || [],
-      });
-
-      if (emailResult.success) {
-        console.log(`Onboarding email dispatched for: ${onboarding.name} (attempt ${emailResult.attempts})`);
-        res.json({ success: true, emailSent: true });
-      } else {
-        console.error(`Onboarding email failed after ${emailResult.attempts} attempts for: ${onboarding.name}. Data saved to DB.`);
-        res.json({ success: true, emailSent: false, fallback: true });
-      }
+      // Email sent only in 3 cases: (1) contact form, (2) lead-notify, (3) end of questionnaire (on /start). No email here.
+      res.json({ success: true });
     } catch (error) {
       console.error("Complete error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Protected admin data endpoints
+  app.get("/api/admin/contacts", requireAdmin, async (_req, res) => {
+    try {
+      const contacts = await storage.getContacts();
+      res.json(contacts);
+    } catch (error) {
+      console.error("Admin contacts error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get("/api/admin/onboardings", requireAdmin, async (_req, res) => {
+    try {
+      const onboardings = await storage.getOnboardings();
+      res.json(onboardings);
+    } catch (error) {
+      console.error("Admin onboardings error:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   });

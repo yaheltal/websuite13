@@ -1,6 +1,7 @@
 import { WebSuiteLogo } from "./websuite-logo";
 import { useI18n } from "@/lib/i18n";
 import { Link } from "wouter";
+import { IglooReveal } from "@/components/igloo-reveal";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -14,7 +15,8 @@ export function Footer() {
   return (
     <footer className="border-t border-border/40 bg-background/60" data-testid="section-footer">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8">
+        <IglooReveal variant="fadeUp" amount={0.08} slow>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-8">
           <div className="md:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
               <WebSuiteLogo size={32} gradientId="ftr" />
@@ -120,7 +122,8 @@ export function Footer() {
               </li>
             </ul>
           </div>
-        </div>
+          </div>
+        </IglooReveal>
       </div>
 
       <div className="border-t border-border/40">

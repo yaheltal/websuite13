@@ -96,8 +96,8 @@ export default {
           dark: "hsl(140 15% 55%)",
         },
         charcoal: {
-          DEFAULT: "hsl(220 15% 18%)",
-          light: "hsl(220 10% 35%)",
+          DEFAULT: "hsl(220 15% 16%)",
+          light: "hsl(220 12% 28%)",
         },
       },
       fontFamily: {

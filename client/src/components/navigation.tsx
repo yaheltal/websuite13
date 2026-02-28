@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Home, Layers, MessageCircle, X, ClipboardList, MessageSquare } from "lucide-react";
 import { Link } from "wouter";
 import { WebSuiteLogo } from "./websuite-logo";
+import { MagneticButton } from "./magnetic-button";
 import { useI18n } from "@/lib/i18n";
 
 const navKeys = [
@@ -75,7 +76,7 @@ export function Navigation() {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:block"
       >
-        <div className="glass-panel bg-card/90 border border-border/60 rounded-2xl px-2 py-3 shadow-lg flex flex-col items-center gap-1">
+        <div className="glass-luxury rounded-2xl px-2 py-3 shadow-xl flex flex-col items-center gap-1">
           <button
             onClick={() => scrollToSection("#hero")}
             className="flex items-center justify-center p-2"
@@ -89,15 +90,17 @@ export function Navigation() {
           {navKeys.map((item) => {
             const isActive = activeSection === item.href;
             return (
-              <button
+              <MagneticButton
                 key={item.href}
+                as="button"
+                strength={0.15}
                 onClick={() => scrollToSection(item.href)}
                 className={`relative flex items-center justify-center w-10 h-10 rounded-xl text-sm font-medium transition-all duration-300 ${
                   isActive
-                    ? "text-blue-400"
-                    : "text-charcoal-light hover:text-charcoal"
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
-                style={isActive ? { background: "hsla(220, 80%, 55%, 0.1)" } : undefined}
+                style={isActive ? { background: "hsl(var(--primary) / 0.15)" } : undefined}
                 data-testid={`link-nav-${item.href.replace("#", "")}`}
                 title={t(item.key)}
               >
@@ -105,26 +108,32 @@ export function Navigation() {
                 {isActive && (
                   <motion.div
                     layoutId="nav-indicator"
-                    className="absolute inset-0 rounded-xl"
-                    style={{ border: "1px solid hsla(220, 80%, 55%, 0.2)" }}
+                    className="absolute inset-0 rounded-xl border border-primary/30 pointer-events-none"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
-              </button>
+              </MagneticButton>
             );
           })}
 
           <div className="h-px w-6 bg-border/60 my-1" />
 
           <Link href="/onboarding">
-            <button
-              className="flex items-center justify-center w-10 h-10 rounded-xl text-white transition-all duration-300 hover:shadow-lg"
-              style={{ background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))" }}
-              data-testid="button-nav-questionnaire"
-              title={t("nav.questionnaire")}
+            <MagneticButton
+              as="span"
+              strength={0.2}
+              className="block"
             >
-              <ClipboardList className="w-4 h-4" />
-            </button>
+              <button
+                type="button"
+                className="flex items-center justify-center w-10 h-10 rounded-xl text-white transition-all duration-300 hover:shadow-lg"
+                style={{ background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))" }}
+                data-testid="button-nav-questionnaire"
+                title={t("nav.questionnaire")}
+              >
+                <ClipboardList className="w-4 h-4" />
+              </button>
+            </MagneticButton>
           </Link>
         </div>
       </motion.nav>
@@ -137,6 +146,7 @@ export function Navigation() {
         }}
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 md:hidden"
+              style={{ paddingBottom: "max(1.25rem, env(safe-area-inset-bottom, 0px))" }}
       >
         <AnimatePresence mode="wait">
           {isMobileExpanded ? (
@@ -146,7 +156,7 @@ export function Navigation() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="glass-panel bg-card/95 border border-border/60 rounded-2xl p-4 shadow-xl min-w-[260px]"
+              className="glass-luxury rounded-2xl p-4 shadow-xl min-w-[260px]"
             >
               <div className="flex items-center justify-between mb-3 px-1">
                 <div className="flex items-center gap-2">
@@ -160,7 +170,7 @@ export function Navigation() {
                   className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center"
                   data-testid="button-mobile-close"
                 >
-                  <X className="w-4 h-4 text-charcoal-light" />
+                  <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
               <div className="space-y-1">
@@ -172,10 +182,10 @@ export function Navigation() {
                       onClick={() => scrollToSection(item.href)}
                       className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all min-h-[44px] ${
                         isActive
-                          ? "text-blue-400"
-                          : "text-charcoal-light"
+                          ? "text-primary"
+                          : "text-muted-foreground"
                       }`}
-                      style={isActive ? { background: "hsla(220, 80%, 55%, 0.1)" } : undefined}
+                      style={isActive ? { background: "hsl(var(--primary) / 0.15)" } : undefined}
                       data-testid={`link-mobile-${item.href.replace("#", "")}`}
                     >
                       <item.icon className="w-4 h-4" />
@@ -218,7 +228,7 @@ export function Navigation() {
                 <span>{lang === "he" ? "דברו איתנו בוואטסאפ!" : "Chat on WhatsApp!"}</span>
               </a>
 
-              <div className="glass-panel bg-card/90 border border-border/60 rounded-full shadow-lg flex items-center gap-1 p-1.5">
+              <div className="glass-luxury rounded-full shadow-lg flex items-center gap-1 p-1.5">
                 {navKeys.map((item) => {
                   const isActive = activeSection === item.href;
                   return (
@@ -226,17 +236,16 @@ export function Navigation() {
                       key={item.href}
                       onClick={() => scrollToSection(item.href)}
                       className={`relative w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        isActive ? "text-blue-400" : "text-charcoal-light"
+                        isActive ? "text-primary" : "text-muted-foreground"
                       }`}
-                      style={isActive ? { background: "hsla(220, 80%, 55%, 0.1)" } : undefined}
+                      style={isActive ? { background: "hsl(var(--primary) / 0.15)" } : undefined}
                       data-testid={`link-mobile-icon-${item.href.replace("#", "")}`}
                     >
                       <item.icon className="w-4 h-4" />
                       {isActive && (
                         <motion.div
                           layoutId="mobile-nav-indicator"
-                          className="absolute inset-0 rounded-full"
-                          style={{ border: "1px solid hsla(220, 80%, 55%, 0.2)" }}
+                          className="absolute inset-0 rounded-full border border-primary/30"
                           transition={{ type: "spring", stiffness: 400, damping: 30 }}
                         />
                       )}

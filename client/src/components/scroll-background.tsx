@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 
 const siteImages = Array.from({ length: 10 }, (_, i) => `/images/site-${i + 1}.webp`);
 
@@ -56,10 +56,10 @@ function generateThumbnails(count: number, pageHeight: number): Thumbnail[] {
 }
 
 export function ScrollBackground() {
-  const [scrollY, setScrollY] = useState(0);
   const [pageHeight, setPageHeight] = useState(0);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const thumbElsRef = useRef<(HTMLDivElement | null)[]>([]);
   const ticking = useRef(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const thumbnails = useMemo(() => generateThumbnails(40, pageHeight), [pageHeight]);
 
@@ -74,38 +74,53 @@ export function ScrollBackground() {
   }, []);
 
   useEffect(() => {
+    const wrapper = wrapperRef.current;
+    const els = thumbElsRef.current;
+    if (!wrapper) return;
+
     const handleScroll = () => {
       if (ticking.current) return;
       ticking.current = true;
       requestAnimationFrame(() => {
-        setScrollY(window.scrollY);
+        const sy = window.scrollY;
+        wrapper.style.transform = `translateY(${-sy * 0.85}px)`;
+        for (let i = 0; i < els.length; i++) {
+          const el = els[i];
+          if (!el) continue;
+          const thumb = thumbnails[i];
+          if (!thumb) continue;
+          el.style.transform = `translate(-50%, -50%) rotate(${thumb.rotation}deg) translateY(${sy * thumb.parallaxSpeed}px)`;
+        }
         ticking.current = false;
       });
     };
+
     window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [thumbnails]);
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true" ref={containerRef}>
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
       <div
+        ref={wrapperRef}
         className="absolute left-0 w-full"
         style={{
           top: 0,
           height: `${pageHeight}px`,
-          transform: `translateY(${-scrollY * 0.85}px)`,
           willChange: "transform",
         }}
       >
         {thumbnails.map((thumb, i) => (
           <div
             key={i}
+            ref={(el) => { thumbElsRef.current[i] = el; }}
             className="absolute rounded-lg overflow-hidden shadow-lg border border-border/10"
             style={{
               left: `${thumb.x}%`,
               top: `${thumb.y}%`,
               width: `${thumb.width}px`,
-              transform: `translate(-50%, -50%) rotate(${thumb.rotation}deg) translateY(${scrollY * thumb.parallaxSpeed}px)`,
+              transform: `translate(-50%, -50%) rotate(${thumb.rotation}deg)`,
               opacity: thumb.opacity,
               willChange: "transform",
               animation: `bgFloat ${thumb.floatDuration}s ease-in-out ${thumb.floatDelay}s infinite`,
@@ -124,7 +139,7 @@ export function ScrollBackground() {
         ))}
       </div>
 
-      <div className="absolute inset-0 bg-background/60" />
+      <div className="absolute inset-0 bg-background/60 scroll-bg-overlay" />
       <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background/30" />
     </div>
   );

@@ -52,3 +52,13 @@ export const insertOnboardingSchema = createInsertSchema(onboardingSubmissions).
 
 export type InsertOnboarding = z.infer<typeof insertOnboardingSchema>;
 export type OnboardingSubmission = typeof onboardingSubmissions.$inferSelect;
+
+export const adminUsers = pgTable("admin_users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type InsertAdminUser = typeof adminUsers.$inferInsert;

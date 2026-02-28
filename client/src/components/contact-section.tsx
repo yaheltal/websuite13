@@ -15,19 +15,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { insertContactSchema, type InsertContact } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { Send, CheckCircle2, MessageSquare, Phone, Mail, Clock, Award, ArrowLeft, Sparkles, Zap, FileText } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { EASE_OUT_SMOOTH, DURATION } from "@/lib/igloo-motion";
 
 export function ContactSection() {
   const { toast } = useToast();
@@ -56,18 +49,34 @@ export function ContactSection() {
 
   const mutation = useMutation({
     mutationFn: async (data: InsertContact) => {
-      const res = await apiRequest("POST", "/api/contact", data);
-      return res.json();
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = typeof body?.message === "string" ? body.message : t("contact.error.desc");
+        const err = new Error(msg) as Error & { status?: number; body?: unknown };
+        err.status = res.status;
+        err.body = body;
+        throw err;
+      }
+      return body as { fallback?: boolean };
     },
-    onSuccess: (result: any) => {
-      if (result.fallback) {
+    onSuccess: (result: { fallback?: boolean }) => {
+      if (result?.fallback) {
         setEmailFailed(true);
       }
     },
-    onError: () => {
+    onError: (err: Error & { status?: number; body?: unknown }) => {
+      const description = err.status === 400 && err.body && typeof err.body === "object" && "message" in err.body
+        ? String((err.body as { message: string }).message)
+        : t("contact.error.desc");
       toast({
         title: t("contact.error.title"),
-        description: t("contact.error.desc"),
+        description,
         variant: "destructive",
       });
     },
@@ -79,14 +88,14 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-20 md:py-32 relative" data-testid="section-contact">
+    <section id="contact" className="py-24 md:py-32 relative" data-testid="section-contact">
       <div className="absolute inset-0 bg-background/30 rounded-3xl pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.12 }}
+          transition={{ duration: DURATION.normal, ease: EASE_OUT_SMOOTH }}
           className="text-center mb-12 md:mb-16"
         >
           <Badge variant="secondary" className="mb-4 bg-copper/8 text-copper-dark border-copper/15">{t("contact.badge")}</Badge>
@@ -100,13 +109,13 @@ export function ContactSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 min-w-0">
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 24 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="lg:col-span-3"
+            viewport={{ once: true, amount: 0.12 }}
+            transition={{ duration: DURATION.normal, ease: EASE_OUT_SMOOTH }}
+            className="lg:col-span-3 min-w-0"
           >
             <div className="rounded-xl border border-border/50 bg-card p-6 md:p-8 shadow-sm">
               {mutation.isSuccess ? (
@@ -261,20 +270,22 @@ export function ContactSection() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>{t("contact.service")} <span className="text-red-500">*</span></FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <FormControl>
-                                <SelectTrigger data-testid="select-service">
-                                  <SelectValue placeholder={t("contact.service.placeholder")} />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
+                            <FormControl>
+                              <select
+                                {...field}
+                                value={field.value}
+                                onChange={(e) => field.onChange(e.target.value)}
+                                className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                data-testid="select-service"
+                              >
+                                <option value="">{t("contact.service.placeholder")}</option>
                                 {serviceOptions.map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
+                                  <option key={option.value} value={option.value}>
                                     {option.label}
-                                  </SelectItem>
+                                  </option>
                                 ))}
-                              </SelectContent>
-                            </Select>
+                              </select>
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -325,18 +336,18 @@ export function ContactSection() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -24 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-2 space-y-5"
+            viewport={{ once: true, amount: 0.12 }}
+            transition={{ duration: DURATION.normal, delay: 0.1, ease: EASE_OUT_SMOOTH }}
+            className="lg:col-span-2 space-y-5 min-w-0"
           >
-            <div className="grid grid-cols-5 gap-3 auto-rows-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 auto-rows-auto">
               <a
                 href="https://wa.me/972547966616?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A0%D7%99%20%D7%A4%D7%95%D7%A0%D7%94%20%D7%93%D7%A8%D7%9A%20%D7%90%D7%AA%D7%A8%20WebSuite%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A4%D7%A8%D7%98%D7%99%D7%9D%20%D7%A0%D7%95%D7%A1%D7%A4%D7%99%D7%9D%20%D7%A2%D7%9C%20%D7%94%D7%A9%D7%99%D7%A8%D7%95%D7%AA%D7%99%D7%9D%20%D7%A9%D7%9C%D7%9B%D7%9D"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="col-span-5 relative overflow-hidden rounded-2xl p-6 group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+                className="col-span-1 sm:col-span-5 relative overflow-hidden rounded-2xl p-6 group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
                 style={{
                   background: "linear-gradient(160deg, #20b858 0%, #128c3e 100%)",
                 }}
@@ -368,7 +379,7 @@ export function ContactSection() {
 
               <a
                 href="tel:+972547966616"
-                className="col-span-3 relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+                className="col-span-1 sm:col-span-3 relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
                 style={{
                   background: "linear-gradient(150deg, hsl(225 75% 52%) 0%, hsl(255 65% 45%) 100%)",
                 }}
@@ -401,7 +412,7 @@ export function ContactSection() {
                 href="https://mail.google.com/mail/?view=cm&to=websuite153@gmail.com&su=%D7%A4%D7%A0%D7%99%D7%99%D7%94%20%D7%9E%D7%90%D7%AA%D7%A8%20WebSuite"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="col-span-2 relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+                className="col-span-1 sm:col-span-2 relative overflow-hidden rounded-2xl p-5 group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
                 style={{
                   background: "linear-gradient(150deg, hsl(180 65% 38%) 0%, hsl(195 60% 32%) 100%)",
                 }}

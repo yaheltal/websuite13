@@ -1,5 +1,12 @@
 import nodemailer from "nodemailer";
 
+/**
+ * Emails are sent in exactly 3 cases:
+ * 1. Contact form (צור קשר) → sendContactEmail
+ * 2. Start of questionnaire (מילוי פרטים בתחילת שאלון) → sendLeadNotifyEmail — alerts that lead started filling the questionnaire
+ * 3. End of questionnaire (סוף השאלון) → sendOnboardingEmail — full client details + Replit prompt (EN) + Cursor prompt (EN)
+ */
+
 const RECIPIENT_EMAIL = "WEBSUITE153@GMAIL.COM";
 const SENDER_EMAIL = "WEBSUITE153@GMAIL.COM";
 const MAX_RETRIES = 3;
@@ -25,6 +32,70 @@ const SERVICE_NAMES: Record<string, string> = {
   "ecommerce": "חנות אונליין",
   "business-card": "כרטיס ביקור דיגיטלי",
   "other": "אחר",
+};
+
+const SERVICE_NAMES_EN: Record<string, string> = {
+  "landing-page": "Landing page",
+  "digital-card": "Digital business card",
+  "ecommerce": "Online store / E-commerce",
+  "business-card": "Digital business card",
+  "other": "Other",
+};
+
+/** English labels for questionnaire keys (prompts must be fully in English for Replit/Cursor). */
+const QUESTION_LABELS_EN: Record<string, string> = {
+  businessName: "Business name",
+  businessField: "Field / Industry",
+  targetAudience: "Target audience",
+  mainGoal: "Main goal (leads, sales, awareness)",
+  existingBranding: "Existing branding (logo, colors)",
+  inspirations: "Sites / stores for inspiration",
+  specialFeatures: "Special features required",
+  budget: "Approximate budget",
+  timeline: "Preferred timeline",
+  fullName: "Full name",
+  jobTitle: "Job title",
+  phone: "Phone",
+  email: "Email",
+  socialLinks: "Social media links",
+  brandColors: "Brand colors",
+  personalBranding: "Personal style / message",
+  productCount: "Approximate number of products",
+  shippingMethod: "Shipping method",
+  paymentMethods: "Payment methods",
+  existingSite: "Existing site (URL if any)",
+};
+
+/** Hebrew question labels → English (so prompts are fully in English even if key is stored in Hebrew). */
+const QUESTION_LABELS_HE_TO_EN: Record<string, string> = {
+  "שם העסק": "Business name",
+  "תחום פעילות": "Field / Industry",
+  "קהל יעד": "Target audience",
+  "מטרה עיקרית (לידים, מכירות, מודעות)": "Main goal (leads, sales, awareness)",
+  "האם יש מיתוג קיים? (לוגו, צבעים)": "Existing branding (logo, colors)",
+  "אתרים שמשמשים השראה": "Sites / stores for inspiration",
+  "פיצ'רים מיוחדים שצריך": "Special features required",
+  "תקציב משוער": "Approximate budget",
+  "לוח זמנים רצוי": "Preferred timeline",
+  "שם מלא": "Full name",
+  "תפקיד": "Job title",
+  "שם העסק / חברה": "Business name",
+  "טלפון": "Phone",
+  "אימייל": "Email",
+  "קישורים לרשתות חברתיות": "Social media links",
+  "צבעי מותג (אם יש)": "Brand colors",
+  "סגנון אישי / מסר שתרצה להעביר": "Personal style / message",
+  "פיצ'רים (QR, vCard, גלריה)": "Special features",
+  "שם החנות / העסק": "Business name",
+  "תחום ומוצרים עיקריים": "Field / Industry",
+  "כמה מוצרים (בערך)?": "Approximate number of products",
+  "שיטת משלוח (דואר, שליח, איסוף)": "Shipping method",
+  "אמצעי תשלום (אשראי, PayPal, bit)": "Payment methods",
+  "מיתוג קיים (לוגו, צבעים)": "Existing branding (logo, colors)",
+  "האם יש אתר קיים? כתובת?": "Existing site (URL if any)",
+  "פיצ'רים מיוחדים (קופונים, מלאי, מנויים)": "Special features required",
+  "חנויות שמשמשות השראה": "Sites / stores for inspiration",
+  "לוח זמנים": "Preferred timeline",
 };
 
 function sleep(ms: number) {
@@ -55,36 +126,84 @@ async function sendWithRetry(
   return { success: false, attempts: MAX_RETRIES };
 }
 
-function generateReplitPrompt(data: {
+/** Human-readable English label for a questionnaire key (for Replit/Cursor prompts). Keys may be English or Hebrew. */
+function questionLabelEn(key: string): string {
+  const trimmed = String(key).trim();
+  return (
+    QUESTION_LABELS_EN[trimmed] ||
+    QUESTION_LABELS_HE_TO_EN[trimmed] ||
+    trimmed.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase()).trim()
+  );
+}
+
+/** Shared data for generating copy-paste prompts (English only, for Replit/Cursor). */
+function buildPromptData(data: {
+  clientName: string;
+  service: string;
+  questionnaireData: Record<string, any>;
+  chatSummary?: string;
+}) {
+  const serviceNameEn = SERVICE_NAMES_EN[data.service] || data.service;
+  const qaDetails = Object.entries(data.questionnaireData)
+    .filter(([_, v]) => v && String(v).trim())
+    .map(([k, v]) => `  - ${questionLabelEn(k)}: ${v}`)
+    .join("\n");
+  const chatContext = data.chatSummary
+    ? `\n\nClient conversation summary:\n${data.chatSummary}`
+    : "";
+  const colors =
+    data.questionnaireData["brandColors"] ||
+    data.questionnaireData["colors"] ||
+    "professional choice";
+  return { serviceNameEn, qaDetails, chatContext, colors };
+}
+
+/** English prompt for pasting into Replit Agent. */
+export function generateReplitPrompt(data: {
   clientName: string;
   service: string;
   questionnaireData: Record<string, any>;
   chatSummary?: string;
 }): string {
-  const serviceName = SERVICE_NAMES[data.service] || data.service;
+  const { serviceNameEn, qaDetails, chatContext, colors } = buildPromptData(data);
 
-  const qaDetails = Object.entries(data.questionnaireData)
-    .filter(([_, v]) => v && String(v).trim())
-    .map(([k, v]) => `  - ${k}: ${v}`)
-    .join("\n");
+  return `Build a ${serviceNameEn} for "${data.clientName}".
 
-  const chatContext = data.chatSummary
-    ? `\n\nסיכום שיחה עם הלקוח:\n${data.chatSummary}`
-    : "";
-
-  return `בנה ${serviceName} עבור "${data.clientName}".
-
-דרישות הפרויקט:
-${qaDetails || "  - לא צוינו דרישות ספציפיות"}
+Project requirements:
+${qaDetails || "  - No specific requirements provided"}
 ${chatContext}
 
-הנחיות טכניות:
-- עיצוב מודרני ונקי, רספונסיבי לכל המכשירים
-- RTL מלא עם פונט עברי (Assistant / Heebo)
-- צבעים: ${data.questionnaireData["צבעים מועדפים"] || data.questionnaireData["colors"] || "לפי שיקול דעת מקצועי"}
-- כולל טופס צור קשר עם שליחה ל-WhatsApp / אימייל
-- SEO בסיסי: כותרות, תיאורים, תגיות מתאימות
-- ביצועים מהירים, Lighthouse score גבוה`;
+Technical guidelines:
+- Modern, clean design; fully responsive
+- Full RTL support with Hebrew font (e.g. Assistant / Heebo)
+- Colors: ${colors}
+- Include a contact form with submit to WhatsApp / email
+- Basic SEO: proper headings, meta descriptions, tags
+- Fast performance, high Lighthouse score`;
+}
+
+/** English prompt for pasting into Cursor (AI in the editor). */
+export function generateCursorPrompt(data: {
+  clientName: string;
+  service: string;
+  questionnaireData: Record<string, any>;
+  chatSummary?: string;
+}): string {
+  const { serviceNameEn, qaDetails, chatContext, colors } = buildPromptData(data);
+
+  return `In this Cursor project, build a ${serviceNameEn} for client "${data.clientName}".
+
+Project requirements (from questionnaire):
+${qaDetails || "  - No specific requirements provided"}
+${chatContext}
+
+Instructions:
+- Use the existing project structure and tools where relevant.
+- Modern, clean UI; fully responsive; RTL and Hebrew font (Assistant / Heebo).
+- Brand/colors: ${colors}
+- Include contact form with WhatsApp / email submit.
+- Basic SEO and good performance (Lighthouse).
+- Follow project conventions and any .cursor/rules or AGENTS.md if present.`;
 }
 
 export async function sendLeadNotifyEmail(data: {
@@ -179,7 +298,7 @@ export async function sendContactEmail(data: {
   });
 }
 
-export async function sendOnboardingEmail(data: {
+export type OnboardingEmailData = {
   clientName: string;
   clientEmail: string;
   clientPhone: string;
@@ -187,7 +306,10 @@ export async function sendOnboardingEmail(data: {
   questionnaireData: Record<string, any>;
   chatSummary: string;
   uploadedFiles: string[];
-}): Promise<{ success: boolean; attempts: number }> {
+};
+
+/** Returns subject, html and text for the onboarding email (for preview or send). */
+export function getOnboardingEmailContent(data: OnboardingEmailData): { subject: string; html: string; text: string } {
   const serviceName = SERVICE_NAMES[data.service] || data.service;
 
   const qaRows = Object.entries(data.questionnaireData)
@@ -210,6 +332,13 @@ export async function sendOnboardingEmail(data: {
     : `<p style="color: #999; font-size: 13px;">שיחת AI לא הושלמה</p>`;
 
   const replitPrompt = generateReplitPrompt({
+    clientName: data.clientName,
+    service: data.service,
+    questionnaireData: data.questionnaireData,
+    chatSummary: data.chatSummary,
+  });
+
+  const cursorPrompt = generateCursorPrompt({
     clientName: data.clientName,
     service: data.service,
     questionnaireData: data.questionnaireData,
@@ -241,10 +370,16 @@ export async function sendOnboardingEmail(data: {
 
         ${filesSection}
 
-        <h2 style="color: #2d3142; margin-top: 30px;">פרומפט מותאם — מוכן ל-Replit</h2>
-        <p style="color: #666; font-size: 12px; margin-bottom: 8px;">העתק את הבלוק הבא ישירות ל-Replit Agent כדי להתחיל לבנות את הפרויקט:</p>
-        <div style="background: #1e1e2e; color: #cdd6f4; padding: 20px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.8; direction: rtl; text-align: right; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">
+        <h2 style="color: #2d3142; margin-top: 30px;">פרומפט מוכן ל-Replit</h2>
+        <p style="color: #666; font-size: 12px; margin-bottom: 8px;">העתק את הבלוק הבא ל-Replit Agent:</p>
+        <div style="background: #1e1e2e; color: #cdd6f4; padding: 20px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.8; direction: ltr; text-align: left; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">
 ${escapeHtml(replitPrompt)}
+        </div>
+
+        <h2 style="color: #2d3142; margin-top: 30px;">פרומפט מוכן ל-Cursor</h2>
+        <p style="color: #666; font-size: 12px; margin-bottom: 8px;">העתק את הבלוק הבא ל-Cursor (צ'אט או Agent) כדי לבנות את הפרויקט בפרויקט הקיים:</p>
+        <div style="background: #1e1e2e; color: #cdd6f4; padding: 20px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.8; direction: ltr; text-align: left; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">
+${escapeHtml(cursorPrompt)}
         </div>
       </div>
       
@@ -254,10 +389,38 @@ ${escapeHtml(replitPrompt)}
     </div>
   `;
 
+  const textBody = [
+    `WEB13 - ליד חדש מתהליך Onboarding`,
+    ``,
+    `פרטי לקוח: ${data.clientName}, ${data.clientEmail}, ${data.clientPhone || "לא צוין"}, ${serviceName}`,
+    ``,
+    `--- תוצאות שאלון ---`,
+    ...Object.entries(data.questionnaireData)
+      .filter(([_, v]) => v && String(v).trim())
+      .map(([k, v]) => `${k}: ${v}`),
+    ``,
+    data.chatSummary ? `--- סיכום שיחת AI ---\n${data.chatSummary}` : `(שיחת AI לא הושלמה)`,
+    ``,
+    `========== PROMPT FOR REPLIT ==========`,
+    replitPrompt,
+    ``,
+    `========== PROMPT FOR CURSOR ==========`,
+    cursorPrompt,
+    ``,
+    `-- WEB13 Onboarding System`,
+  ].join("\n");
+
+  const subject = `[URGENT] New WebSuite Lead - ${data.clientName} (includes Replit + Cursor prompts)`;
+  return { subject, html: htmlBody, text: textBody };
+}
+
+export async function sendOnboardingEmail(data: OnboardingEmailData): Promise<{ success: boolean; attempts: number }> {
+  const { subject, html, text } = getOnboardingEmailContent(data);
   return sendWithRetry({
     from: `"WEB13" <${SENDER_EMAIL}>`,
     to: RECIPIENT_EMAIL,
-    subject: `[URGENT] New WebSuite Lead - ${data.clientName}`,
-    html: htmlBody,
+    subject,
+    html,
+    text,
   });
 }

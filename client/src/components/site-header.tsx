@@ -133,7 +133,7 @@ export function SiteHeader() {
       style={{ zIndex: 999 }}
       data-testid="site-header"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/5 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/5 to-transparent pointer-events-none site-header-bg" />
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex items-center justify-between">
         <div
           ref={logoContainerRef}
@@ -178,14 +178,8 @@ export function SiteHeader() {
 
         <button
           onClick={toggleLang}
-          className="pointer-events-auto flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold"
-          style={{
-            background: "hsla(260, 30%, 15%, 0.6)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid hsla(220, 60%, 60%, 0.25)",
-            color: "hsla(220, 80%, 90%, 0.95)",
-          }}
+          className="pointer-events-auto flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold glass-luxury text-foreground/95"
+          data-cursor-hover
           data-testid="button-lang-toggle"
           aria-label={lang === "he" ? "Switch to English" : "Switch to Hebrew"}
         >

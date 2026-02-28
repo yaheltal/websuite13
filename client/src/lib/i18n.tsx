@@ -126,6 +126,11 @@ const translations: Record<Lang, Record<string, string>> = {
     "contact.why.3": "100+ פרויקטים שהושלמו בהצלחה",
     "contact.why.4": "תמיכה טכנית צמודה אחרי ההשקה",
 
+    "onboarding.resume.title": "יש לנו פרטים שמורים",
+    "onboarding.resume.desc": "נשמרו אצלנו פרטי התקשרות וההתקדמות מהפעם הקודמת. איך תרצו להמשיך?",
+    "onboarding.resume.continue": "המשך עם הפרטים השמורים",
+    "onboarding.resume.fresh": "רשם מחדש פרטים ראשוניים",
+
     "nav.home": "ראשי",
     "nav.services": "שירותים",
     "nav.contact": "צור קשר",
@@ -260,6 +265,11 @@ const translations: Record<Lang, Record<string, string>> = {
     "contact.why.2": "Over 6 years of hands-on expertise",
     "contact.why.3": "100+ projects delivered successfully",
     "contact.why.4": "Dedicated post-launch partnership & support",
+
+    "onboarding.resume.title": "We have your saved details",
+    "onboarding.resume.desc": "We saved your contact info and progress from last time. How would you like to continue?",
+    "onboarding.resume.continue": "Continue with saved details",
+    "onboarding.resume.fresh": "Re-enter details from scratch",
 
     "nav.home": "Home",
     "nav.services": "Services",

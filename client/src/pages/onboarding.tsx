@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/lib/i18n";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
 import {
@@ -209,6 +210,9 @@ function ProgressBar({ stepsRemaining }: { stepsRemaining: number }) {
 
 export default function Onboarding() {
   const saved = loadFromStorage();
+  const hasSavedData = (saved.step != null && saved.step > 0) || (saved.contactName && String(saved.contactName).trim() !== "");
+  const [resumeChoice, setResumeChoice] = useState<null | "continue" | "fresh">(null);
+
   const [step, setStep] = useState(saved.step || 0);
   const [selectedService, setSelectedService] = useState<string>(saved.selectedService || "");
   const [questionnaireData, setQuestionnaireData] = useState<Record<string, string>>(saved.questionnaireData || {});
@@ -227,6 +231,7 @@ export default function Onboarding() {
   const chatInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { t } = useI18n();
 
   const contactForm = useForm<z.infer<typeof contactSchema>>({
     resolver: zodResolver(contactSchema),
@@ -291,12 +296,12 @@ export default function Onboarding() {
 
   const hasShownWelcomeBack = useRef(false);
   useEffect(() => {
-    if (hasShownWelcomeBack.current) return;
+    if (hasShownWelcomeBack.current || resumeChoice !== "continue") return;
     hasShownWelcomeBack.current = true;
     if (saved.step && saved.step > 0 && !saved.completed) {
       toast({ title: "ברוכים השבים!", description: "שמרנו את ההתקדמות שלך — אפשר להמשיך מאיפה שהפסקת." });
     }
-  }, []);
+  }, [resumeChoice, saved.step, saved.completed]);
 
   useEffect(() => {
     const subscription = contactForm.watch(() => {
@@ -316,6 +321,24 @@ export default function Onboarding() {
       setTimeout(() => chatInputRef.current?.focus(), 50);
     }
   }, [chatMessages, chatLoading]);
+
+  const handleResumeContinue = () => setResumeChoice("continue");
+
+  const handleResumeFresh = () => {
+    clearStorage();
+    setResumeChoice("fresh");
+    setStep(0);
+    setSelectedService("");
+    setQuestionnaireData({});
+    setOnboardingId(null);
+    setChatMessages([]);
+    setChatSessionId(null);
+    setChatComplete(false);
+    setUploadedFiles([]);
+    setCompleted(false);
+    setLeadNotified(false);
+    contactForm.reset({ name: "", email: "", phone: "" });
+  };
 
   const handleServiceSelect = (serviceId: string) => {
     setSelectedService(serviceId);
@@ -538,12 +561,43 @@ export default function Onboarding() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {step >= 2 && step <= 5 && !completed && (
+        {!(resumeChoice === null && hasSavedData) && step >= 2 && step <= 5 && !completed && (
           <ProgressBar stepsRemaining={getStepsRemaining()} />
         )}
 
         <AnimatePresence mode="wait">
-          {step === 0 && (
+          {resumeChoice === null && hasSavedData && (
+            <motion.div key="resume-choice" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="max-w-lg mx-auto">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-charcoal mb-3" data-testid="text-resume-title">
+                  {t("onboarding.resume.title")}
+                </h2>
+                <p className="text-charcoal-light leading-relaxed">
+                  {t("onboarding.resume.desc")}
+                </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Button
+                  onClick={handleResumeContinue}
+                  className="w-full bg-gradient-to-l from-copper to-copper-dark text-white py-6 text-base font-bold rounded-2xl"
+                  data-testid="button-resume-continue"
+                >
+                  {t("onboarding.resume.continue")}
+                  <ArrowLeft className="w-5 h-5 mr-2" />
+                </Button>
+                <Button
+                  onClick={handleResumeFresh}
+                  variant="outline"
+                  className="w-full py-6 text-base font-semibold rounded-2xl border-2"
+                  data-testid="button-resume-fresh"
+                >
+                  {t("onboarding.resume.fresh")}
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
+          {!(resumeChoice === null && hasSavedData) && step === 0 && (
             <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
@@ -572,7 +626,7 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {step === 1 && (
+          {!(resumeChoice === null && hasSavedData) && step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
@@ -626,7 +680,7 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {step === 2 && (
+          {!(resumeChoice === null && hasSavedData) && step === 2 && (
             <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="max-w-xl mx-auto text-center">
                 <motion.div
@@ -701,7 +755,7 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {step === 3 && (
+          {!(resumeChoice === null && hasSavedData) && step === 3 && (
             <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
@@ -757,7 +811,7 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {step === 4 && (
+          {!(resumeChoice === null && hasSavedData) && step === 4 && (
             <motion.div key="step4" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-extrabold text-charcoal mb-2" data-testid="text-step-title">
@@ -863,7 +917,7 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {step === 5 && (
+          {!(resumeChoice === null && hasSavedData) && step === 5 && (
             <motion.div key="step5" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
@@ -928,7 +982,7 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {step === 6 && !completed && (
+          {!(resumeChoice === null && hasSavedData) && step === 6 && !completed && (
             <motion.div key="step6" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
@@ -990,7 +1044,7 @@ export default function Onboarding() {
             </motion.div>
           )}
 
-          {completed && (
+          {!(resumeChoice === null && hasSavedData) && completed && (
             <motion.div key="completed" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-16">
               <motion.div
                 initial={{ scale: 0 }}

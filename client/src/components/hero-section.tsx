@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { gsap } from "gsap";
 import { Button } from "@/components/ui/button";
+import { MagneticButton } from "@/components/magnetic-button";
 import { Link } from "wouter";
 import { useI18n } from "@/lib/i18n";
 import { CodeRainBg } from "./code-rain-bg";
@@ -235,8 +236,8 @@ export function HeroSection() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative flex items-center justify-center overflow-hidden"
-      style={{ height: "100dvh", minHeight: "600px" }}
+      className="relative flex items-center justify-center overflow-hidden py-16 md:py-24"
+      style={{ minHeight: "min(65vh, 520px)" }}
       data-testid="section-hero"
     >
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -426,8 +427,6 @@ export function HeroSection() {
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
           }}>{t("hero.line1")}</span>
-          <span data-hero-line className="inline">{t("hero.line2")}</span>{" "}
-          <span data-hero-line className="inline">{t("hero.line3")}</span>
         </h1>
 
         <p
@@ -444,27 +443,41 @@ export function HeroSection() {
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
           style={{ opacity: 0 }}
         >
-          <Link href="/onboarding">
+          <Link href="/onboarding" className="inline-block w-full sm:w-auto">
+            <MagneticButton
+              as="span"
+              strength={0.25}
+              className="inline-block w-full"
+            >
+              <Button
+                size="lg"
+                className="text-white font-extrabold text-base px-8 py-3 min-h-[48px] border-0 shadow-lg w-full sm:w-auto"
+                style={{
+                  background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))",
+                }}
+                data-testid="button-hero-cta"
+                data-cursor-hover
+              >
+                {t("hero.cta")}
+              </Button>
+            </MagneticButton>
+          </Link>
+          <MagneticButton
+            as="button"
+            strength={0.2}
+            className="inline-block w-full sm:w-auto"
+          >
             <Button
               size="lg"
-              className="text-white font-extrabold text-base px-8 py-3 min-h-[48px] border-0 shadow-lg w-full sm:w-auto"
-              style={{
-                background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))",
-              }}
-              data-testid="button-hero-cta"
+              variant="outline"
+              onClick={() => scrollToSection("#services")}
+              className="font-semibold text-base px-8 py-3 min-h-[48px] border-border text-foreground w-full sm:w-auto"
+              data-testid="button-hero-services"
+              data-cursor-hover
             >
-              {t("hero.cta")}
+              {t("hero.services")}
             </Button>
-          </Link>
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={() => scrollToSection("#services")}
-            className="font-semibold text-base px-8 py-3 min-h-[48px] border-charcoal/15 text-charcoal w-full sm:w-auto"
-            data-testid="button-hero-services"
-          >
-            {t("hero.services")}
-          </Button>
+          </MagneticButton>
         </div>
 
         <div
@@ -490,7 +503,7 @@ export function HeroSection() {
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background/50 to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[hsl(var(--background))] to-transparent pointer-events-none opacity-90" />
     </section>
   );
 }

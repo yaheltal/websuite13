@@ -1,35 +1,59 @@
+import { lazy, Suspense } from "react";
 import { Navigation } from "@/components/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { HeroSection } from "@/components/hero-section";
-import { ServicesSection } from "@/components/services-section";
-import { ScrollytellingSection } from "@/components/scrollytelling-section";
-import { ContactSection } from "@/components/contact-section";
-import { FaqSection } from "@/components/faq-section";
-import { Footer } from "@/components/footer";
 import { ScrollBackground } from "@/components/scroll-background";
-import { AiChatWidget } from "@/components/ai-chat-widget";
 import { useLenis } from "@/hooks/use-lenis";
+
+const ServicesSection = lazy(() =>
+  import("@/components/services-section").then((m) => ({ default: m.ServicesSection }))
+);
+const ScrollytellingSection = lazy(() =>
+  import("@/components/scrollytelling-section").then((m) => ({ default: m.ScrollytellingSection }))
+);
+const FaqSection = lazy(() =>
+  import("@/components/faq-section").then((m) => ({ default: m.FaqSection }))
+);
+const ContactSection = lazy(() =>
+  import("@/components/contact-section").then((m) => ({ default: m.ContactSection }))
+);
+const Footer = lazy(() =>
+  import("@/components/footer").then((m) => ({ default: m.Footer }))
+);
+const AiChatWidget = lazy(() =>
+  import("@/components/ai-chat-widget").then((m) => ({ default: m.AiChatWidget }))
+);
+
+function BelowFoldFallback() {
+  return <div className="min-h-[60vh]" aria-hidden="true" />;
+}
 
 export default function Home() {
   useLenis();
 
   return (
-    <div className="min-h-screen" data-testid="page-home">
+    <div className="min-h-screen overflow-x-hidden w-full" data-testid="page-home">
       <div className="grain-overlay" aria-hidden="true" />
       <ScrollBackground />
       <div className="relative z-10">
         <Navigation />
         <main>
           <HeroSection />
-          <ScrollytellingSection />
-          <ServicesSection />
-          <FaqSection />
-          <ContactSection />
+          <Suspense fallback={<BelowFoldFallback />}>
+            <ScrollytellingSection />
+            <ServicesSection />
+            <FaqSection />
+            <ContactSection />
+          </Suspense>
         </main>
-        <Footer />
+        <Suspense fallback={null}>
+          <Footer />
+        </Suspense>
       </div>
       <SiteHeader />
-      <AiChatWidget />
+      <Suspense fallback={null}>
+        <AiChatWidget />
+      </Suspense>
     </div>
   );
 }

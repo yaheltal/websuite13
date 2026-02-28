@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { I18nProvider } from "@/lib/i18n";
+import { LiquidCursorProvider } from "@/components/liquid-cursor";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Onboarding from "@/pages/onboarding";
@@ -25,8 +26,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <I18nProvider>
-          <Toaster />
-          <Router />
+          <LiquidCursorProvider>
+            <Toaster />
+            <Router />
+          </LiquidCursorProvider>
         </I18nProvider>
       </TooltipProvider>
     </QueryClientProvider>

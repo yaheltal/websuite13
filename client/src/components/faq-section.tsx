@@ -33,7 +33,7 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
       const targetH = inner.offsetHeight;
       gsap.fromTo(content,
         { height: 0, opacity: 0 },
-        { height: targetH, opacity: 1, duration: 0.5, ease: "power3.out", onComplete: () => gsap.set(content, { height: "auto" }) }
+        { height: targetH, opacity: 1, duration: 0.5, ease: "power3.out", onComplete: () => { gsap.set(content, { height: "auto" }); } }
       );
       gsap.to(icon, { rotation: 135, duration: 0.4, ease: "power2.out" });
     } else {
@@ -56,15 +56,16 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
         className="w-full flex items-center justify-between gap-4 p-5 sm:p-6 text-right transition-colors duration-300 rounded-xl group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
         style={{
           background: isOpen
-            ? "linear-gradient(145deg, hsla(260, 30%, 14%, 0.92) 0%, hsla(240, 25%, 12%, 0.88) 50%, hsla(220, 20%, 10%, 0.85) 100%)"
-            : "linear-gradient(145deg, hsla(260, 30%, 12%, 0.85) 0%, hsla(240, 25%, 10%, 0.82) 50%, hsla(220, 20%, 8%, 0.78) 100%)",
+            ? "linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(248,250,255,0.85) 50%, rgba(240,244,255,0.8) 100%)"
+            : "linear-gradient(145deg, rgba(255,255,255,0.75) 0%, rgba(250,252,255,0.7) 50%, rgba(245,248,255,0.65) 100%)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          border: isOpen ? "1px solid hsla(220, 80%, 65%, 0.25)" : "1px solid hsla(0, 0%, 100%, 0.1)",
+          border: isOpen ? "1px solid rgba(100,140,220,0.25)" : "1px solid rgba(200,210,230,0.4)",
+          boxShadow: isOpen ? "0 4px 20px rgba(0,0,0,0.06)" : "0 2px 8px rgba(0,0,0,0.03)",
         }}
         data-testid={`button-faq-${index}`}
       >
-        <span className="text-base sm:text-lg font-bold text-white/90 leading-relaxed flex-1">
+        <span className="text-base sm:text-lg font-bold text-charcoal leading-relaxed flex-1">
           {question}
         </span>
         <span
@@ -73,8 +74,8 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
           style={{
             background: isOpen
               ? "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))"
-              : "hsla(0, 0%, 100%, 0.08)",
-            color: isOpen ? "white" : "hsla(0, 0%, 100%, 0.6)",
+              : "rgba(0, 0, 0, 0.06)",
+            color: isOpen ? "white" : "hsl(220 15% 40%)",
           }}
           aria-hidden="true"
         >
@@ -90,7 +91,7 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
         style={{ height: 0, opacity: 0 }}
       >
         <div ref={innerRef} className="px-5 sm:px-6 pb-5 sm:pb-6 pt-2">
-          <p className="text-white/60 leading-[1.8] text-sm sm:text-base">
+          <p className="text-charcoal-light leading-[1.8] text-sm sm:text-base">
             {answer}
           </p>
         </div>
@@ -178,16 +179,13 @@ export function FaqSection() {
       id="faq"
       dir={dir}
       className="relative py-20 md:py-32 overflow-hidden"
-      style={{
-        background: "linear-gradient(180deg, rgb(15, 10, 40) 0%, rgb(10, 8, 30) 50%, rgb(15, 10, 40) 100%)",
-      }}
       data-testid="section-faq"
     >
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {[
-          { w: "40vw", h: "40vw", top: "10%", left: "-10%", bg: "radial-gradient(circle, hsla(220,70%,55%,0.12) 0%, transparent 70%)" },
-          { w: "35vw", h: "35vw", top: "60%", right: "-5%", bg: "radial-gradient(circle, hsla(260,60%,45%,0.1) 0%, transparent 70%)" },
-          { w: "25vw", h: "25vw", top: "30%", left: "50%", bg: "radial-gradient(circle, hsla(170,60%,50%,0.06) 0%, transparent 70%)" },
+          { w: "40vw", h: "40vw", top: "10%", left: "-10%", bg: "radial-gradient(circle, hsla(220,70%,80%,0.15) 0%, transparent 70%)" },
+          { w: "35vw", h: "35vw", top: "60%", right: "-5%", bg: "radial-gradient(circle, hsla(260,60%,80%,0.12) 0%, transparent 70%)" },
+          { w: "25vw", h: "25vw", top: "30%", left: "50%", bg: "radial-gradient(circle, hsla(170,60%,80%,0.08) 0%, transparent 70%)" },
         ].map((orb, i) => (
           <div
             key={i}
@@ -210,9 +208,9 @@ export function FaqSection() {
         <div ref={headerRef} className="text-center mb-12 md:mb-16" style={{ opacity: 0 }}>
           <Badge
             variant="secondary"
-            className="mb-4 border-white/15 text-white/70"
+            className="mb-4 border-gray-200/60 text-charcoal-light"
             style={{
-              background: "hsla(260, 30%, 20%, 0.5)",
+              background: "rgba(255,255,255,0.7)",
               backdropFilter: "blur(10px)",
             }}
           >
@@ -220,14 +218,14 @@ export function FaqSection() {
             {t("faq.badge")}
           </Badge>
           <h2
-            className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 text-white"
+            className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 text-charcoal"
             data-testid="text-faq-title"
           >
             {t("faq.title1")}
             <span
               className="ms-2"
               style={{
-                background: "linear-gradient(135deg, hsl(220 80% 65%), hsl(260 70% 60%), hsl(170 80% 50%))",
+                background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 50%), hsl(170 80% 40%))",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -236,7 +234,7 @@ export function FaqSection() {
               {t("faq.title2")}
             </span>
           </h2>
-          <p className="text-white/50 text-lg max-w-xl mx-auto">
+          <p className="text-charcoal-light text-lg max-w-xl mx-auto">
             {t("faq.subtitle")}
           </p>
         </div>

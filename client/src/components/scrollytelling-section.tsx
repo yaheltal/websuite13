@@ -3,6 +3,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Sparkles, Zap, Palette, Rocket, Shield } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { ScrollReveal } from "@/components/scroll-reveal";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -105,13 +106,6 @@ function generateMockups(count: number): FloatingMockup[] {
 const ALL_MOCKUPS = generateMockups(14);
 const MOBILE_MOCKUP_COUNT = 6;
 
-const BG_COLORS = [
-  { r: 15, g: 10, b: 40 },
-  { r: 25, g: 8, b: 55 },
-  { r: 10, g: 18, b: 50 },
-  { r: 30, g: 5, b: 45 },
-  { r: 12, g: 15, b: 48 },
-];
 
 export function ScrollytellingSection() {
   const { t } = useI18n();
@@ -129,8 +123,6 @@ export function ScrollytellingSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const bgRef = useRef<HTMLDivElement>(null);
-  const orbRefs = useRef<(HTMLDivElement | null)[]>([]);
   const blockRefs = useRef<(HTMLDivElement | null)[]>([]);
   const mockupRefs = useRef<(HTMLDivElement | null)[]>([]);
   const glareRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -229,38 +221,6 @@ export function ScrollytellingSection() {
         );
       });
 
-      let lastOrbProg = -1;
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: true,
-        onUpdate: (self) => {
-          const p = self.progress;
-          if (Math.abs(p - lastOrbProg) > 0.005) {
-            lastOrbProg = p;
-            orbRefs.current.forEach((orb, i) => {
-              if (!orb) return;
-              const shift = Math.sin(p * Math.PI * 2.5 + i * 1.5) * 25;
-              const vShift = Math.cos(p * Math.PI * 2 + i * 1.1) * 18;
-              const orbScale = 1 + Math.sin(p * Math.PI + i) * 0.15;
-              orb.style.transform = `translate(${shift}%, ${vShift}%) scale(${orbScale})`;
-            });
-          }
-
-          const ci = Math.floor(p * (BG_COLORS.length - 1));
-          const ni = Math.min(ci + 1, BG_COLORS.length - 1);
-          const t = (p * (BG_COLORS.length - 1)) - ci;
-          const c = BG_COLORS[ci];
-          const n = BG_COLORS[ni];
-          const r = Math.round(c.r + (n.r - c.r) * t);
-          const g = Math.round(c.g + (n.g - c.g) * t);
-          const b = Math.round(c.b + (n.b - c.b) * t);
-          if (bgRef.current) {
-            bgRef.current.style.backgroundColor = `rgb(${r},${g},${b})`;
-          }
-        },
-      });
 
       gsap.fromTo(
         progress,
@@ -393,35 +353,6 @@ export function ScrollytellingSection() {
       style={{ minHeight: "350vh" }}
       data-testid="section-scrollytelling"
     >
-      <div
-        ref={bgRef}
-        className="absolute inset-0 transition-colors duration-700"
-        style={{ backgroundColor: "rgb(15, 10, 40)" }}
-      >
-        {[
-          { w: "60vw", h: "60vw", top: "5%", left: "10%", bg: "radial-gradient(circle, hsla(270,80%,40%,0.35) 0%, transparent 70%)" },
-          { w: "50vw", h: "50vw", top: "35%", right: "5%", bg: "radial-gradient(circle, hsla(220,80%,40%,0.3) 0%, transparent 70%)" },
-          { w: "45vw", h: "45vw", bottom: "10%", left: "20%", bg: "radial-gradient(circle, hsla(320,70%,35%,0.25) 0%, transparent 70%)" },
-          { w: "55vw", h: "55vw", top: "55%", left: "50%", bg: "radial-gradient(circle, hsla(260,60%,45%,0.2) 0%, transparent 70%)" },
-        ].map((orb, i) => (
-          <div
-            key={i}
-            ref={(el) => { orbRefs.current[i] = el; }}
-            className="absolute pointer-events-none"
-            style={{
-              width: orb.w,
-              height: orb.h,
-              top: orb.top,
-              bottom: (orb as any).bottom,
-              left: orb.left,
-              right: (orb as any).right,
-              background: orb.bg,
-              filter: "blur(80px)",
-              willChange: "transform",
-            }}
-          />
-        ))}
-      </div>
 
       <div
         ref={galleryRef}
@@ -456,19 +387,18 @@ export function ScrollytellingSection() {
                   filter: `blur(${m.blurBase}px)`,
                   willChange: "transform, filter",
                   boxShadow: `
-                    0 4px 6px rgba(0,0,0,0.15),
-                    0 10px 25px rgba(0,0,0,0.2),
-                    0 25px 60px rgba(0,0,0,0.25),
-                    0 0 0 1px rgba(255,255,255,0.06)
+                    0 4px 12px rgba(0,0,0,0.06),
+                    0 10px 30px rgba(0,0,0,0.08),
+                    0 0 24px rgba(200,210,230,0.25)
                   `,
                 }}
               >
-                <div className="h-5 sm:h-6 bg-gradient-to-b from-gray-800 to-gray-900 flex items-center px-2 gap-1 sm:gap-1.5 border-b border-white/5">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500/80" />
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-yellow-500/80" />
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500/80" />
+                <div className="h-5 sm:h-6 bg-gradient-to-b from-white/90 to-gray-100/90 flex items-center px-2 gap-1 sm:gap-1.5 border-b border-gray-200/50">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-400/60" />
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-yellow-400/60" />
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-400/60" />
                   <div className="flex-1 mx-1 sm:mx-2">
-                    <div className="h-2.5 sm:h-3 bg-white/10 rounded-full max-w-[60%] mx-auto" />
+                    <div className="h-2.5 sm:h-3 bg-gray-300/30 rounded-full max-w-[60%] mx-auto" />
                   </div>
                 </div>
                 <img
@@ -507,10 +437,11 @@ export function ScrollytellingSection() {
               style={{ willChange: "transform" }}
               data-testid={`text-story-block-${index}`}
             >
-              <div className="scrollytelling-glass-card rounded-2xl p-7 sm:p-8 border border-white/15 shadow-2xl backdrop-blur-xl transition-shadow duration-500 hover:shadow-[0_0_60px_-15px_hsla(260,70%,60%,0.3)]">
+              <ScrollReveal staggerDelay={index * 0.1}>
+                <div className="scrollytelling-glass-card rounded-2xl p-7 sm:p-8 border border-gray-200/60 backdrop-blur-xl transition-shadow duration-500 hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.12)]">
                 <div className="absolute inset-0 rounded-2xl pointer-events-none"
                   style={{
-                    background: "linear-gradient(135deg, hsla(270, 50%, 60%, 0.08) 0%, hsla(220, 60%, 50%, 0.04) 50%, transparent 70%)",
+                    background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(245,247,252,0.2) 50%, transparent 70%)",
                   }}
                 />
 
@@ -528,25 +459,26 @@ export function ScrollytellingSection() {
                   {block.tagline}
                 </p>
 
-                <h3 className="text-3xl sm:text-4xl md:text-[2.75rem] font-extrabold leading-[1.1] mb-4 text-white overflow-hidden relative">
+                <h3 className="text-3xl sm:text-4xl md:text-[2.75rem] font-extrabold leading-[1.1] mb-4 text-charcoal overflow-hidden relative">
                   {splitIntoWords(block.title)}
                 </h3>
 
-                <p data-anim="body" className="text-base md:text-lg text-white/70 leading-relaxed relative">
+                <p data-anim="body" className="text-base md:text-lg text-charcoal-light leading-relaxed relative">
                   {block.text}
                 </p>
 
                 {index < storyBlocks.length - 1 && (
                   <div data-anim="divider" className="mt-8 w-16 h-px bg-gradient-to-l from-copper/40 to-transparent origin-right relative" />
                 )}
-              </div>
+                </div>
+              </ScrollReveal>
             </div>
           ))}
         </div>
       </div>
 
       <div className="fixed left-4 top-1/2 -translate-y-1/2 z-20 hidden lg:block pointer-events-none">
-        <div className="h-32 w-[3px] rounded-full bg-white/10 overflow-hidden">
+        <div className="h-32 w-[3px] rounded-full bg-gray-300/50 overflow-hidden scrollytelling-progress-track">
           <div
             ref={progressRef}
             className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-copper to-copper-dark rounded-full origin-top"
