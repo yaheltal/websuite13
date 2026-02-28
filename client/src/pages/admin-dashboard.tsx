@@ -1,6 +1,7 @@
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
+import { API_BASE } from "@/lib/queryClient";
 import { useState } from "react";
 
 interface ContactLead {
@@ -42,7 +43,7 @@ export default function AdminDashboard() {
   const { data: contacts = [] } = useQuery<ContactLead[]>({
     queryKey: ["/api/admin/contacts"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/contacts", { credentials: "include" });
+      const res = await fetch(API_BASE + "/api/admin/contacts", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch");
       return res.json();
     },
@@ -52,7 +53,7 @@ export default function AdminDashboard() {
   const { data: onboardings = [] } = useQuery<OnboardingLead[]>({
     queryKey: ["/api/admin/onboardings"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/onboardings", { credentials: "include" });
+      const res = await fetch(API_BASE + "/api/admin/onboardings", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch");
       return res.json();
     },

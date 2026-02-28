@@ -1,4 +1,10 @@
-import "dotenv/config";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
@@ -22,6 +28,23 @@ app.use(
 );
 
 app.use(express.urlencoded({ extended: false }));
+
+// Allow frontend (e.g. Vercel) to call this API when deployed separately. Set CORS_ORIGIN to https://websuite13.com (or comma-separated list).
+const corsOrigin = process.env.CORS_ORIGIN?.trim();
+if (corsOrigin) {
+  const allowed = corsOrigin.split(",").map((o) => o.trim()).filter(Boolean);
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin && allowed.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+    }
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    if (req.method === "OPTIONS") return res.sendStatus(204);
+    next();
+  });
+}
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -98,12 +121,9 @@ app.use((req, res, next) => {
     process.platform === "win32"
       ? { port }
       : { port, host: "0.0.0.0", reusePort: true };
-  httpServer.listen(listenOpts, () => {
+  httpServer.listen(listenOpts, async () => {
     log(`serving on port ${port}`);
-    if (!process.env.GMAIL_APP_PASSWORD?.trim()) {
-      console.warn(
-        "[email] GMAIL_APP_PASSWORD is not set in .env — contact form and questionnaire emails will NOT be sent. Data will still be saved to the database. Add a Gmail App Password to enable email."
-      );
-    }
+    const { verifyEmailConfig } = await import("./email");
+    await verifyEmailConfig();
   });
 })();

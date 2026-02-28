@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { API_BASE } from "@/lib/queryClient";
 
 interface AdminUser {
   id: number;
@@ -12,7 +13,7 @@ export function useAuth() {
     queryKey: ["/api/admin/me"],
     queryFn: async () => {
       try {
-        const res = await fetch("/api/admin/me", { credentials: "include" });
+        const res = await fetch(API_BASE + "/api/admin/me", { credentials: "include" });
         if (res.status === 401) return null;
         const data = await res.json();
         return data.user;
@@ -26,7 +27,7 @@ export function useAuth() {
 
   const loginMutation = useMutation({
     mutationFn: async (creds: { username: string; password: string }) => {
-      const res = await fetch("/api/admin/login", {
+      const res = await fetch(API_BASE + "/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(creds),
@@ -42,7 +43,7 @@ export function useAuth() {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await fetch("/api/admin/logout", {
+      await fetch(API_BASE + "/api/admin/logout", {
         method: "POST",
         credentials: "include",
       });

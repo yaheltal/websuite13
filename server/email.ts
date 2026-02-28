@@ -13,13 +13,36 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 2000;
 
 function createTransporter() {
+  const pass = process.env.GMAIL_APP_PASSWORD?.trim() || "";
   return nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: SENDER_EMAIL,
-      pass: process.env.GMAIL_APP_PASSWORD,
+      pass,
     },
   });
+}
+
+/** Call once at startup to verify Gmail connection. Logs result to console. */
+export async function verifyEmailConfig(): Promise<boolean> {
+  const pass = process.env.GMAIL_APP_PASSWORD?.trim();
+  if (!pass) {
+    console.warn("[email] GMAIL_APP_PASSWORD is missing — emails will not be sent.");
+    return false;
+  }
+  try {
+    const t = createTransporter();
+    await t.verify();
+    console.log("[email] Gmail connection OK — emails will be sent to", SENDER_EMAIL);
+    return true;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[email] Gmail verification failed:", msg);
+    if (msg.includes("Invalid login") || msg.includes("Username and Password not accepted")) {
+      console.error("[email] Fix: Use a Gmail App Password (not your normal password). Create at: https://myaccount.google.com/apppasswords");
+    }
+    return false;
+  }
 }
 
 function escapeHtml(str: string) {
@@ -115,7 +138,11 @@ async function sendWithRetry(
       return { success: true, attempts: attempt };
     } catch (err) {
       lastError = err;
-      console.error(`Email dispatch attempt ${attempt}/${MAX_RETRIES} failed:`, err);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      console.error(`Email dispatch attempt ${attempt}/${MAX_RETRIES} failed:`, errMsg);
+      if (errMsg.includes("Invalid login") || errMsg.includes("Username and Password not accepted")) {
+        console.error("[email] Gmail rejected login. Check GMAIL_APP_PASSWORD in .env (use App Password from Google, not your regular password).");
+      }
       if (attempt < MAX_RETRIES) {
         await sleep(RETRY_DELAY_MS * attempt);
       }

@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
-import { apiRequest } from "@/lib/queryClient";
+import { API_BASE, apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
 import {
   ArrowRight,
@@ -355,7 +355,7 @@ export default function Onboarding() {
     if (!leadNotified) {
       setLeadNotified(true);
       try {
-        await fetch("/api/onboarding/lead-notify", {
+        await fetch(API_BASE + "/api/onboarding/lead-notify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -392,7 +392,7 @@ export default function Onboarding() {
     const contactValues = contactForm.getValues();
 
     try {
-      const response = await fetch("/api/onboarding/start", {
+      const response = await fetch(API_BASE + "/api/onboarding/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -433,9 +433,10 @@ export default function Onboarding() {
     const currentId = oid ?? onboardingId;
     setChatLoading(true);
     try {
-      const response = await fetch("/api/onboarding/chat", {
+      const response = await fetch(API_BASE + "/api/onboarding/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           message: "שלום, מילאתי את השאלון ואני מוכן להמשיך",
           sessionId: null,
@@ -472,9 +473,10 @@ export default function Onboarding() {
     setChatLoading(true);
 
     try {
-      const response = await fetch("/api/onboarding/chat", {
+      const response = await fetch(API_BASE + "/api/onboarding/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           message: trimmed,
           sessionId: chatSessionId,
@@ -520,7 +522,7 @@ export default function Onboarding() {
     Array.from(files).forEach(f => formData.append("files", f));
 
     try {
-      const response = await fetch("/api/onboarding/upload", { method: "POST", body: formData });
+      const response = await fetch(API_BASE + "/api/onboarding/upload", { method: "POST", credentials: "include", body: formData });
       const data = await response.json();
       if (data.files) {
         setUploadedFiles(prev => [...prev, ...data.files]);
