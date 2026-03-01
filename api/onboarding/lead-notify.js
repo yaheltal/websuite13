@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 
-const TO = "WEBSUITE153@GMAIL.COM";
-const FROM = "WEBSUITE153@GMAIL.COM";
+const TO = (process.env.RECIPIENT_EMAIL || "WEBSUITE153@GMAIL.COM").trim();
+const FROM = (process.env.SENDER_EMAIL || process.env.GMAIL_USER || TO).trim();
 
 const SERVICE_NAMES = {
   "landing-page": "דף נחיתה",

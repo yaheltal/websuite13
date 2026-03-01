@@ -5,7 +5,7 @@ import { insertContactSchema } from "@shared/schema";
 import { z, ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { sendOnboardingEmail, sendContactEmail, sendLeadNotifyEmail, getOnboardingEmailContent } from "./email";
+import { sendOnboardingEmail, sendContactEmail, sendLeadNotifyEmail, getOnboardingEmailContent, sendAdminAlert } from "./email";
 import { requireAdmin } from "./auth";
 import multer from "multer";
 import path from "path";
@@ -203,15 +203,7 @@ export async function registerRoutes(
     return res.status(201).json({ ...(contact || {}), emailSent: false, fallback: true });
   });
 
-  app.get("/api/contacts", async (_req, res) => {
-    try {
-      const contacts = await storage.getContacts();
-      res.json(contacts);
-    } catch (error) {
-      console.error("Error fetching contacts:", error);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
+  // רשימת פניות (contacts) ו-onboardings — רק דרך /api/admin/* עם requireAdmin. אין endpoint ציבורי שמחזיר מידע על לידים.
 
   app.post("/api/chat", async (req, res) => {
     try {
@@ -220,7 +212,8 @@ export async function registerRoutes(
         return res.status(400).json({ message: "הודעה חסרה" });
       }
 
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+      const geminiRaw = process.env.GEMINI_API_KEY ?? "";
+      const genAI = new GoogleGenerativeAI(geminiRaw.replace(/^["']|["']$/g, "").trim() || "");
       const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
         systemInstruction: `אתה סוכן מכירות ושירות של WEB13 — סוכנות בוטיק לבניית אתרים.
@@ -369,6 +362,13 @@ export async function registerRoutes(
     }
   });
 
+  // בדיקה: האם מפתח Gemini נטען? (לאבחון "למה הרובוט לא עובד")
+  app.get("/api/onboarding/chat-status", (_req, res) => {
+    const raw = process.env.GEMINI_API_KEY ?? "";
+    const apiKey = raw.replace(/^["']|["']$/g, "").trim();
+    res.json({ ok: true, geminiConfigured: !!apiKey });
+  });
+
   app.post("/api/onboarding/chat", async (req, res) => {
     try {
       const { message, sessionId, onboardingId, service, questionnaireData } = req.body;
@@ -377,18 +377,18 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Message is required" });
       }
 
-      const apiKey = process.env.GEMINI_API_KEY;
+      const raw = process.env.GEMINI_API_KEY ?? "";
+      const apiKey = raw.replace(/^["']|["']$/g, "").trim();
+      const GENERIC_CHAT_ERROR = "שגיאה זמנית בשירות. נסה שוב בעוד רגע.";
       if (!apiKey) {
-        return res.status(500).json({ message: "AI service not configured" });
+        const detail = "GEMINI_API_KEY is missing. Add it to .env (dev) or Vercel → Environment Variables (production).";
+        console.error("[chat]", detail);
+        sendAdminAlert("AI Chat: API key missing", detail);
+        return res.status(500).json({ message: GENERIC_CHAT_ERROR });
       }
 
       const genAI = new GoogleGenerativeAI(apiKey);
       const systemPrompt = getOnboardingSystemPrompt(service || "landing-page", questionnaireData || {});
-
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
-        systemInstruction: systemPrompt,
-      });
 
       const sid = sessionId || crypto.randomUUID();
       let session = chatSessions.get(sid);
@@ -415,25 +415,33 @@ export async function registerRoutes(
         ? session.history.slice(-MAX_HISTORY_LENGTH)
         : session.history;
 
-      const chat = model.startChat({ history: historyForChat });
-
+      const modelIds = ["gemini-2.5-flash", "gemini-1.5-flash"];
       let reply = "";
       const MAX_RETRIES = 2;
-      for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-        try {
-          const result = await chat.sendMessage(message);
-          reply = result.response.text();
-          break;
-        } catch (retryErr: any) {
-          if (retryErr?.status === 429 && attempt < MAX_RETRIES) {
-            const retryMatch = retryErr?.message?.match(/retry in (\d+)/i);
-            const waitSec = retryMatch ? Math.min(parseInt(retryMatch[1]), 40) : 10;
-            await new Promise(r => setTimeout(r, (waitSec + 2) * 1000));
-            continue;
+      for (const modelId of modelIds) {
+        const model = genAI.getGenerativeModel({
+          model: modelId,
+          systemInstruction: systemPrompt,
+        });
+        const chat = model.startChat({ history: historyForChat });
+        for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+          try {
+            const result = await chat.sendMessage(message);
+            reply = result.response.text();
+            break;
+          } catch (retryErr: any) {
+            if (retryErr?.status === 429 && attempt < MAX_RETRIES) {
+              const retryMatch = retryErr?.message?.match(/retry in (\d+)/i);
+              const waitSec = retryMatch ? Math.min(parseInt(retryMatch[1], 10), 40) : 10;
+              await new Promise(r => setTimeout(r, (waitSec + 2) * 1000));
+              continue;
+            }
+            break;
           }
-          throw retryErr;
         }
+        if (reply) break;
       }
+      if (!reply) throw new Error("Gemini API failed for all models");
 
       reply = reply.replace(/THOUGHT[\s\S]*?(?=\n[^\n])/g, "").trim();
 
@@ -463,11 +471,13 @@ export async function registerRoutes(
 
       res.json({ reply: cleanReply, sessionId: sid, isComplete });
     } catch (error: any) {
+      const detail = error?.message || String(error);
       console.error("Chat error:", error);
+      sendAdminAlert("AI Chat error", detail);
       if (error?.status === 429) {
         res.status(429).json({ message: "שירות ה-AI עמוס כרגע. אנא נסה שוב בעוד כמה דקות." });
       } else {
-        res.status(500).json({ message: "שגיאה בשירות ה-AI, נסה שוב" });
+        res.status(500).json({ message: "שגיאה זמנית בשירות. נסה שוב בעוד רגע." });
       }
     }
   });

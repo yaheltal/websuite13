@@ -6,6 +6,31 @@
 `GMAIL_APP_PASSWORD` = סיסמת האפליקציה של Gmail.  
 **לא** להגדיר `VITE_API_URL` — תשאירי ריק כדי שהאתר יקרא ל־API באותו דומיין.
 
+**שיחת AI (סוכן) ב־Vercel:**  
+יש פונקציה `api/onboarding/chat.js` — הצ'אט עובד גם ב־Vercel בלי שרת חיצוני. **חובה** להגדיר ב־Vercel → Settings → Environment Variables:  
+`GEMINI_API_KEY` = המפתח מ־[Google AI Studio](https://aistudio.google.com/apikey) (אותו ערך שיש ב־`.env` מקומית).  
+אחרי הוספת המשתנה — לעשות **Redeploy** לפרויקט.
+
+**למה הצ'אט לא עובד? (פתרון תקלות)**  
+1. **"שירות ה-AI לא מוגדר" / "AI service not configured"**  
+   - **ב־Vercel:** הוסף `GEMINI_API_KEY` ב־Settings → Environment Variables (Production + Preview), ואז Redeploy.  
+   - **מקומי:** וודא שיש בקובץ `.env` שורה: `GEMINI_API_KEY=המפתח_שלך`, והשרת רץ עם `npm run dev` (כך ש־`.env` נטען).  
+2. **תקלה כללית / אין תשובה**  
+   - פתח DevTools (F12) → לשונית Network. שלח הודעה בצ'אט ובדוק את הקריאה ל־`/api/onboarding/chat`: מה קוד התשובה (200 / 500 / 404) ומה גוף התשובה.  
+   - אם 404 — וודא ש־`api/onboarding/chat.js` קיים ושהיה Redeploy אחרי הוספתו.  
+   - אם 500 — ב־Vercel: Deployments → הפונקציה → Logs, לראות את השגיאה.
+
+---
+
+## אבטחה והפרדה בין לקוחות ללידים
+
+- **לידים** = פניות מטופס "צור קשר" + מילוי שאלון אונבורדינג. המידע נשמר במערכת ומייל עם הפרטים נשלח **רק אליך** (לכתובת שמוגדרת ב־`RECIPIENT_EMAIL`).
+- **אין גישה ציבורית** לרשימת פניות או לידים — רק **אדמין** (דף ניהול עם התחברות) רואה את הרשימות דרך `/api/admin/contacts` ו־`/api/admin/onboardings`.
+- **מה להגדיר ב־.env (או ב־Vercel/Railway):**
+  - `RECIPIENT_EMAIL` — הכתובת שאליה יישלחו לידים (פניות + שאלונים). אם לא מוגדר — נעשה שימוש ב־WEBSUITE153@GMAIL.COM.
+  - `SESSION_SECRET` — מחרוזת אקראית ארוכה (פרודקשן). חובה בשרת מלא כדי שההתחברות לאדמין תהיה מאובטחת.
+- **ב־Vercel:** בפונקציות ה־api המיילים נשלחים לכתובת הקבועה בקוד (או ניתן להוסיף משתנה סביבה RECIPIENT_EMAIL שם אם תרצה).
+
 ---
 
 ## אפשרות 2: פריסת השרת ל-Railway (אם רוצים שרת מלא + DB)
@@ -57,6 +82,8 @@
 |------------|---------------------|--------------------------------------|
 | Railway/Render | `GMAIL_APP_PASSWORD` | הסיסמה מ־Google App Passwords        |
 | Railway/Render | `CORS_ORIGIN`        | `https://websuite13.com`             |
+| Railway/Render | `RECIPIENT_EMAIL`   | המייל שלך לקבלת לידים (אופציונלי)   |
+| Railway/Render | `SESSION_SECRET`    | מחרוזת אקראית ארוכה (פרודקשן)       |
 | Vercel     | `VITE_API_URL`       | `https://xxxxx.up.railway.app`      |
 
 אחרי ששני הצעדים מסומנים ✓ — המיילים אמורים להגיע כשמישהו ממלא טופס או שאלון באתר החי.

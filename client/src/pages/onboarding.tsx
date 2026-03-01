@@ -38,6 +38,7 @@ import {
   FileText,
   Sparkles,
   SkipForward,
+  Smile,
 } from "lucide-react";
 
 const STORAGE_KEY = "web13_onboarding";
@@ -443,9 +444,16 @@ export default function Onboarding() {
           onboardingId: currentId,
           service: selectedService,
           questionnaireData,
+          history: [],
         }),
       });
-      const data = await response.json();
+      let data: { reply?: string; sessionId?: string; message?: string } = {};
+      try {
+        const text = await response.text();
+        if (text) data = JSON.parse(text);
+      } catch {
+        // non-JSON response
+      }
       if (response.ok && data.reply) {
         setChatSessionId(data.sessionId);
         setChatMessages([
@@ -455,11 +463,11 @@ export default function Onboarding() {
       } else {
         const fallback = response.status === 429
           ? "שלום! הסוכן שלנו עמוס כרגע. אנא נסה שוב בעוד כמה רגעים."
-          : "שלום! סליחה, הייתה תקלה קטנה. ספר לי בבקשה מה סוג הפרויקט שאתה מחפש?";
+          : "שלום! סליחה, הייתה תקלה זמנית. נסה שוב בעוד רגע.";
         setChatMessages([{ role: "bot", content: fallback }]);
       }
     } catch {
-      setChatMessages([{ role: "bot", content: "שלום! סליחה, הייתה תקלה קטנה. ספר לי בבקשה מה סוג הפרויקט שאתה מחפש?" }]);
+      setChatMessages([{ role: "bot", content: "שלום! סליחה, הייתה תקלה זמנית. נסה שוב בעוד רגע." }]);
     }
     setChatLoading(false);
   };
@@ -483,25 +491,32 @@ export default function Onboarding() {
           onboardingId,
           service: selectedService,
           questionnaireData,
+          history: chatMessages.map((m) => ({ role: m.role, content: m.content })),
         }),
       });
-      const data = await response.json();
+      let data: { reply?: string; sessionId?: string; isComplete?: boolean; message?: string } = {};
+      try {
+        const text = await response.text();
+        if (text) data = JSON.parse(text);
+      } catch {
+        // non-JSON response (e.g. 502/504 HTML)
+      }
 
       if (!response.ok) {
         const fallback = response.status === 429
           ? "הסוכן שלנו עמוס כרגע. אנא נסה שוב בעוד כמה רגעים — הפרטים שלך שמורים!"
-          : "סליחה, הייתה תקלה קטנה. תוכל בבקשה לחזור על מה שאמרת?";
+          : "סליחה, הייתה תקלה זמנית. נסה שוב בעוד רגע.";
         setChatMessages(prev => [...prev, { role: "bot", content: fallback }]);
       } else {
-        if (!chatSessionId) setChatSessionId(data.sessionId);
-        setChatMessages(prev => [...prev, { role: "bot", content: data.reply }]);
+        if (!chatSessionId && data.sessionId) setChatSessionId(data.sessionId);
+        setChatMessages(prev => [...prev, { role: "bot", content: data.reply ?? "סליחה, לא התקבלה תשובה. נסה שוב." }]);
 
         if (data.isComplete) {
           setChatComplete(true);
         }
       }
     } catch {
-      setChatMessages(prev => [...prev, { role: "bot", content: "סליחה, הייתה תקלה קטנה. תוכל בבקשה לחזור על מה שאמרת?" }]);
+      setChatMessages(prev => [...prev, { role: "bot", content: "סליחה, הייתה תקלה זמנית. נסה שוב בעוד רגע." }]);
     }
     setChatLoading(false);
   };
@@ -847,11 +862,11 @@ export default function Onboarding() {
               <div className="bg-card rounded-2xl border border-border/60 overflow-hidden flex flex-col" style={{ height: "min(500px, calc(100dvh - 200px))" }}>
                 <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-l from-copper to-copper-dark text-white">
                   <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
-                    <Bot className="w-5 h-5" />
+                    <Smile className="w-5 h-5" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-sm">סוכן AI — WebSuite</h3>
-                    <span className="text-[11px] text-white/70">סוכן מכירות ושירות</span>
+                    <span className="text-[11px] text-white/70">סוכן אפיון מקצועי</span>
                   </div>
                 </div>
 

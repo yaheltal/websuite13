@@ -24,9 +24,13 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
 
 export async function setupAuth(app: Express) {
   const MemoryStore = createMemoryStore(session);
-
+  const secret = process.env.SESSION_SECRET?.trim() || "websuite-dev-secret-change-in-production";
+  if (process.env.NODE_ENV === "production" && secret === "websuite-dev-secret-change-in-production") {
+    console.warn("[auth] SESSION_SECRET is default. Set SESSION_SECRET in .env for production.");
+  }
   const sessionConfig: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || "websuite-dev-secret-change-in-production",
+    secret,
+    name: "websuite.sid",
     resave: false,
     saveUninitialized: false,
     store: new MemoryStore({ checkPeriod: 86400000 }),

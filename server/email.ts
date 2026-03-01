@@ -5,10 +5,12 @@ import nodemailer from "nodemailer";
  * 1. Contact form (צור קשר) → sendContactEmail
  * 2. Start of questionnaire (מילוי פרטים בתחילת שאלון) → sendLeadNotifyEmail — alerts that lead started filling the questionnaire
  * 3. End of questionnaire (סוף השאלון) → sendOnboardingEmail — full client details + Replit prompt (EN) + Cursor prompt (EN)
+ *
+ * אבטחה והפרדה: לידים (פניות + שאלונים) נשלחים רק ל-RECIPIENT_EMAIL; רשימות מלאות זמינות רק לאדמין דרך /api/admin/*.
  */
 
-const RECIPIENT_EMAIL = "WEBSUITE153@GMAIL.COM";
-const SENDER_EMAIL = "WEBSUITE153@GMAIL.COM";
+const RECIPIENT_EMAIL = (process.env.RECIPIENT_EMAIL || process.env.LEAD_EMAIL || "WEBSUITE153@GMAIL.COM").trim();
+const SENDER_EMAIL = (process.env.SENDER_EMAIL || process.env.GMAIL_USER || RECIPIENT_EMAIL).trim();
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 2000;
 
@@ -450,4 +452,22 @@ export async function sendOnboardingEmail(data: OnboardingEmailData): Promise<{ 
     html,
     text,
   });
+}
+
+/** Sends an alert to the admin when e.g. AI chat fails (so the client never sees technical errors). */
+export async function sendAdminAlert(subject: string, detail: string): Promise<void> {
+  const html = `
+    <div dir="ltr" style="font-family: Arial, sans-serif; max-width: 600px;">
+      <h2 style="color: #c53030;">WebSuite – Admin Alert</h2>
+      <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
+      <pre style="background: #f5f5f5; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 12px;">${escapeHtml(detail)}</pre>
+      <p style="color: #666; font-size: 12px;">נשלח אוטומטית מהמערכת. אל תציג הודעות טכניות ללקוח.</p>
+    </div>`;
+  sendWithRetry({
+    from: `"WEB13" <${SENDER_EMAIL}>`,
+    to: RECIPIENT_EMAIL,
+    subject: `[WebSuite Alert] ${subject}`,
+    html,
+    text: `${subject}\n\n${detail}`,
+  }).catch((err) => console.error("[email] Admin alert failed:", err));
 }
