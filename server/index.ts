@@ -1,14 +1,14 @@
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// Load .env from project root (works when running from repo root or from server/)
-const envPath = path.resolve(__dirname, "..", ".env");
-dotenv.config({ path: envPath });
-if (!process.env.GEMINI_API_KEY?.trim()) {
-  dotenv.config({ path: path.resolve(process.cwd(), ".env") });
-}
+// טעינת .env — קודם cwd ואז תיקיית הפרויקט (שורש); האחרון מנצח כדי שתמיד ייטען .env של הפרויקט
+const envRoot = path.resolve(__dirname, "..", ".env");
+const envCwd = path.resolve(process.cwd(), ".env");
+if (fs.existsSync(envCwd)) dotenv.config({ path: envCwd });
+if (fs.existsSync(envRoot)) dotenv.config({ path: envRoot });
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
@@ -129,7 +129,11 @@ app.use((req, res, next) => {
   httpServer.listen(listenOpts, async () => {
     log(`serving on port ${port}`);
     const geminiKey = (process.env.GEMINI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
-    log(geminiKey ? "GEMINI_API_KEY: loaded (chat will work)" : "GEMINI_API_KEY: missing — add it to .env for AI chat");
+    if (geminiKey) {
+      log(`GEMINI_API_KEY: loaded (${geminiKey.length} chars) — AI chat enabled`);
+    } else {
+      log("GEMINI_API_KEY: missing — add GEMINI_API_KEY to .env in project root and restart");
+    }
     const { verifyEmailConfig } = await import("./email");
     await verifyEmailConfig();
   });

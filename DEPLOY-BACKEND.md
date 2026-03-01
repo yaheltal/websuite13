@@ -11,14 +11,17 @@
 `GEMINI_API_KEY` = המפתח מ־[Google AI Studio](https://aistudio.google.com/apikey) (אותו ערך שיש ב־`.env` מקומית).  
 אחרי הוספת המשתנה — לעשות **Redeploy** לפרויקט.
 
-**למה הצ'אט לא עובד? (פתרון תקלות)**  
-1. **"שירות ה-AI לא מוגדר" / "AI service not configured"**  
-   - **ב־Vercel:** הוסף `GEMINI_API_KEY` ב־Settings → Environment Variables (Production + Preview), ואז Redeploy.  
-   - **מקומי:** וודא שיש בקובץ `.env` שורה: `GEMINI_API_KEY=המפתח_שלך`, והשרת רץ עם `npm run dev` (כך ש־`.env` נטען).  
-2. **תקלה כללית / אין תשובה**  
-   - פתח DevTools (F12) → לשונית Network. שלח הודעה בצ'אט ובדוק את הקריאה ל־`/api/onboarding/chat`: מה קוד התשובה (200 / 500 / 404) ומה גוף התשובה.  
-   - אם 404 — וודא ש־`api/onboarding/chat.js` קיים ושהיה Redeploy אחרי הוספתו.  
-   - אם 500 — ב־Vercel: Deployments → הפונקציה → Logs, לראות את השגיאה.
+**למה הסוכן AI לא עובד? — סיבות ותיקונים**  
+
+| סיבה | איפה | מה לעשות |
+|------|------|----------|
+| **מפתח לא נטען** | מקומי | וודא ש־`.env` **בשורש הפרויקט** (ליד `package.json`), עם שורה `GEMINI_API_KEY=...` בלי רווחים/גרשיים. הפעל את השרת **מהשורש**: `npm run dev`. |
+| **מפתח לא מוגדר** | Vercel | Vercel → הפרויקט → Settings → Environment Variables → הוסף `GEMINI_API_KEY` (Production + Preview) → **Redeploy**. |
+| **404 על /api/onboarding/chat** | Vercel | וודא שקיים `api/onboarding/chat.js` ועשית Redeploy. |
+| **500 / "תקלה זמנית"** | שני הצדדים | המפתח קיים אבל Gemini מחזיר שגיאה. בדוק: מפתח תקף ב־[Google AI Studio](https://aistudio.google.com/apikey), לא נחסם, מכסה לא נגמרה. ב־Vercel: Deployments → Logs. |
+| **הרצה מתיקייה לא נכונה** | מקומי | הרץ תמיד מתיקיית הפרויקט: `cd path\to\Websuite` ואז `npm run dev`. |
+
+**בדיקה מקומית:** אחרי `npm run dev` אמור להופיע בטרמינל: `GEMINI_API_KEY: loaded (chat will work)`. אם מופיע `missing` — המפתח לא נטען (ראה שורות למעלה).
 
 ---
 

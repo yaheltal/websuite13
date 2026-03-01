@@ -118,7 +118,7 @@ export default async function handler(req, res) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const systemPrompt = getOnboardingSystemPrompt(service || "landing-page", questionnaireData || {});
-    const modelIds = ["gemini-2.5-flash", "gemini-1.5-flash"];
+    const modelIds = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
     const sid = sessionId || crypto.randomUUID();
     const historyForChat = toGeminiHistory(history);
     let reply = "";

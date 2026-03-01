@@ -415,7 +415,7 @@ export async function registerRoutes(
         ? session.history.slice(-MAX_HISTORY_LENGTH)
         : session.history;
 
-      const modelIds = ["gemini-2.5-flash", "gemini-1.5-flash"];
+      const modelIds = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
       let reply = "";
       const MAX_RETRIES = 2;
       for (const modelId of modelIds) {
