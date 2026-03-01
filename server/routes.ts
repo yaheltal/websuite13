@@ -121,7 +121,8 @@ async function geminiRestGenerate(
     const errText = await res.text();
     throw new Error(`Gemini REST ${res.status}: ${errText}`);
   }
-  const data = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } } } };
+  type GeminiCandidates = { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+  const data = (await res.json()) as GeminiCandidates;
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (text == null) throw new Error("Gemini REST: no text in response");
   return text;
