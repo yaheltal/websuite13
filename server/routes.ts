@@ -97,6 +97,36 @@ const MAX_SESSIONS = 500;
 const MAX_HISTORY_LENGTH = 40;
 const SESSION_TTL_MS = 30 * 60 * 1000;
 
+const GEMINI_REST_MODEL = "gemini-1.5-flash";
+const GEMINI_REST_URL = (model: string, apiKey: string) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+/** Fallback: call Gemini via REST (works when SDK has key/model issues) */
+async function geminiRestGenerate(
+  apiKey: string,
+  systemInstruction: string,
+  contents: Array<{ role?: string; parts: Array<{ text: string }> }>,
+  model = GEMINI_REST_MODEL
+): Promise<string> {
+  const formatted = contents.map((c, i) => ({
+    role: (c.role === "user" || c.role === "model" ? c.role : i % 2 === 0 ? "user" : "model") as "user" | "model",
+    parts: c.parts,
+  }));
+  const res = await fetch(GEMINI_REST_URL(model, apiKey), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ systemInstruction: { parts: [{ text: systemInstruction }] }, contents: formatted }),
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Gemini REST ${res.status}: ${errText}`);
+  }
+  const data = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } } } };
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (text == null) throw new Error("Gemini REST: no text in response");
+  return text;
+}
+
 const chatSessions = new Map<string, { history: Array<{ role: string; parts: Array<{ text: string }> }>; lastAccess: number }>();
 
 setInterval(() => {
@@ -307,24 +337,7 @@ export async function registerRoutes(
         uploadedFiles: null,
       });
 
-      sendOnboardingEmail({
-        clientName: onboarding.name,
-        clientEmail: onboarding.email,
-        clientPhone: onboarding.phone || "",
-        service: onboarding.service,
-        questionnaireData: (onboarding.questionnaireData as Record<string, any>) || {},
-        chatSummary: "",
-        uploadedFiles: [],
-      }).then((result) => {
-        if (result.success) {
-          console.log(`Onboarding email (with Replit+Cursor prompts) sent for: ${onboarding.name}`);
-        } else {
-          console.error(`Onboarding email failed for: ${onboarding.name}`);
-        }
-      }).catch((err) => {
-        console.error("Onboarding email error:", err);
-      });
-
+      // מייל תוצאות שאלון + שיחת AI נשלח רק בסיום התהליך (ב־complete), לא כאן
       res.status(201).json({ id: onboarding.id });
     } catch (error) {
       if (error instanceof ZodError) {
@@ -362,11 +375,37 @@ export async function registerRoutes(
     }
   });
 
-  // בדיקה: האם מפתח Gemini נטען? (לאבחון "למה הרובוט לא עובד")
+  // בדיקה: האם מפתח Gemini נטען?
   app.get("/api/onboarding/chat-status", (_req, res) => {
     const raw = process.env.GEMINI_API_KEY ?? "";
     const apiKey = raw.replace(/^["']|["']$/g, "").trim();
     res.json({ ok: true, geminiConfigured: !!apiKey });
+  });
+
+  // אבחון: קורא ל-Gemini עם משפט אחד — מנסה 1.5-flash (SDK ואז REST)
+  app.get("/api/onboarding/chat-test", async (_req, res) => {
+    const raw = process.env.GEMINI_API_KEY ?? "";
+    const apiKey = raw.replace(/^["']|["']$/g, "").trim();
+    if (!apiKey) {
+      return res.json({ ok: false, error: "GEMINI_API_KEY חסר ב-.env" });
+    }
+    const testPrompt = "אמור רק: שלום";
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const result = await model.generateContent(testPrompt);
+      const text = result.response.text();
+      return res.json({ ok: true, reply: text });
+    } catch (sdkErr: any) {
+      try {
+        const text = await geminiRestGenerate(apiKey, "ענה בקצרה בעברית.", [{ parts: [{ text: testPrompt }] }]);
+        return res.json({ ok: true, reply: text });
+      } catch (restErr: any) {
+        const msg = (restErr?.message || sdkErr?.message || String(sdkErr)) as string;
+        const status = (restErr?.status ?? sdkErr?.status ?? restErr?.statusCode ?? sdkErr?.statusCode) as number | undefined;
+        return res.json({ ok: false, error: msg, status });
+      }
+    }
   });
 
   app.post("/api/onboarding/chat", async (req, res) => {
@@ -415,7 +454,7 @@ export async function registerRoutes(
         ? session.history.slice(-MAX_HISTORY_LENGTH)
         : session.history;
 
-      const modelIds = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+      const modelIds = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"];
       let reply = "";
       const MAX_RETRIES = 2;
       for (const modelId of modelIds) {
@@ -441,7 +480,17 @@ export async function registerRoutes(
         }
         if (reply) break;
       }
-      if (!reply) throw new Error("Gemini API failed for all models");
+      if (!reply) {
+        try {
+          const restContents = [
+            ...historyForChat.map((h) => ({ role: h.role, parts: h.parts })),
+            { role: "user" as const, parts: [{ text: message }] },
+          ];
+          reply = await geminiRestGenerate(apiKey, systemPrompt, restContents);
+        } catch {
+          throw new Error("Gemini API failed for all models and REST fallback");
+        }
+      }
 
       reply = reply.replace(/THOUGHT[\s\S]*?(?=\n[^\n])/g, "").trim();
 
@@ -472,7 +521,8 @@ export async function registerRoutes(
       res.json({ reply: cleanReply, sessionId: sid, isComplete });
     } catch (error: any) {
       const detail = error?.message || String(error);
-      console.error("Chat error:", error);
+      console.error("Chat error (full):", detail);
+      if (error?.status || error?.statusCode) console.error("Chat error status:", error.status || error.statusCode);
       sendAdminAlert("AI Chat error", detail);
       if (error?.status === 429) {
         res.status(429).json({ message: "שירות ה-AI עמוס כרגע. אנא נסה שוב בעוד כמה דקות." });
@@ -517,11 +567,33 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Onboarding ID required" });
       }
 
-      const onboarding = await storage.getOnboarding(onboardingId);
+      const onboarding = await storage.getOnboarding(Number(onboardingId));
       if (!onboarding) {
         return res.status(404).json({ message: "Onboarding not found" });
       }
-      // Email sent only in 3 cases: (1) contact form, (2) lead-notify, (3) end of questionnaire (on /start). No email here.
+
+      const questionnaireData = (onboarding.questionnaireData as Record<string, any>) || {};
+      const uploadedFiles = Array.isArray(onboarding.uploadedFiles) ? onboarding.uploadedFiles : [];
+      const chatSummary = onboarding.generatedPrompt || "";
+
+      sendOnboardingEmail({
+        clientName: onboarding.name,
+        clientEmail: onboarding.email,
+        clientPhone: onboarding.phone || "",
+        service: onboarding.service,
+        questionnaireData,
+        chatSummary,
+        uploadedFiles,
+      }).then((result) => {
+        if (result.success) {
+          console.log(`Onboarding complete email sent for: ${onboarding.name}`);
+        } else {
+          console.error(`Onboarding complete email failed for: ${onboarding.name}`);
+        }
+      }).catch((err) => {
+        console.error("Onboarding complete email error:", err);
+      });
+
       res.json({ success: true });
     } catch (error) {
       console.error("Complete error:", error);

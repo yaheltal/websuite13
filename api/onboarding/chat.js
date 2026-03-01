@@ -96,6 +96,28 @@ function toGeminiHistory(history) {
   return out.length > MAX_HISTORY_LENGTH ? out.slice(-MAX_HISTORY_LENGTH) : out;
 }
 
+const GEMINI_REST_MODEL = "gemini-1.5-flash";
+function geminiRestUrl(model, apiKey) {
+  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+}
+/** Fallback: call Gemini via REST when SDK fails (e.g. API key / model issues) */
+async function geminiRestGenerate(apiKey, systemInstruction, contents, model = GEMINI_REST_MODEL) {
+  const formatted = contents.map((c, i) => ({
+    role: c.role === "user" || c.role === "model" ? c.role : i % 2 === 0 ? "user" : "model",
+    parts: c.parts,
+  }));
+  const res = await fetch(geminiRestUrl(model, apiKey), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ systemInstruction: { parts: [{ text: systemInstruction }] }, contents: formatted }),
+  });
+  if (!res.ok) throw new Error(`Gemini REST ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (text == null) throw new Error("Gemini REST: no text in response");
+  return text;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
@@ -118,7 +140,7 @@ export default async function handler(req, res) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const systemPrompt = getOnboardingSystemPrompt(service || "landing-page", questionnaireData || {});
-    const modelIds = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+    const modelIds = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"];
     const sid = sessionId || crypto.randomUUID();
     const historyForChat = toGeminiHistory(history);
     let reply = "";
@@ -149,7 +171,18 @@ export default async function handler(req, res) {
       }
       if (reply) break;
     }
-    if (!reply && lastErr) throw lastErr;
+    if (!reply) {
+      try {
+        const restContents = [
+          ...historyForChat.map((h) => ({ role: h.role, parts: h.parts })),
+          { role: "user", parts: [{ text: message }] },
+        ];
+        reply = await geminiRestGenerate(apiKey, systemPrompt, restContents);
+      } catch {
+        if (lastErr) throw lastErr;
+        throw new Error("Gemini API failed for all models and REST fallback");
+      }
+    }
 
     reply = reply.replace(/THOUGHT[\s\S]*?(?=\n[^\n])/g, "").trim();
     const isComplete = reply.includes("<<COLLECTION_COMPLETE>>");

@@ -4,11 +4,41 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// טעינת .env — קודם cwd ואז תיקיית הפרויקט (שורש); האחרון מנצח כדי שתמיד ייטען .env של הפרויקט
+// טעינת .env — משני מיקומים; אחרון מנצח
 const envRoot = path.resolve(__dirname, "..", ".env");
 const envCwd = path.resolve(process.cwd(), ".env");
-if (fs.existsSync(envCwd)) dotenv.config({ path: envCwd });
-if (fs.existsSync(envRoot)) dotenv.config({ path: envRoot });
+[envCwd, envRoot].forEach((envPath) => {
+  if (fs.existsSync(envPath)) dotenv.config({ path: envPath, override: true });
+});
+// Fallback: קורא .env שורה-שורה (פותר BOM, encoding, רווחים)
+function loadGeminiKeyFromFile(filePath: string): boolean {
+  try {
+    let raw = fs.readFileSync(filePath, "utf8");
+    raw = raw.replace(/^\uFEFF/, ""); // BOM
+    for (const line of raw.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq === -1) continue;
+      const key = trimmed.slice(0, eq).trim();
+      if (key !== "GEMINI_API_KEY") continue;
+      let val = trimmed.slice(eq + 1).trim();
+      const hash = val.indexOf("#");
+      if (hash !== -1) val = val.slice(0, hash).trim();
+      val = val.replace(/^["']|["']$/g, "").trim();
+      if (val.length > 10) {
+        process.env.GEMINI_API_KEY = val;
+        return true;
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return false;
+}
+if (!process.env.GEMINI_API_KEY?.trim()) {
+  loadGeminiKeyFromFile(envCwd) || loadGeminiKeyFromFile(envRoot);
+}
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";

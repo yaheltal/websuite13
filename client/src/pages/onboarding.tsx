@@ -554,7 +554,20 @@ export default function Onboarding() {
     if (!onboardingId) return;
     setCompleting(true);
     try {
-      await apiRequest("POST", "/api/onboarding/complete", { onboardingId });
+      const contactValues = contactForm.getValues();
+      const chatSummary = chatComplete
+        ? chatMessages.map((m) => `${m.role === "user" ? "לקוח" : "סוכן"}: ${m.content}`).join("\n")
+        : "";
+      await apiRequest("POST", "/api/onboarding/complete", {
+        onboardingId,
+        name: contactValues.name,
+        email: contactValues.email,
+        phone: contactValues.phone ?? "",
+        service: selectedService,
+        questionnaireData,
+        chatSummary,
+        uploadedFiles,
+      });
       setCompleted(true);
       clearStorage();
     } catch {
