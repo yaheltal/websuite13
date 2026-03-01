@@ -20,6 +20,7 @@
 | **404 על /api/onboarding/chat** | Vercel | וודא שקיים `api/onboarding/chat.js` ועשית Redeploy. |
 | **500 / "תקלה זמנית"** | שני הצדדים | המפתח קיים אבל Gemini מחזיר שגיאה. בדוק: מפתח תקף ב־[Google AI Studio](https://aistudio.google.com/apikey), לא נחסם, מכסה לא נגמרה. ב־Vercel: Deployments → Logs. |
 | **"API key not valid"** | מקומי / Vercel | המפתח נטען אבל גוגל דוחה. השתמשי **רק** במפתח מ־[Google AI Studio](https://aistudio.google.com/apikey) (Create API key). אם המפתח מ־Google Cloud Console — להפעיל "Generative Language API" בפרויקט. בלי רווחים/גרשיים בערך; אחרי שינוי — הפעלה מחדש מקומי + Redeploy ב־Vercel. |
+| **החלפתי כמה מפתחות — כולם "לא תקף"** | — | (1) צרי מפתח **רק** ב־[AI Studio](https://aistudio.google.com/apikey). (2) בהגדרות המפתח: **Application restrictions = None**. (3) באיזורים שבהם Free tier לא נתמך, גוגל דורשת **Billing** — ב־AI Studio: [Plan / Billing](https://aistudio.google.com/app/plan_information) והפעילי חיוב. (4) בדיקה בלי השרת: `node script/test-gemini-key.mjs` מהשורש. |
 | **הרצה מתיקייה לא נכונה** | מקומי | הרץ תמיד מתיקיית הפרויקט: `cd path\to\Websuite` ואז `npm run dev`. |
 
 **בדיקה מקומית:** אחרי `npm run dev` אמור להופיע בטרמינל: `GEMINI_API_KEY: loaded (chat will work)`. אם מופיע `missing` — המפתח לא נטען (ראה שורות למעלה).

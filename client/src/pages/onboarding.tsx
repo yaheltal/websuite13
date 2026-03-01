@@ -538,10 +538,12 @@ export default function Onboarding() {
 
     try {
       const response = await fetch(API_BASE + "/api/onboarding/upload", { method: "POST", credentials: "include", body: formData });
-      const data = await response.json();
-      if (data.files) {
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data.files?.length) {
         setUploadedFiles(prev => [...prev, ...data.files]);
         toast({ title: "הקבצים הועלו בהצלחה!" });
+      } else {
+        toast({ title: data.message || "שגיאה בהעלאה", variant: "destructive" });
       }
     } catch {
       toast({ title: "שגיאה בהעלאה", variant: "destructive" });
