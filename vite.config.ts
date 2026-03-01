@@ -26,18 +26,26 @@ export default defineConfig({
   },
   root: path.resolve(import.meta.dirname, "client"),
                             build: {
-                              outDir: path.resolve(import.meta.dirname, "dist/public"),
-                              emptyOutDir: true,
-                              rollupOptions: {
-                                output: {
-                                  manualChunks: {
-                                    vendor: ["react", "react-dom"],
-                                    "framer-motion": ["framer-motion"],
-                                    animations: ["gsap"],
-                                  },
-                                },
-                              },
-                            },
+    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    emptyOutDir: true,
+    target: "es2020",
+    minify: "esbuild",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom"],
+          "framer-motion": ["framer-motion"],
+          animations: ["gsap"],
+          lenis: ["lenis"],
+          router: ["wouter"],
+          query: ["@tanstack/react-query"],
+        },
+        chunkFileNames: "assets/[name]-[hash].js",
+        entryFileNames: "assets/[name]-[hash].js",
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
   server: {
     fs: {
       strict: true,

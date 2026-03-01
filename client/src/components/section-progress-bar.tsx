@@ -38,7 +38,7 @@ export function SectionProgressBar({
       >
         <div
           className={cn(
-            "rounded-full bg-primary/70 transition-transform duration-[150ms]",
+            "rounded-full bg-primary/70 transition-transform duration-150",
             orientation === "vertical" && "h-full w-full origin-top",
             orientation === "horizontal" && "h-full w-full origin-left"
           )}
