@@ -10,3 +10,4 @@
     "api/onboarding/lead-notify.js": { "maxDuration": 30 },
     "api/onboarding/start.js": { "maxDuration": 30 }
   }
+ }
