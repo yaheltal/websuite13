@@ -104,7 +104,7 @@ export function ContactSection() {
 
   return (
     <section id="contact" className="py-24 md:py-32 relative" data-testid="section-contact">
-      <div className="absolute inset-0 bg-background/30 rounded-3xl pointer-events-none" />
+      {/* unified bg from ScrollBackground */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

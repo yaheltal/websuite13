@@ -181,28 +181,7 @@ export function FaqSection() {
       className="relative py-20 md:py-32 overflow-hidden"
       data-testid="section-faq"
     >
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[
-          { w: "40vw", h: "40vw", top: "10%", left: "-10%", bg: "radial-gradient(circle, hsla(220,70%,80%,0.15) 0%, transparent 70%)" },
-          { w: "35vw", h: "35vw", top: "60%", right: "-5%", bg: "radial-gradient(circle, hsla(260,60%,80%,0.12) 0%, transparent 70%)" },
-          { w: "25vw", h: "25vw", top: "30%", left: "50%", bg: "radial-gradient(circle, hsla(170,60%,80%,0.08) 0%, transparent 70%)" },
-        ].map((orb, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              width: orb.w,
-              height: orb.h,
-              top: orb.top,
-              left: orb.left,
-              right: (orb as any).right,
-              background: orb.bg,
-              filter: "blur(60px)",
-              animation: `heroFloat ${14 + i * 4}s ease-in-out infinite ${i * 2}s`,
-            }}
-          />
-        ))}
-      </div>
+      {/* background handled globally by ScrollBackground */}
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div ref={headerRef} className="text-center mb-12 md:mb-16" style={{ opacity: 0 }}>

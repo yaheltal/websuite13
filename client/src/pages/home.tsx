@@ -13,9 +13,6 @@ const ScrollytellingSection = lazy(() =>
 const FaqSection = lazy(() =>
   import("@/components/faq-section").then((m) => ({ default: m.FaqSection }))
 );
-const VideoSection = lazy(() =>
-  import("@/components/video-section").then((m) => ({ default: m.VideoSection }))
-);
 const ContactSection = lazy(() =>
   import("@/components/contact-section").then((m) => ({ default: m.ContactSection }))
 );
@@ -38,7 +35,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen overflow-x-hidden w-full" data-testid="page-home">
-      <div className="grain-overlay" aria-hidden="true" />
       <Suspense fallback={null}>
         <ScrollBackground />
       </Suspense>
@@ -47,7 +43,6 @@ export default function Home() {
         <main>
           <HeroSection />
           <Suspense fallback={<BelowFoldFallback />}>
-            <VideoSection />
             <ScrollytellingSection />
             <ServicesSection />
             <FaqSection />

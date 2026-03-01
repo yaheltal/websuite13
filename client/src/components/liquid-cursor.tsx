@@ -22,7 +22,8 @@ export function LiquidCursorProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const isPointer = typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches;
-  const showCustomCursor = mounted && isPointer;
+  const isWideScreen = typeof window !== "undefined" && window.innerWidth >= 1024;
+  const showCustomCursor = mounted && isPointer && isWideScreen;
 
   return (
     <CursorContext.Provider value={{ setCursorState }}>
@@ -78,7 +79,13 @@ function LiquidCursorInner({
     document.addEventListener("mouseover", handleOver);
     document.addEventListener("mouseout", handleOut);
 
-    const animate = () => {
+    let lastFrame = 0;
+    const frameInterval = 1000 / 30; // 30fps is enough for cursor
+    const animate = (ts: number) => {
+      rafId.current = requestAnimationFrame(animate);
+      if (ts - lastFrame < frameInterval) return;
+      lastFrame = ts;
+
       const ease = 0.15;
       const dotEase = 0.35;
       pos.current.x += (target.current.x - pos.current.x) * ease;
@@ -88,7 +95,6 @@ function LiquidCursorInner({
 
       ring.style.transform = `translate(${pos.current.x}px, ${pos.current.y}px)`;
       dot.style.transform = `translate(${dotTarget.current.x}px, ${dotTarget.current.y}px)`;
-      rafId.current = requestAnimationFrame(animate);
     };
     rafId.current = requestAnimationFrame(animate);
 

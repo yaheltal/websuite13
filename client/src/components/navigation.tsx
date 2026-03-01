@@ -5,6 +5,7 @@ import { Link } from "wouter";
 import { WebSuiteLogo } from "./websuite-logo";
 import { MagneticButton } from "./magnetic-button";
 import { useI18n } from "@/lib/i18n";
+import { throttle } from "@/lib/performance";
 
 const navKeys = [
   { key: "nav.home", href: "#hero", icon: Home },
@@ -15,25 +16,25 @@ const navKeys = [
 export function Navigation() {
   const [activeSection, setActiveSection] = useState("#hero");
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
   const [edgeHover, setEdgeHover] = useState(false);
   const { t, lang } = useI18n();
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = throttle((e: MouseEvent) => {
       const nearEdge = e.clientX > window.innerWidth - 60;
       setEdgeHover(nearEdge);
-    };
+    }, 150);
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
+    let lastY = 0;
+    const handleScroll = throttle(() => {
       const currentY = window.scrollY;
-      setIsVisible(currentY < 100 || currentY < lastScrollY);
-      setLastScrollY(currentY);
+      setIsVisible(currentY < 100 || currentY < lastY);
+      lastY = currentY;
 
       const sections = navKeys.map((item) => ({
         id: item.href,
@@ -50,11 +51,11 @@ export function Navigation() {
           }
         }
       }
-    };
+    }, 80);
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
