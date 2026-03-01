@@ -27,20 +27,8 @@ export function ServicesSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const { t } = useI18n();
 
+  // מימין לשמאל: נמוך → גבוה (כרטיס ₪490, דף נחיתה ₪1,490, חנות ₪4,990)
   const services = [
-    {
-      id: "landing",
-      icon: Layout,
-      title: t("services.landing.title"),
-      subtitle: t("services.landing.subtitle"),
-      description: t("services.landing.description"),
-      features: [t("services.landing.f1"), t("services.landing.f2"), t("services.landing.f3"), t("services.landing.f4")],
-      price: t("services.landing.price"),
-      tag: t("services.landing.tag"),
-      serviceType: "landing" as const,
-      accent: "hsl(220, 80%, 55%)",
-      bentoClass: "",
-    },
     {
       id: "card",
       icon: Smartphone,
@@ -52,6 +40,19 @@ export function ServicesSection() {
       tag: t("services.card.tag"),
       serviceType: "card" as const,
       accent: "hsl(175, 80%, 50%)",
+      bentoClass: "",
+    },
+    {
+      id: "landing",
+      icon: Layout,
+      title: t("services.landing.title"),
+      subtitle: t("services.landing.subtitle"),
+      description: t("services.landing.description"),
+      features: [t("services.landing.f1"), t("services.landing.f2"), t("services.landing.f3"), t("services.landing.f4")],
+      price: t("services.landing.price"),
+      tag: t("services.landing.tag"),
+      serviceType: "landing" as const,
+      accent: "hsl(220, 80%, 55%)",
       bentoClass: "",
     },
     {

@@ -13,6 +13,9 @@ const ScrollytellingSection = lazy(() =>
 const FaqSection = lazy(() =>
   import("@/components/faq-section").then((m) => ({ default: m.FaqSection }))
 );
+const VideoSection = lazy(() =>
+  import("@/components/video-section").then((m) => ({ default: m.VideoSection }))
+);
 const ContactSection = lazy(() =>
   import("@/components/contact-section").then((m) => ({ default: m.ContactSection }))
 );
@@ -44,6 +47,7 @@ export default function Home() {
         <main>
           <HeroSection />
           <Suspense fallback={<BelowFoldFallback />}>
+            <VideoSection />
             <ScrollytellingSection />
             <ServicesSection />
             <FaqSection />

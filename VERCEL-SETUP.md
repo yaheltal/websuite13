@@ -1,5 +1,14 @@
 # הגדרת Vercel — כדי שהטופס והמיילים יעבדו
 
+## למה המיילים לא נשלחו עד עכשיו?
+
+**Vercel מריץ פונקציות Serverless רק מתיקיית `api/` שנמצאת בשורש הפרויקט** (באותו רמה כמו `vercel.json`).  
+בפרויקט היו קבצי API רק ב־`client/api/`, ולכן ב־Vercel **לא הופעלה שום פונקציה** — בקשות ל־`/api/send-email` קיבלו 404 והמיילים לא נשלחו.
+
+**התיקון:** נוצרה תיקייה `api/` בשורש הפרויקט עם `send-email.js`, `hello.js`, `check-email.js`. אחרי push ו־Redeploy ב־Vercel השליחה תעבוד (בתנאי ש־GMAIL_APP_PASSWORD מוגדר).
+
+---
+
 ## 1. Root Directory (חשוב)
 
 ב־Vercel → Project → **Settings** → **General** → **Root Directory**  

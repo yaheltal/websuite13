@@ -36,13 +36,13 @@ interface BrowserPreviewModalProps {
 
 const serviceUrls: Record<string, string> = {
   landing: "www.nexgen-ai.io",
-  card: "v.card/amit-levi",
+  card: "v.card/dana-cohen",
   ecommerce: "shop.maison-noir.com",
 };
 
 const serviceTitles: Record<string, string> = {
   landing: "NexGen AI — Intelligent Automation",
-  card: "Amit Levi — Digital V-Card",
+  card: "Dana Cohen — Digital V-Card",
   ecommerce: "Maison Noir — Luxury Fashion",
 };
 
@@ -182,113 +182,144 @@ function LandingPageMockup() {
 }
 
 function BusinessCardMockup() {
-  return (
-    <div className="min-h-[600px] flex items-center justify-center p-6" dir="ltr" style={{
-      background: "linear-gradient(135deg, #0a0f1a 0%, #111827 50%, #0f172a 100%)",
-    }}>
-      <div className="w-full max-w-[360px] mx-auto">
-        <div className="rounded-3xl overflow-hidden border border-white/10" style={{
-          background: "linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)",
-          backdropFilter: "blur(20px)",
-          boxShadow: "0 25px 60px rgba(0,0,0,0.4), 0 0 40px hsla(220, 80%, 55%, 0.06)",
-        }}>
-          <div className="relative h-32 overflow-hidden">
-            <div className="absolute inset-0" style={{
-              background: "linear-gradient(135deg, hsl(220, 80%, 50%), hsl(260, 70%, 50%), hsl(220, 80%, 45%))",
-            }} />
-            <div className="absolute inset-0" style={{
-              background: "radial-gradient(circle at 30% 50%, hsla(175, 80%, 50%, 0.3), transparent 50%), radial-gradient(circle at 70% 30%, hsla(260, 80%, 60%, 0.3), transparent 50%)",
-            }} />
-            <div className="absolute inset-0 opacity-10" style={{
-              backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='white' fill-opacity='0.05'/%3E%3C/svg%3E\")",
-            }} />
-          </div>
+  const gold = "#b8860b";
+  const goldLight = "#d4af37";
+  const champagne = "#f7f3eb";
+  const charcoal = "#1a1a1a";
 
-          <div className="relative -mt-14 flex justify-center">
-            <div className="w-24 h-24 rounded-2xl p-0.5 shadow-xl" style={{
-              background: "linear-gradient(135deg, hsl(175, 80%, 50%), hsl(220, 80%, 55%), hsl(260, 70%, 55%))",
-            }}>
-              <div className="w-full h-full rounded-[14px] bg-[#1a1f2e] flex items-center justify-center">
-                <span className="text-2xl font-extrabold" style={{
-                  background: "linear-gradient(135deg, hsl(175, 80%, 55%), hsl(220, 80%, 65%))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}>AL</span>
-              </div>
+  return (
+    <div className="min-h-[600px] flex items-center justify-center p-8" dir="ltr" style={{
+      background: "#0a0a0a",
+    }}>
+      {/* כרטיס יוקרה – שמנת, זהב, שחור */}
+      <div
+        className="w-full max-w-[400px] rounded-[24px] overflow-hidden"
+        style={{
+          background: champagne,
+          boxShadow: "0 0 0 1px rgba(184, 134, 11, 0.2), 0 25px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1) inset",
+        }}
+      >
+        {/* פס עליון שחור קלאסי */}
+        <div className="relative h-28 overflow-hidden" style={{ background: charcoal }}>
+          <div className="absolute inset-0 opacity-20" style={{
+            backgroundImage: "linear-gradient(135deg, transparent 0%, rgba(212, 175, 55, 0.15) 100%)",
+          }} />
+          <div className="absolute left-1/2 -translate-x-1/2 -bottom-14">
+            <div
+              className="w-28 h-28 rounded-[18px] overflow-hidden"
+              style={{
+                boxShadow: "0 8px 32px rgba(0,0,0,0.3), 0 0 0 2px " + gold + ", 0 0 0 4px " + champagne,
+              }}
+            >
+              <img
+                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=224&h=224&fit=crop&crop=face"
+                alt="Dana Cohen"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
+        </div>
 
-          <div className="text-center pt-4 pb-2 px-6">
-            <h2 className="font-extrabold text-lg text-white tracking-tight">Amit Levi</h2>
-            <p className="text-white/40 text-xs mb-1">CEO & Co-Founder</p>
-            <p className="text-[11px] font-semibold" style={{
-              background: "linear-gradient(135deg, hsl(175, 80%, 55%), hsl(220, 80%, 65%))",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}>Vertex Digital Group</p>
-          </div>
-
-          <div className="px-5 py-2">
-            <p className="text-[10px] text-white/30 text-center leading-relaxed">
-              Building next-gen digital experiences for global brands. 15+ years in tech leadership.
+        <div className="pt-16 px-6 pb-6">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full mb-3 text-[10px] font-medium tracking-widest uppercase" style={{
+              border: "1px solid " + gold,
+              color: gold,
+              background: "rgba(184, 134, 11, 0.08)",
+            }}>
+              <Check className="w-3 h-3 shrink-0" /> מאומת
+            </div>
+            <h2 className="text-[24px] font-semibold tracking-wide" style={{ color: charcoal, letterSpacing: "0.08em" }}>
+              Dana Cohen
+            </h2>
+            <p className="text-[12px] mt-2 tracking-[0.2em] uppercase" style={{ color: "#666" }}>
+              CEO & Co-Founder
+            </p>
+            <p className="text-[13px] font-medium mt-1 tracking-wide" style={{ color: gold }}>
+              Vertex Digital Group
             </p>
           </div>
 
-          <div className="px-5 py-3 space-y-2">
+          <div className="my-5 h-px opacity-30" style={{ background: `linear-gradient(90deg, transparent, ${gold}, transparent)` }} />
+
+          <p className="text-center text-[12px] leading-relaxed px-2" style={{ color: "#555", letterSpacing: "0.02em" }}>
+            Building next-gen digital experiences for global brands. 15+ years in tech leadership.
+          </p>
+
+          <div className="grid grid-cols-4 gap-2 mb-5">
             {[
-              { icon: Phone, label: "+972 54-321-9876", color: "hsl(175, 80%, 50%)" },
-              { icon: Mail, label: "amit@vertexdigital.io", color: "hsl(220, 80%, 60%)" },
-              { icon: Globe, label: "vertexdigital.io", color: "hsl(260, 70%, 60%)" },
-              { icon: MapPin, label: "Tel Aviv, Israel", color: "hsl(175, 80%, 50%)" },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{
-                  background: `${item.color}15`,
-                }}>
-                  <item.icon className="w-3.5 h-3.5" style={{ color: item.color }} />
-                </div>
-                <span className="text-[11px] text-white/70">{item.label}</span>
-              </div>
+              { icon: Phone, label: "התקשר", href: "tel:+972543219876" },
+              { icon: Mail, label: "מייל", href: "mailto:dana@vertexdigital.io" },
+              { icon: MessageCircle, label: "וואטסאפ", href: "https://wa.me/972543219876", external: true },
+              { icon: Share2, label: "שתף", href: "#" },
+            ].map((item, i) => {
+              const content = (
+                <>
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 border border-transparent hover:border-current" style={{
+                    color: charcoal,
+                    background: "rgba(26, 26, 26, 0.06)",
+                  }}>
+                    <item.icon className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-medium mt-1.5 tracking-wide" style={{ color: "#555" }}>{item.label}</span>
+                </>
+              );
+              const className = "flex flex-col items-center p-2.5 rounded-xl transition-colors duration-200 hover:opacity-90";
+              const wrapperStyle = { color: gold };
+              return item.href === "#" ? (
+                <button key={i} type="button" className={className} style={wrapperStyle}>
+                  {content}
+                </button>
+              ) : (
+                <a key={i} href={item.href} target={item.external ? "_blank" : undefined} rel={item.external ? "noopener noreferrer" : undefined} className={className} style={wrapperStyle}>
+                  {content}
+                </a>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-2 mb-5">
+            {["App Design", "Branding", "UI/UX"].map((label, i) => (
+              <span key={i} className="px-3 py-1 rounded-full text-[10px] font-medium tracking-wide uppercase" style={{
+                color: gold,
+                border: "1px solid " + gold,
+                background: "rgba(184, 134, 11, 0.06)",
+              }}>
+                {label}
+              </span>
             ))}
           </div>
 
-          <div className="px-5 py-3">
-            <p className="text-[9px] text-white/25 mb-2 text-center">Portfolio Highlights</p>
+          <a
+            href="#"
+            className="block w-full py-4 rounded-xl text-[12px] font-semibold text-center tracking-[0.2em] uppercase transition-all duration-200 hover:opacity-95 active:scale-[0.99]"
+            style={{
+              background: `linear-gradient(135deg, ${gold}, ${goldLight})`,
+              color: "#1a1a1a",
+              boxShadow: "0 2px 8px rgba(184, 134, 11, 0.35), 0 0 0 1px rgba(0,0,0,0.1) inset",
+            }}
+          >
+            שמור את הפרטים שלי
+          </a>
+
+          <div className="flex items-center justify-between mt-5 pt-5" style={{ borderTop: "1px solid rgba(184, 134, 11, 0.2)" }}>
             <div className="flex gap-2">
-              {[
-                { bg: "linear-gradient(135deg, hsl(220, 80%, 45%), hsl(260, 70%, 50%))", label: "App Design" },
-                { bg: "linear-gradient(135deg, hsl(175, 70%, 35%), hsl(220, 70%, 45%))", label: "Branding" },
-                { bg: "linear-gradient(135deg, hsl(260, 60%, 40%), hsl(175, 70%, 40%))", label: "UI/UX" },
-              ].map((p, i) => (
-                <div key={i} className="flex-1 aspect-[4/3] rounded-lg relative overflow-hidden" style={{ background: p.bg }}>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-[8px] font-bold text-white/50">{p.label}</span>
-                  </div>
-                </div>
+              {[Linkedin, Instagram].map((Icon, i) => (
+                <button key={i} type="button" className="w-9 h-9 rounded-full flex items-center justify-center transition-opacity hover:opacity-80" style={{ background: "rgba(26,26,26,0.06)", color: charcoal }}>
+                  <Icon className="w-4 h-4" />
+                </button>
               ))}
             </div>
-          </div>
-
-          <div className="px-5 py-3 flex gap-3 justify-center">
-            {[Linkedin, Instagram, MessageCircle].map((Icon, i) => (
-              <div key={i} className="w-9 h-9 rounded-full bg-white/[0.05] border border-white/[0.08] flex items-center justify-center">
-                <Icon className="w-3.5 h-3.5 text-white/40" />
+            <div className="flex items-center gap-2" style={{ color: "#888", fontSize: 10, letterSpacing: "0.1em" }}>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,26,26,0.08)" }} aria-hidden="true">
+                <div className="grid grid-cols-4 gap-px">
+                  {[...Array(16)].map((_, j) => (
+                    <div key={j} className="w-1.5 h-1.5 rounded-[1px] opacity-60" style={{ background: charcoal }} />
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
-
-          <div className="px-5 pb-5 flex gap-2">
-            <button className="flex-1 py-2.5 rounded-xl text-[11px] font-bold text-white" style={{
-              background: "linear-gradient(135deg, hsl(220, 80%, 55%), hsl(260, 70%, 55%))",
-              boxShadow: "0 4px 15px hsla(220, 80%, 55%, 0.25)",
-            }}>
-              Save Contact
-            </button>
-            <button className="flex-1 py-2.5 rounded-xl text-[11px] font-bold text-white/60 border border-white/10 bg-white/[0.03]">
-              <span className="flex items-center justify-center gap-1">
-                <Share2 className="w-3 h-3" /> Share
-              </span>
-            </button>
+              סרוק לשמירה
+            </div>
           </div>
         </div>
       </div>

@@ -51,7 +51,7 @@ export function ContactSection() {
 
   const mutation = useMutation({
     mutationFn: async (data: InsertContact) => {
-      const res = await fetch(API_BASE + "/api/send-email", {
+      const res = await fetch(API_BASE + "/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
