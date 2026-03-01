@@ -9,8 +9,4 @@
     "api/contact.js": { "maxDuration": 30 },
     "api/onboarding/lead-notify.js": { "maxDuration": 30 },
     "api/onboarding/start.js": { "maxDuration": 30 }
-  },
-  "env": {
-    "GMAIL_APP_PASSWORD": "@gmail_app_password"
   }
-}
