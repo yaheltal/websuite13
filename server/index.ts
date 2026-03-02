@@ -66,9 +66,8 @@ function loadEnvKeyFromFile(filePath: string, keyName: string): boolean {
   }
   return false;
 }
-if (!process.env.OPENAI_API_KEY?.trim()) {
-  loadEnvKeyFromFile(envCwd, "OPENAI_API_KEY") || loadEnvKeyFromFile(envRoot, "OPENAI_API_KEY");
-}
+// תמיד לנסות לטעון OPENAI_API_KEY מקובץ (dotenv לפעמים לא טוען)
+loadEnvKeyFromFile(envCwd, "OPENAI_API_KEY") || loadEnvKeyFromFile(envRoot, "OPENAI_API_KEY");
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
