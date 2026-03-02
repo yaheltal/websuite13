@@ -342,8 +342,8 @@ const PRODUCTS = [
   { id: 2, name: "Elite Training Mat", price: 189, originalPrice: 259, rating: 4.8, tag: "New", img: "https://images.unsplash.com/photo-1592432678016-e910b452f9a2?w=400&h=400&fit=crop" },
   { id: 3, name: "Flex Resistance Bands", price: 129, originalPrice: 179, rating: 4.7, tag: "", img: "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400&h=400&fit=crop" },
   { id: 4, name: "Carbon Fiber Water Bottle", price: 89, originalPrice: 129, rating: 4.9, tag: "Popular", img: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=400&fit=crop" },
-  { id: 5, name: "Pro Wireless Earbuds", price: 349, originalPrice: 449, rating: 4.8, tag: "", img: "https://images.unsplash.com/photo-1590658268037-6bf12f032f55?w=400&h=400&fit=crop" },
-  { id: 6, name: "Compression Tights", price: 219, originalPrice: 289, rating: 4.6, tag: "Sale", img: "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400&h=400&fit=crop" },
+  { id: 5, name: "Pro Wireless Earbuds", price: 349, originalPrice: 449, rating: 4.8, tag: "", img: "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=400&h=400&fit=crop" },
+  { id: 6, name: "Compression Tights", price: 219, originalPrice: 289, rating: 4.6, tag: "Sale", img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop" },
 ];
 
 type CartItem = { id: number; qty: number };

@@ -5,6 +5,7 @@ import { insertContactSchema } from "@shared/schema";
 import { z, ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
 import { sendOnboardingEmail, sendContactEmail, sendLeadNotifyEmail, getOnboardingEmailContent, sendAdminAlert } from "./email";
 import { requireAdmin } from "./auth";
 import multer from "multer";
@@ -98,10 +99,37 @@ const MAX_HISTORY_LENGTH = 40;
 const SESSION_TTL_MS = 30 * 60 * 1000;
 
 const GEMINI_REST_MODEL = "gemini-1.5-flash";
-const GEMINI_REST_URL = (model: string, apiKey: string) =>
-  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+const GEMINI_REST_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+const OPENAI_CHAT_MODEL = "gpt-4o-mini";
 
-/** Fallback: call Gemini via REST (works when SDK has key/model issues) */
+/** Fallback when Gemini is unavailable: OpenAI chat completion */
+async function openaiChat(
+  systemPrompt: string,
+  history: Array<{ role: string; parts: Array<{ text: string }> }>,
+  userMessage: string
+): Promise<string> {
+  const openaiKey = (process.env.OPENAI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
+  if (!openaiKey) throw new Error("OPENAI_API_KEY not set");
+  const client = new OpenAI({ apiKey: openaiKey });
+  const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+    { role: "system", content: systemPrompt },
+    ...history.map((h) => ({
+      role: (h.role === "user" ? "user" : "assistant") as "user" | "assistant",
+      content: h.parts.map((p) => p.text).join(" "),
+    })),
+    { role: "user", content: userMessage },
+  ];
+  const comp = await client.chat.completions.create({
+    model: OPENAI_CHAT_MODEL,
+    messages,
+    max_tokens: 1024,
+  });
+  const text = comp.choices?.[0]?.message?.content?.trim();
+  if (!text) throw new Error("OpenAI: no content");
+  return text;
+}
+
+/** Fallback: call Gemini via REST; מפתח ב-header (מומלץ) או ב-query */
 async function geminiRestGenerate(
   apiKey: string,
   systemInstruction: string,
@@ -112,10 +140,12 @@ async function geminiRestGenerate(
     role: (c.role === "user" || c.role === "model" ? c.role : i % 2 === 0 ? "user" : "model") as "user" | "model",
     parts: c.parts,
   }));
-  const res = await fetch(GEMINI_REST_URL(model, apiKey), {
+  const url = `${GEMINI_REST_BASE}/${model}:generateContent`;
+  const body = JSON.stringify({ systemInstruction: { parts: [{ text: systemInstruction }] }, contents: formatted });
+  const res = await fetch(`${url}?key=${encodeURIComponent(apiKey)}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ systemInstruction: { parts: [{ text: systemInstruction }] }, contents: formatted }),
+    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+    body,
   });
   if (!res.ok) {
     const errText = await res.text();
@@ -376,21 +406,35 @@ export async function registerRoutes(
     }
   });
 
-  // בדיקה: האם מפתח Gemini נטען?
+  // בדיקה: האם יש מפתח ל־AI (Gemini או OpenAI)
   app.get("/api/onboarding/chat-status", (_req, res) => {
-    const raw = process.env.GEMINI_API_KEY ?? "";
-    const apiKey = raw.replace(/^["']|["']$/g, "").trim();
-    res.json({ ok: true, geminiConfigured: !!apiKey });
+    const gemini = !!((process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY) ?? "").replace(/^["']|["']$/g, "").trim();
+    const openai = !!(process.env.OPENAI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
+    res.json({ ok: true, geminiConfigured: gemini, openaiConfigured: openai, chatAvailable: gemini || openai });
   });
 
-  // אבחון: קורא ל-Gemini עם משפט אחד — מנסה 1.5-flash (SDK ואז REST)
+  // אבחון: קורא ל-Gemini או OpenAI עם משפט אחד
   app.get("/api/onboarding/chat-test", async (_req, res) => {
-    const raw = process.env.GEMINI_API_KEY ?? "";
+    const raw = (process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY) ?? "";
     const apiKey = raw.replace(/^["']|["']$/g, "").trim();
-    if (!apiKey) {
-      return res.json({ ok: false, error: "GEMINI_API_KEY חסר ב-.env" });
+    const openaiKey = (process.env.OPENAI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
+    if (!apiKey && !openaiKey) {
+      return res.json({
+        ok: false,
+        error: "No API key",
+        message_he: "הוסף ב-.env: GEMINI_API_KEY=... או OPENAI_API_KEY=... (מפתח מ־platform.openai.com)",
+        steps: ["אופציה א: Google AI Studio → aistudio.google.com/apikey → GEMINI_API_KEY=...", "אופציה ב: OpenAI → platform.openai.com → API keys → OPENAI_API_KEY=..."],
+      });
     }
     const testPrompt = "אמור רק: שלום";
+    if (!apiKey && openaiKey) {
+      try {
+        const text = await openaiChat("ענה בקצרה בעברית.", [], testPrompt);
+        return res.json({ ok: true, reply: text, provider: "openai" });
+      } catch (e: any) {
+        return res.json({ ok: false, error: e?.message || String(e), message_he: "OpenAI נכשל. וודא ש־OPENAI_API_KEY תקף ב־platform.openai.com" });
+      }
+    }
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -402,9 +446,29 @@ export async function registerRoutes(
         const text = await geminiRestGenerate(apiKey, "ענה בקצרה בעברית.", [{ parts: [{ text: testPrompt }] }]);
         return res.json({ ok: true, reply: text });
       } catch (restErr: any) {
+        const openaiKey = (process.env.OPENAI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
+        if (openaiKey) {
+          try {
+            const text = await openaiChat("ענה בקצרה בעברית.", [], testPrompt);
+            return res.json({ ok: true, reply: text, provider: "openai" });
+          } catch {
+            // fall through to error response
+          }
+        }
         const msg = (restErr?.message || sdkErr?.message || String(sdkErr)) as string;
         const status = (restErr?.status ?? sdkErr?.status ?? restErr?.statusCode ?? sdkErr?.statusCode) as number | undefined;
-        return res.json({ ok: false, error: msg, status });
+        const isInvalidKey = /API key not valid|API_KEY_INVALID|invalid.*key/i.test(msg);
+        return res.json({
+          ok: false,
+          error: msg,
+          status,
+          message_he: isInvalidKey
+            ? "גוגל דוחה את המפתח. הוסף OPENAI_API_KEY ב-.env כדי שהצ'אט יעבוד עם OpenAI, או הפעילי Billing ב־AI Studio."
+            : undefined,
+          steps: isInvalidKey
+            ? ["אופציה א: הוסף ב-.env: OPENAI_API_KEY=מפתח_מ_openai.com — הצ'אט יעבוד עם OpenAI", "אופציה ב: הפעילי Billing ב־https://aistudio.google.com/app/plan_information וצרי מפתח חדש ב־aistudio.google.com/apikey"]
+            : undefined,
+        });
       }
     }
   });
@@ -417,19 +481,18 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Message is required" });
       }
 
-      const raw = process.env.GEMINI_API_KEY ?? "";
+      const raw = (process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY) ?? "";
       const apiKey = raw.replace(/^["']|["']$/g, "").trim();
+      const openaiKey = (process.env.OPENAI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
       const GENERIC_CHAT_ERROR = "שגיאה זמנית בשירות. נסה שוב בעוד רגע.";
-      if (!apiKey) {
-        const detail = "GEMINI_API_KEY is missing. Add it to .env (dev) or Vercel → Environment Variables (production).";
+      if (!apiKey && !openaiKey) {
+        const detail = "GEMINI_API_KEY or OPENAI_API_KEY missing. Add one to .env (or Vercel → Environment Variables).";
         console.error("[chat]", detail);
-        sendAdminAlert("AI Chat: API key missing", detail);
+        sendAdminAlert("AI Chat: No API key", detail);
         return res.status(500).json({ message: GENERIC_CHAT_ERROR });
       }
 
-      const genAI = new GoogleGenerativeAI(apiKey);
       const systemPrompt = getOnboardingSystemPrompt(service || "landing-page", questionnaireData || {});
-
       const sid = sessionId || crypto.randomUUID();
       let session = chatSessions.get(sid);
 
@@ -455,42 +518,60 @@ export async function registerRoutes(
         ? session.history.slice(-MAX_HISTORY_LENGTH)
         : session.history;
 
-      const modelIds = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"];
       let reply = "";
       const MAX_RETRIES = 2;
-      for (const modelId of modelIds) {
-        const model = genAI.getGenerativeModel({
-          model: modelId,
-          systemInstruction: systemPrompt,
-        });
-        const chat = model.startChat({ history: historyForChat });
-        for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-          try {
-            const result = await chat.sendMessage(message);
-            reply = result.response.text();
-            break;
-          } catch (retryErr: any) {
-            if (retryErr?.status === 429 && attempt < MAX_RETRIES) {
-              const retryMatch = retryErr?.message?.match(/retry in (\d+)/i);
-              const waitSec = retryMatch ? Math.min(parseInt(retryMatch[1], 10), 40) : 10;
-              await new Promise(r => setTimeout(r, (waitSec + 2) * 1000));
-              continue;
+
+      if (apiKey) {
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const modelIds = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"];
+        for (const modelId of modelIds) {
+          const model = genAI.getGenerativeModel({
+            model: modelId,
+            systemInstruction: systemPrompt,
+          });
+          const chat = model.startChat({ history: historyForChat });
+          for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+            try {
+              const result = await chat.sendMessage(message);
+              reply = result.response.text();
+              break;
+            } catch (retryErr: any) {
+              if (retryErr?.status === 429 && attempt < MAX_RETRIES) {
+                const retryMatch = retryErr?.message?.match(/retry in (\d+)/i);
+                const waitSec = retryMatch ? Math.min(parseInt(retryMatch[1], 10), 40) : 10;
+                await new Promise(r => setTimeout(r, (waitSec + 2) * 1000));
+                continue;
+              }
+              break;
             }
-            break;
+          }
+          if (reply) break;
+        }
+        if (!reply) {
+          try {
+            const restContents = [
+              ...historyForChat.map((h) => ({ role: h.role, parts: h.parts })),
+              { role: "user" as const, parts: [{ text: message }] },
+            ];
+            reply = await geminiRestGenerate(apiKey, systemPrompt, restContents);
+          } catch {
+            // fall through to OpenAI
           }
         }
-        if (reply) break;
       }
-      if (!reply) {
+
+      if (!reply && openaiKey) {
         try {
-          const restContents = [
-            ...historyForChat.map((h) => ({ role: h.role, parts: h.parts })),
-            { role: "user" as const, parts: [{ text: message }] },
-          ];
-          reply = await geminiRestGenerate(apiKey, systemPrompt, restContents);
-        } catch {
-          throw new Error("Gemini API failed for all models and REST fallback");
+          reply = await openaiChat(systemPrompt, historyForChat, message);
+        } catch (openaiErr) {
+          console.error("[chat] OpenAI fallback failed:", openaiErr);
         }
+      }
+
+      if (!reply) {
+        throw new Error(apiKey
+          ? "Gemini API failed for all models and REST; OpenAI fallback not configured or failed."
+          : "No GEMINI_API_KEY or OPENAI_API_KEY configured.");
       }
 
       reply = reply.replace(/THOUGHT[\s\S]*?(?=\n[^\n])/g, "").trim();

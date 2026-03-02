@@ -26,16 +26,7 @@ function parseMultipart(req) {
         stream.resume();
         return;
       }
-      let size = 0;
-      stream.on("data", (chunk) => {
-        size += chunk.length;
-        if (size > MAX_FILE_SIZE) stream.destroy();
-      });
-      stream.on("end", () => {
-        if (size <= MAX_FILE_SIZE && files.length < MAX_FILES) {
-          files.push(filename);
-        }
-      });
+      if (files.length < MAX_FILES) files.push(filename);
       stream.resume();
     });
 

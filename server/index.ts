@@ -39,6 +39,36 @@ function loadGeminiKeyFromFile(filePath: string): boolean {
 if (!process.env.GEMINI_API_KEY?.trim()) {
   loadGeminiKeyFromFile(envCwd) || loadGeminiKeyFromFile(envRoot);
 }
+// גיבוי: גוגל תומכת גם ב-GOOGLE_API_KEY
+if (!process.env.GEMINI_API_KEY?.trim() && process.env.GOOGLE_API_KEY?.trim()) {
+  process.env.GEMINI_API_KEY = process.env.GOOGLE_API_KEY.replace(/^["']|["']$/g, "").trim();
+}
+// טעינת OPENAI_API_KEY מקובץ אם חסר (גיבוי ל־dotenv)
+function loadEnvKeyFromFile(filePath: string, keyName: string): boolean {
+  try {
+    let raw = fs.readFileSync(filePath, "utf8").replace(/^\uFEFF/, "");
+    for (const line of raw.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq === -1 || trimmed.slice(0, eq).trim() !== keyName) continue;
+      let val = trimmed.slice(eq + 1).trim();
+      const hash = val.indexOf("#");
+      if (hash !== -1) val = val.slice(0, hash).trim();
+      val = val.replace(/^["']|["']$/g, "").trim();
+      if (val.length > 10) {
+        (process.env as any)[keyName] = val;
+        return true;
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return false;
+}
+if (!process.env.OPENAI_API_KEY?.trim()) {
+  loadEnvKeyFromFile(envCwd, "OPENAI_API_KEY") || loadEnvKeyFromFile(envRoot, "OPENAI_API_KEY");
+}
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
@@ -158,12 +188,11 @@ app.use((req, res, next) => {
       : { port, host: "0.0.0.0", reusePort: true };
   httpServer.listen(listenOpts, async () => {
     log(`serving on port ${port}`);
-    const geminiKey = (process.env.GEMINI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
-    if (geminiKey) {
-      log(`GEMINI_API_KEY: loaded (${geminiKey.length} chars) — AI chat enabled`);
-    } else {
-      log("GEMINI_API_KEY: missing — add GEMINI_API_KEY to .env in project root and restart");
-    }
+    const geminiKey = (process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
+    const openaiKey = (process.env.OPENAI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
+    if (geminiKey) log(`GEMINI_API_KEY: loaded (${geminiKey.length} chars) — AI chat (Gemini)`);
+    if (openaiKey) log(`OPENAI_API_KEY: loaded — AI chat (OpenAI fallback)`);
+    if (!geminiKey && !openaiKey) log("AI chat: add GEMINI_API_KEY or OPENAI_API_KEY to .env and restart");
     const { verifyEmailConfig } = await import("./email");
     await verifyEmailConfig();
   });

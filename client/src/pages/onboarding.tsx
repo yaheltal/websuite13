@@ -924,6 +924,11 @@ export default function Onboarding() {
                 </div>
 
                 <div className="px-3 py-3 border-t border-border/40" dir="rtl">
+                  {chatMessages.some((m) => m.role === "bot" && (m.content?.includes("תקלה זמנית") || m.content?.includes("עמוס כרגע"))) && (
+                    <p className="text-xs text-muted-foreground mb-2 text-center">
+                      אם הבעיה נמשכת — וודא שהמפתח נוצר ב־Google AI Studio (לא ב־Cloud Console) והפעילי Billing אם נדרש.
+                    </p>
+                  )}
                   {!chatComplete && (
                     <div className="flex gap-2 items-center">
                       <input
