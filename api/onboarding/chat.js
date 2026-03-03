@@ -1,10 +1,10 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
 const ALERT_EMAIL_TO = (process.env.RECIPIENT_EMAIL || "WEBSUITE153@GMAIL.COM").trim();
 const GENERIC_CHAT_ERROR = "שגיאה זמנית בשירות. נסה שוב בעוד רגע.";
+const REQUEST_TIMEOUT = 8000; // 8s – leaves headroom within Vercel's 10s Hobby limit
 
 async function sendAdminAlert(subject, detail) {
   const pass = process.env.GMAIL_APP_PASSWORD?.trim();
@@ -27,7 +27,6 @@ async function sendAdminAlert(subject, detail) {
 }
 
 const MAX_HISTORY_LENGTH = 40;
-const MAX_RETRIES = 1;
 
 function getOnboardingSystemPrompt(service, questionnaireData) {
   const serviceNames = {
@@ -85,8 +84,8 @@ ${qaText}
 אם הלקוח שואל שאלות טכניות, ענה בקצרה והחזר אותו למסלול איסוף הפרטים.`;
 }
 
-/** Convert client history [{ role: "user"|"bot", content }] to Gemini format */
-function toGeminiHistory(history) {
+/** Convert client history [{ role: "user"|"bot", content }] to Gemini REST format */
+function toGeminiContents(history) {
   if (!Array.isArray(history) || history.length === 0) return [];
   const out = history
     .filter((h) => h && (h.role === "user" || h.role === "bot") && h.content)
@@ -97,43 +96,54 @@ function toGeminiHistory(history) {
   return out.length > MAX_HISTORY_LENGTH ? out.slice(-MAX_HISTORY_LENGTH) : out;
 }
 
-const GEMINI_REST_MODEL = "gemini-2.0-flash";
-function geminiRestUrl(model, apiKey) {
-  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
-}
-/** Fallback: call Gemini via REST when SDK fails (e.g. API key / model issues) */
-async function geminiRestGenerate(apiKey, systemInstruction, contents, model = GEMINI_REST_MODEL) {
-  const formatted = contents.map((c, i) => ({
-    role: c.role === "user" || c.role === "model" ? c.role : i % 2 === 0 ? "user" : "model",
-    parts: c.parts,
-  }));
-  const res = await fetch(geminiRestUrl(model, apiKey), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ systemInstruction: { parts: [{ text: systemInstruction }] }, contents: formatted }),
-  });
-  if (!res.ok) throw new Error(`Gemini REST ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (text == null) throw new Error("Gemini REST: no text in response");
-  return text;
+/** Call Gemini via REST with AbortController timeout – most reliable on Vercel */
+async function geminiRest(apiKey, systemInstruction, contents, model, timeoutMs = REQUEST_TIMEOUT) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemInstruction }] },
+        contents: contents.map((c, i) => ({
+          role: c.role === "user" || c.role === "model" ? c.role : i % 2 === 0 ? "user" : "model",
+          parts: c.parts,
+        })),
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Gemini REST ${model} ${res.status}: ${body.slice(0, 300)}`);
+    }
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (text == null) throw new Error(`Gemini REST ${model}: no text in response`);
+    return text;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
-const OPENAI_CHAT_MODEL = "gpt-4o-mini";
-function openaiChat(systemPrompt, history, userMessage) {
+/** OpenAI fallback with timeout */
+async function openaiChat(systemPrompt, contents, userMessage, timeoutMs = REQUEST_TIMEOUT) {
   const key = (process.env.OPENAI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
   if (!key) throw new Error("OPENAI_API_KEY not set");
-  const client = new OpenAI({ apiKey: key });
+  const client = new OpenAI({ apiKey: key, timeout: timeoutMs });
   const messages = [
     { role: "system", content: systemPrompt },
-    ...history.map((h) => ({ role: h.role === "user" ? "user" : "assistant", content: h.parts.map((p) => p.text).join(" ") })),
+    ...contents.map((h) => ({
+      role: h.role === "user" ? "user" : "assistant",
+      content: h.parts.map((p) => p.text).join(" "),
+    })),
     { role: "user", content: userMessage },
   ];
-  return client.chat.completions.create({ model: OPENAI_CHAT_MODEL, messages, max_tokens: 1024 }).then((r) => {
-    const t = r.choices?.[0]?.message?.content?.trim();
-    if (!t) throw new Error("OpenAI: no content");
-    return t;
-  });
+  const r = await client.chat.completions.create({ model: "gpt-4o-mini", messages, max_tokens: 1024 });
+  const t = r.choices?.[0]?.message?.content?.trim();
+  if (!t) throw new Error("OpenAI: no content");
+  return t;
 }
 
 export default async function handler(req, res) {
@@ -142,7 +152,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, sessionId, onboardingId, service, questionnaireData, history } = req.body || {};
+    const { message, sessionId, service, questionnaireData, history } = req.body || {};
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({ message: "Message is required" });
@@ -151,68 +161,50 @@ export default async function handler(req, res) {
     const raw = (process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY) ?? "";
     const apiKey = raw.replace(/^["']|["']$/g, "").trim();
     const openaiKey = (process.env.OPENAI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
+
     if (!apiKey && !openaiKey) {
-      sendAdminAlert("AI Chat: No API key", "Add GEMINI_API_KEY or OPENAI_API_KEY in Vercel → Environment Variables.");
+      console.error("AI Chat: No API key configured");
+      sendAdminAlert("AI Chat: No API key", "Add GEMINI_API_KEY or OPENAI_API_KEY in Vercel → Settings → Environment Variables.");
       return res.status(500).json({ message: GENERIC_CHAT_ERROR });
     }
 
     const systemPrompt = getOnboardingSystemPrompt(service || "landing-page", questionnaireData || {});
     const sid = sessionId || crypto.randomUUID();
-    const historyForChat = toGeminiHistory(history);
-    let reply = "";
-    let lastErr;
+    const historyContents = toGeminiContents(history);
+    const contents = [...historyContents, { role: "user", parts: [{ text: message }] }];
 
+    let reply = "";
+    const errors = [];
+
+    // Strategy: REST API directly (fast, no SDK overhead) → OpenAI fallback
     if (apiKey) {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const modelIds = ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-1.5-flash"];
-      for (const modelId of modelIds) {
+      // Try gemini-2.0-flash first (fastest, most stable)
+      for (const model of ["gemini-2.0-flash", "gemini-1.5-flash"]) {
         try {
-          const model = genAI.getGenerativeModel({ model: modelId, systemInstruction: systemPrompt });
-          const chat = model.startChat({ history: historyForChat });
-          for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-            try {
-              reply = (await chat.sendMessage(message)).response.text();
-              lastErr = null;
-              break;
-            } catch (retryErr) {
-              lastErr = retryErr;
-              console.error(`Gemini ${modelId} attempt ${attempt} failed:`, retryErr?.message || retryErr);
-              if (retryErr?.status === 429 && attempt < MAX_RETRIES) {
-                await new Promise((r) => setTimeout(r, 2000));
-                continue;
-              }
-              break;
-            }
-          }
-          if (reply) break;
-        } catch (modelErr) {
-          console.error(`Gemini model ${modelId} init failed:`, modelErr?.message || modelErr);
-          lastErr = modelErr;
-        }
-      }
-      if (!reply) {
-        try {
-          const restContents = [
-            ...historyForChat.map((h) => ({ role: h.role, parts: h.parts })),
-            { role: "user", parts: [{ text: message }] },
-          ];
-          reply = await geminiRestGenerate(apiKey, systemPrompt, restContents);
-        } catch (restErr) {
-          console.error("Gemini REST fallback failed:", restErr?.message || restErr);
+          reply = await geminiRest(apiKey, systemPrompt, contents, model);
+          break;
+        } catch (err) {
+          const msg = err?.name === "AbortError" ? `${model}: timeout (${REQUEST_TIMEOUT}ms)` : err?.message || String(err);
+          console.error(`Gemini ${model} failed:`, msg);
+          errors.push(msg);
         }
       }
     }
 
     if (!reply && openaiKey) {
       try {
-        reply = await openaiChat(systemPrompt, historyForChat, message);
+        reply = await openaiChat(systemPrompt, historyContents, message);
       } catch (e) {
-        console.error("OpenAI fallback failed:", e);
+        console.error("OpenAI fallback failed:", e?.message || e);
+        errors.push(`OpenAI: ${e?.message || e}`);
       }
     }
 
     if (!reply) {
-      throw new Error(apiKey ? "Gemini failed; OpenAI fallback not set or failed." : "No GEMINI_API_KEY or OPENAI_API_KEY.");
+      const detail = errors.join(" | ") || "No API keys configured";
+      console.error("All AI providers failed:", detail);
+      sendAdminAlert("AI Chat: all providers failed", detail);
+      return res.status(500).json({ message: GENERIC_CHAT_ERROR });
     }
 
     reply = reply.replace(/THOUGHT[\s\S]*?(?=\n[^\n])/g, "").trim();
@@ -222,7 +214,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ reply: cleanReply, sessionId: sid, isComplete });
   } catch (error) {
     const detail = error?.message || String(error);
-    console.error("Chat error:", error);
+    console.error("Chat handler error:", error);
     sendAdminAlert("AI Chat error", detail);
     if (error?.status === 429) {
       return res.status(429).json({ message: "שירות ה-AI עמוס כרגע. אנא נסה שוב בעוד כמה דקות." });
