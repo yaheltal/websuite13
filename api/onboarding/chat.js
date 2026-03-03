@@ -27,7 +27,7 @@ async function sendAdminAlert(subject, detail) {
 }
 
 const MAX_HISTORY_LENGTH = 40;
-const MAX_RETRIES = 2;
+const MAX_RETRIES = 1;
 
 function getOnboardingSystemPrompt(service, questionnaireData) {
   const serviceNames = {
@@ -97,7 +97,7 @@ function toGeminiHistory(history) {
   return out.length > MAX_HISTORY_LENGTH ? out.slice(-MAX_HISTORY_LENGTH) : out;
 }
 
-const GEMINI_REST_MODEL = "gemini-1.5-flash";
+const GEMINI_REST_MODEL = "gemini-2.0-flash";
 function geminiRestUrl(model, apiKey) {
   return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
 }
@@ -164,26 +164,31 @@ export default async function handler(req, res) {
 
     if (apiKey) {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const modelIds = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"];
+      const modelIds = ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-1.5-flash"];
       for (const modelId of modelIds) {
-        const model = genAI.getGenerativeModel({ model: modelId, systemInstruction: systemPrompt });
-        const chat = model.startChat({ history: historyForChat });
-        for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-          try {
-            reply = (await chat.sendMessage(message)).response.text();
-            lastErr = null;
-            break;
-          } catch (retryErr) {
-            lastErr = retryErr;
-            if (retryErr?.status === 429 && attempt < MAX_RETRIES) {
-              const waitSec = 10;
-              await new Promise((r) => setTimeout(r, (waitSec + 2) * 1000));
-              continue;
+        try {
+          const model = genAI.getGenerativeModel({ model: modelId, systemInstruction: systemPrompt });
+          const chat = model.startChat({ history: historyForChat });
+          for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+            try {
+              reply = (await chat.sendMessage(message)).response.text();
+              lastErr = null;
+              break;
+            } catch (retryErr) {
+              lastErr = retryErr;
+              console.error(`Gemini ${modelId} attempt ${attempt} failed:`, retryErr?.message || retryErr);
+              if (retryErr?.status === 429 && attempt < MAX_RETRIES) {
+                await new Promise((r) => setTimeout(r, 2000));
+                continue;
+              }
+              break;
             }
-            break;
           }
+          if (reply) break;
+        } catch (modelErr) {
+          console.error(`Gemini model ${modelId} init failed:`, modelErr?.message || modelErr);
+          lastErr = modelErr;
         }
-        if (reply) break;
       }
       if (!reply) {
         try {
@@ -192,8 +197,8 @@ export default async function handler(req, res) {
             { role: "user", parts: [{ text: message }] },
           ];
           reply = await geminiRestGenerate(apiKey, systemPrompt, restContents);
-        } catch {
-          // fall through to OpenAI
+        } catch (restErr) {
+          console.error("Gemini REST fallback failed:", restErr?.message || restErr);
         }
       }
     }
