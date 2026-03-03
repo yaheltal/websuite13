@@ -66,8 +66,27 @@ function loadEnvKeyFromFile(filePath: string, keyName: string): boolean {
   }
   return false;
 }
-// תמיד לנסות לטעון OPENAI_API_KEY מקובץ (dotenv לפעמים לא טוען)
-loadEnvKeyFromFile(envCwd, "OPENAI_API_KEY") || loadEnvKeyFromFile(envRoot, "OPENAI_API_KEY");
+// תמיד לנסות לטעון OPENAI_API_KEY מקובץ — קודם לפי מיקום הפרויקט (envRoot) כדי שלא תלוי ב-cwd
+loadEnvKeyFromFile(envRoot, "OPENAI_API_KEY") || loadEnvKeyFromFile(envCwd, "OPENAI_API_KEY");
+// גיבוי סופי: קריאה ישירה מקובץ .env ליד server/ (מבטיח שהמפתח נטען)
+if (!(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.length > 20)) {
+  for (const p of [envRoot, envCwd]) {
+    if (!fs.existsSync(p)) continue;
+    try {
+      const raw = fs.readFileSync(p, "utf8").replace(/^\uFEFF/, "");
+      const match = raw.match(/^\s*OPENAI_API_KEY\s*=\s*([^\r\n]+)/m);
+      if (match) {
+        const v = match[1].replace(/#.*$/g, "").trim().replace(/^["']|["']$/g, "");
+        if (v.length > 20) {
+          process.env.OPENAI_API_KEY = v;
+          break;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+}
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";

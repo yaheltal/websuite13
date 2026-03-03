@@ -18,7 +18,7 @@ describe("email prompts (Replit / Cursor)", () => {
   it("generateReplitPrompt returns English-only prompt", () => {
     const prompt = generateReplitPrompt(baseData);
     expect(prompt).toContain("Build a Landing page for \"Test Client\"");
-    expect(prompt).toContain("Project requirements:");
+    expect(prompt).toContain("Project requirements (relevant for building");
     expect(prompt).toContain("Technical guidelines:");
     expect(prompt).toContain("RTL support");
     expect(prompt).toContain("Colors:");
@@ -27,7 +27,7 @@ describe("email prompts (Replit / Cursor)", () => {
     expect(prompt).toContain("Target audience: ");
     expect(prompt).toContain("Main goal ");
     expect(prompt).toContain("Brand colors: ");
-    expect(prompt).toContain("Client conversation summary:");
+    expect(prompt).toContain("Client conversation summary");
     expect(prompt).toContain("Client wants a simple one-pager");
     // No Hebrew structure/labels in prompt (values may be Hebrew)
     expect(prompt).not.toMatch(/שם העסק|תחום פעילות|קהל יעד|מטרה עיקרית|צבעי מותג/);
@@ -36,7 +36,7 @@ describe("email prompts (Replit / Cursor)", () => {
   it("generateCursorPrompt returns English-only prompt", () => {
     const prompt = generateCursorPrompt(baseData);
     expect(prompt).toContain("In this Cursor project, build a Landing page for client \"Test Client\"");
-    expect(prompt).toContain("Project requirements (from questionnaire):");
+    expect(prompt).toContain("Project requirements (relevant for building");
     expect(prompt).toContain("Instructions:");
     expect(prompt).toContain("Use the existing project structure");
     expect(prompt).toContain("Business name: Flower Shop");
@@ -61,8 +61,28 @@ describe("email prompts (Replit / Cursor)", () => {
       ...baseData,
       chatSummary: "Summary in English only.",
     });
-    expect(prompt).toContain("Client conversation summary:");
+    expect(prompt).toContain("Client conversation summary");
     expect(prompt).toContain("Summary in English only.");
+  });
+
+  it("Replit and Cursor prompts exclude budget and timeline", () => {
+    const withBudget = {
+      clientName: "C",
+      service: "landing-page",
+      questionnaireData: {
+        businessName: "Test",
+        budget: "5000",
+        timeline: "2 weeks",
+        "תקציב משוער": "5000",
+        "לוח זמנים רצוי": "חודש",
+      },
+    };
+    const replit = generateReplitPrompt(withBudget);
+    const cursor = generateCursorPrompt(withBudget);
+    expect(replit).not.toMatch(/5000|2 weeks|חודש/);
+    expect(cursor).not.toMatch(/5000|2 weeks|חודש/);
+    expect(replit).toContain("Business name: Test");
+    expect(cursor).toContain("Business name: Test");
   });
 
   it("unknown questionnaire keys get title-cased English label", () => {
@@ -95,7 +115,7 @@ describe("onboarding email content (prompts embedded)", () => {
     expect(cursor).toContain("In this Cursor project");
     expect(cursor).toContain("Business name: Shop");
     expect(cursor).toContain("Approximate number of products: 50");
-    expect(cursor).toContain("Client conversation summary:");
+    expect(cursor).toContain("Client conversation summary");
     // No Hebrew labels in prompt body
     expect(replit).not.toMatch(/שם העסק|כמה מוצרים|תקציב|לוח זמנים/);
     expect(cursor).not.toMatch(/שם העסק|כמה מוצרים|תקציב|לוח זמנים/);

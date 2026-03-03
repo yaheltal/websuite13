@@ -78,16 +78,52 @@ ${qaDetails || "  - No specific requirements provided"}${chatPart}
 Instructions: Modern UI, RTL, Hebrew font, colors: ${colors}, contact form, SEO, performance.`;
 }
 
+function readBodyStream(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => resolve(Buffer.concat(chunks)));
+    req.on("error", reject);
+  });
+}
+
+function getBody(req) {
+  const b = req.body;
+  if (b && typeof b === "object" && !Array.isArray(b) && Object.keys(b).length > 0) return b;
+  if (typeof b === "string" && b.trim()) {
+    try {
+      return JSON.parse(b);
+    } catch {
+      return {};
+    }
+  }
+  return {};
+}
+
+async function getBodyAsync(req) {
+  const body = getBody(req);
+  if (body && Object.keys(body).length > 0) return body;
+  try {
+    const raw = await readBodyStream(req);
+    if (raw && raw.length > 0) return JSON.parse(raw.toString("utf8"));
+  } catch (e) {
+    console.error("getBodyAsync read stream:", e);
+  }
+  return {};
+}
+
 export default async function handler(req, res) {
+  res.setHeader("Content-Type", "application/json");
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
   }
 
   try {
-    const { onboardingId, name, email, phone, service, questionnaireData, chatSummary, uploadedFiles } = req.body || {};
+    const body = await getBodyAsync(req);
+    const { name, email, phone, service, questionnaireData, chatSummary, uploadedFiles } = body;
 
-    if (onboardingId == null || onboardingId === "") {
-      return res.status(400).json({ message: "Onboarding ID required" });
+    if (!name?.trim() || !email?.trim()) {
+      return res.status(400).json({ message: "Name and email are required" });
     }
 
     const qa = questionnaireData || {};

@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertContactSchema } from "@shared/schema";
@@ -50,48 +50,57 @@ function getOnboardingSystemPrompt(service: string, questionnaireData: Record<st
     .map(([k, v]) => `- ${k}: ${v}`)
     .join("\n");
 
-  return `אתה סוכן מכירות ושירות של WEB13. התפקיד שלך הוא לאסוף פרטים מהלקוח כדי לבנות לו אתר/פתרון דיגיטלי.
-המטרה שלך: זרימה חלקה של איסוף מידע.
+  return `Role: Senior Product Characterization Expert
+Name: Yaara (יערה)
 
-הלקוח בחר בשירות: ${serviceName}
+Context: You are an advanced female product strategist. Your goal is to finalize a product specification after the user has completed an initial questionnaire. You act as a bridge between the user's raw ideas and a professional "Master Prompt" used for development. The conversation is in Hebrew only.
 
-המידע שהלקוח כבר סיפק בשאלון:
-${qaText}
+=== ANTI-REDUNDANCY (CRITICAL) ===
+Below is the data from the initial questionnaire. The user has ALREADY answered these. You must NOT repeat these as questions. Your job is to dive deeper into their answers, not restart. Do not ask "what is your business name" or any question whose answer is already in the questionnaire.
 
-כללי סגנון דיבור:
-- קצר ולעניין. משפטים קצרים. אל תכתוב פסקאות ארוכות.
-- שאל שאלה אחת בכל פעם בלבד.
-- היה ידידותי, מקצועי וחם.
-- השיחה חייבת להיות בעברית בלבד.
-- אסור בשום מצב להציג קוד, JSON, בלוקים טכניים, או פרומפטים בצ'אט.
+Selected service: ${serviceName}
 
-טיפול בקלט לא תקין (חשוב!):
-- אם הלקוח שולח טקסט חסר משמעות (כמו "כגג", "adsf", "rthtrht"), אל תתייחס אליו כאל תשובה אמיתית.
-- בקש ממנו בנימוס לנסח מחדש: "לא הצלחתי להבין. תוכל בבקשה לנסח שוב את [הפרט הנדרש] כדי שנמשיך?"
-- לעולם אל תמשיך הלאה עם נתונים לא הגיוניים. ודא שקיבלת מידע ברור לפני שאתה עובר לשאלה הבאה.
+Questionnaire data (already answered — do not re-ask):
+${qaText || "(none)"}
 
-אישור קבלת נתונים:
-- לפני שאתה עובר לשאלה הבאה, אשר שקיבלת את הנתון: "מעולה, תודה! עכשיו לגבי..."
+=== VISUAL & DESIGN ===
+- Review the user's design preferences (Vibe, Colors, Layout).
+- If the user provided reference/inspiration links (sites they liked), acknowledge them and ask clarifying questions about specific elements (e.g. "ראיתי ששיתפת אתר X — אהבת את הניווט המינימליסטי או את פלטת הצבעים?").
+- These design questions apply to all product types (E-commerce, Landing Page, Digital Business Card).
 
-נושאים שחשוב לכסות (אם לא כוסו בשאלון):
-- חזון העיצוב ותחושת המותג (צבעים, סגנון, השראות)
-- פיצ'רים ספציפיים שנדרשים
-- תוכן — מי יספק טקסטים ותמונות
-- קהל יעד
-- אינטגרציות (CRM, תשלומים, רשתות חברתיות)
-- דדליין ותקציב (אם לא צוינו)
+=== PHYSICAL REQUIREMENTS (OPTIONAL) ===
+- If the questionnaire contains data about physical locations or equipment, incorporate it.
+- If missing and relevant, ask briefly. Treat as optional.
 
-חשיבות ויזואלית:
-- ציין ללקוח שהעלאת הלוגו והתמונות היא צעד קריטי כדי שהתוצאה תהיה מקצועית.
-- הזכר את זה בשיחה כשמתאים.
+=== TONE & STYLE ===
+- Professional, consultative, insightful. You are a senior female consultant helping users refine their vision.
+- Sophisticated yet accessible. Hebrew only. One question at a time when asking; short, clear sentences.
 
-לוגיקת סיום שיחה:
-- כשיש לך מספיק מידע (אחרי 4-8 הודעות), סיים את השיחה.
-- שלח הודעת סיכום שירותית: "תודה רבה על הפרטים! הנתונים התקבלו בהצלחה. הצוות שלנו יעבור על הכל ונחזור אליך בהקדם לתיאום המשך עבודה."
-- חובה: כשאתה מסיים את השיחה, הוסף בסוף ההודעה שלך (בשורה נפרדת) את הטקסט הבא בדיוק: <<COLLECTION_COMPLETE>>
-- הטקסט <<COLLECTION_COMPLETE>> לא יוצג ללקוח, הוא רק סימון פנימי למערכת.
+=== CONVERSATION FLOW ===
+Step 1 — Analysis: Start by summarizing what you already know from the questionnaire to show you have listened and analyzed their input.
+Step 2 — Deep Dive: Ask 2–3 targeted questions to fill gaps in business logic, target audience, or missing design details. Do not repeat questionnaire questions.
+Step 3 — Technical Gap-Fill: Inquire about integrations (APIs, databases, OpenAI, payments, CRM, etc.) that were not fully detailed in the form.
+Final — Closing only (no summary, no prompt to the client): When you have gathered enough information, do NOT output any project summary, Master Prompt, code block, or technical document. The client must never see a prompt or a summary. Output only a short, friendly closing message in the user's language, for example in Hebrew: "תודה רבה, קיבלנו את הפרטים הרלוונטיים. ניצור קשר בהקדם." Do not mention "פרומפט", "סיכום", or "מסמך אפיון". Then on a new line write exactly: <<COLLECTION_COMPLETE>>
 
-אם הלקוח שואל שאלות טכניות, ענה בקצרה והחזר אותו למסלול איסוף הפרטים.`;
+=== RULES ===
+- NEVER show the client any code block, JSON, Master Prompt, project summary, or technical specification. The conversation ends with a brief thank-you only (e.g. "תודה רבה, קיבלנו את הפרטים הרלוונטיים. ניצור קשר בהקדם.") followed by <<COLLECTION_COMPLETE>>.
+- If the user sends meaningless text, ask politely to rephrase: "לא הצלחתי להבין. תוכל בבקשה לנסח שוב?"
+- If the user asks technical questions, answer briefly and return to the characterization flow.
+- Remind the user that uploading logo and images is important for a professional result when relevant.
+
+=== LANGUAGE (CRITICAL) ===
+- You must respond ONLY in the same language the user uses. If the user writes in Hebrew, your entire response must be in Hebrew. If they write in English or another language, respond in that language. Never mix languages in a single message.
+- Never output internal reasoning, thinking, scratchpad, or "thought" blocks in the chat. Only the final reply to the user must be visible—in the user's language only.`;
+}
+
+/** Removes internal thinking/reasoning blocks so they are never shown to the user. */
+function stripThinkingBlocks(text: string): string {
+  let out = text
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/\[THOUGHT\][\s\S]*?\[\/THOUGHT\]/gi, "")
+    .replace(/(?:^|\n)\s*thought_[^\n]*/gim, "")
+    .replace(/(?:^|\n)\s*THOUGHT\s*[\s\S]*?(?=\n\s*\n|$)/gim, "");
+  return out.replace(/\n{3,}/g, "\n\n").trim();
 }
 
 const MAX_SESSIONS = 500;
@@ -156,6 +165,43 @@ async function geminiRestGenerate(
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (text == null) throw new Error("Gemini REST: no text in response");
   return text;
+}
+
+const AI_SUMMARY_SYSTEM = `You are an assistant. Given a transcript of a client briefing conversation (agent questions and client answers in Hebrew), write a short professional summary in Hebrew for the management team and the developer. Include: project type, main goals, style/brand preferences, and any technical or content requirements. Write 2-4 clear paragraphs. Do not include budget or deadline. Output only the summary, no preamble.`;
+
+/** Generates a professional summary of the chat transcript for the lead email. Returns empty string on failure. */
+async function generateConversationSummary(chatTranscript: string): Promise<string> {
+  const trimmed = (chatTranscript || "").trim();
+  if (!trimmed) return "";
+
+  const geminiRaw = (process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
+  const openaiKey = (process.env.OPENAI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
+
+  if (geminiRaw) {
+    try {
+      const modelIds = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-8b"];
+      for (const modelId of modelIds) {
+        try {
+          const text = await geminiRestGenerate(geminiRaw, AI_SUMMARY_SYSTEM, [{ parts: [{ text: trimmed }] }], modelId);
+          if (text && text.length > 20) return text.trim();
+        } catch {
+          continue;
+        }
+      }
+    } catch {
+      // fall through to OpenAI
+    }
+  }
+
+  if (openaiKey) {
+    try {
+      return await openaiChat(AI_SUMMARY_SYSTEM, [], trimmed);
+    } catch {
+      // ignore
+    }
+  }
+
+  return "";
 }
 
 const chatSessions = new Map<string, { history: Array<{ role: string; parts: Array<{ text: string }> }>; lastAccess: number }>();
@@ -321,10 +367,7 @@ export async function registerRoutes(
       const result = await chat.sendMessage(message);
       const reply = result.response.text();
 
-      const cleanReply = reply
-        .replace(/<<COLLECTION_COMPLETE>>/g, "")
-        .replace(/\[THOUGHT\][\s\S]*?\[\/THOUGHT\]/gi, "")
-        .trim();
+      const cleanReply = stripThinkingBlocks(reply).replace(/<<COLLECTION_COMPLETE>>/g, "").trim();
 
       session.history.push({ role: "user", parts: [{ text: message }] });
       session.history.push({ role: "model", parts: [{ text: cleanReply }] });
@@ -574,7 +617,7 @@ export async function registerRoutes(
           : "No GEMINI_API_KEY or OPENAI_API_KEY configured.");
       }
 
-      reply = reply.replace(/THOUGHT[\s\S]*?(?=\n[^\n])/g, "").trim();
+      reply = stripThinkingBlocks(reply);
 
       session.history.push(
         { role: "user", parts: [{ text: message }] },
@@ -586,7 +629,9 @@ export async function registerRoutes(
       }
 
       const isComplete = reply.includes("<<COLLECTION_COMPLETE>>");
-      const cleanReply = reply.replace(/<<COLLECTION_COMPLETE>>/g, "").trim();
+      let cleanReply = reply.replace(/<<COLLECTION_COMPLETE>>/g, "").trim();
+      // Never show the client code blocks or project summary (safety if model misbehaves)
+      cleanReply = cleanReply.replace(/\s*```[\s\S]*?```\s*/g, " ").replace(/\n{3,}/g, "\n\n").trim();
 
       if (isComplete && onboardingId) {
         const chatSummary = session.history
@@ -614,69 +659,106 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/onboarding/upload", upload.array("files", 10), async (req, res) => {
+  app.post("/api/onboarding/upload", (req, res, next) => {
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    upload.array("files", 10)(req, res, (err: any) => {
+      if (err) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+          return res.status(400).json({ message: "קובץ גדול מדי. מקסימום 10MB לקובץ." });
+        }
+        if (err.message?.includes("סוג קובץ")) {
+          return res.status(400).json({ message: "סוג קובץ לא נתמך. השתמש ב-JPG, PNG, SVG, PDF, AI, PSD, WEBP." });
+        }
+        console.error("Upload multer error:", err);
+        return res.status(500).json({ message: "שגיאה בהעלאת קבצים" });
+      }
+      next();
+    });
+  }, async (req, res) => {
     try {
-      const files = req.files as Express.Multer.File[];
-      const onboardingId = parseInt(req.body.onboardingId);
-
-      if (!files || files.length === 0) {
-        return res.status(400).json({ message: "No files uploaded" });
+      const files = req.files as Express.Multer.File[] | undefined;
+      if (!files?.length) {
+        return res.status(400).json({ message: "לא נבחרו קבצים. בחר קבצים ולחץ שוב." });
       }
 
-      if (!onboardingId) {
-        return res.status(400).json({ message: "Onboarding ID required" });
-      }
-
+      const onboardingId = req.body?.onboardingId != null ? parseInt(String(req.body.onboardingId), 10) : NaN;
       const filePaths = files.map((f) => f.filename);
 
-      const existing = await storage.getOnboarding(onboardingId);
-      const allFiles = [...(existing?.uploadedFiles || []), ...filePaths];
+      if (!Number.isNaN(onboardingId) && onboardingId > 0) {
+        try {
+          const existing = await storage.getOnboarding(onboardingId);
+          const allFiles = [...(Array.isArray(existing?.uploadedFiles) ? existing.uploadedFiles : []), ...filePaths];
+          await storage.updateOnboarding(onboardingId, { uploadedFiles: allFiles });
+        } catch {
+          // Onboarding not found — client still gets file list and sends it in complete
+        }
+      }
 
-      await storage.updateOnboarding(onboardingId, { uploadedFiles: allFiles });
-
-      res.json({ files: filePaths });
+      return res.json({ files: filePaths });
     } catch (error) {
       console.error("Upload error:", error);
-      res.status(500).json({ message: "שגיאה בהעלאת קבצים" });
+      return res.status(500).json({ message: "שגיאה בהעלאת קבצים" });
     }
   });
 
   app.post("/api/onboarding/complete", async (req, res) => {
     try {
-      const { onboardingId } = req.body;
+      const {
+        onboardingId,
+        name,
+        email,
+        phone,
+        service,
+        questionnaireData: bodyQuestionnaire,
+        chatSummary: bodyChatSummary,
+        uploadedFiles: bodyUploadedFiles,
+      } = req.body || {};
 
-      if (!onboardingId) {
-        return res.status(400).json({ message: "Onboarding ID required" });
+      const id = onboardingId != null ? Number(onboardingId) : NaN;
+      const onboarding = !Number.isNaN(id) && id > 0 ? await storage.getOnboarding(id) : undefined;
+
+      const questionnaireData = (onboarding?.questionnaireData ?? bodyQuestionnaire ?? {}) as Record<string, any>;
+      const uploadedFiles = Array.isArray(onboarding?.uploadedFiles)
+        ? onboarding.uploadedFiles
+        : Array.isArray(bodyUploadedFiles)
+          ? bodyUploadedFiles
+          : [];
+      const chatSummary = (onboarding?.generatedPrompt ?? bodyChatSummary ?? "").trim();
+
+      const clientName = (onboarding?.name ?? name ?? "").toString().trim();
+      const clientEmail = (onboarding?.email ?? email ?? "").toString().trim();
+      const clientPhone = (onboarding?.phone ?? phone ?? "").toString().trim();
+      const serviceType = onboarding?.service ?? service ?? "landing-page";
+
+      if (!clientName || !clientEmail) {
+        return res.status(400).json({ message: "Name and email are required" });
       }
 
-      const onboarding = await storage.getOnboarding(Number(onboardingId));
-      if (!onboarding) {
-        return res.status(404).json({ message: "Onboarding not found" });
-      }
-
-      const questionnaireData = (onboarding.questionnaireData as Record<string, any>) || {};
-      const uploadedFiles = Array.isArray(onboarding.uploadedFiles) ? onboarding.uploadedFiles : [];
-      const chatSummary = onboarding.generatedPrompt || "";
-
-      sendOnboardingEmail({
-        clientName: onboarding.name,
-        clientEmail: onboarding.email,
-        clientPhone: onboarding.phone || "",
-        service: onboarding.service,
-        questionnaireData,
-        chatSummary,
-        uploadedFiles,
-      }).then((result) => {
-        if (result.success) {
-          console.log(`Onboarding complete email sent for: ${onboarding.name}`);
-        } else {
-          console.error(`Onboarding complete email failed for: ${onboarding.name}`);
+      let aiSummary = "";
+      if (chatSummary) {
+        try {
+          aiSummary = await generateConversationSummary(chatSummary);
+        } catch (err) {
+          console.error("AI summary generation failed:", err);
         }
-      }).catch((err) => {
-        console.error("Onboarding complete email error:", err);
-      });
+      }
 
-      res.json({ success: true });
+      const emailResult = await sendOnboardingEmail({
+        clientName,
+        clientEmail,
+        clientPhone,
+        service: serviceType,
+        questionnaireData: questionnaireData || {},
+        chatSummary,
+        aiSummary: aiSummary || undefined,
+        uploadedFiles,
+      });
+      if (emailResult.success) {
+        console.log(`Onboarding complete email sent for: ${clientName}`);
+      } else {
+        console.error(`Onboarding complete email failed for: ${clientName}`);
+      }
+      res.json({ success: emailResult.success });
     } catch (error) {
       console.error("Complete error:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -706,13 +788,13 @@ export async function registerRoutes(
 
   app.use("/uploads", (req, res, next) => {
     const ext = path.extname(req.path).toLowerCase();
-    const allowed = [".jpg", ".jpeg", ".png", ".gif", ".svg", ".pdf", ".webp"];
+    const allowed = [".jpg", ".jpeg", ".png", ".gif", ".svg", ".pdf", ".webp", ".ai", ".psd"];
     if (allowed.includes(ext)) {
       next();
     } else {
       res.status(403).send("Forbidden");
     }
-  });
+  }, express.static(uploadDir));
 
   return httpServer;
 }

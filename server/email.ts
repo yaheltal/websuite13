@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import nodemailer from "nodemailer";
 
 /**
@@ -155,6 +157,12 @@ async function sendWithRetry(
   return { success: false, attempts: MAX_RETRIES };
 }
 
+/** Keys to exclude from Replit/Cursor prompts (not relevant for building site/landing). */
+const PROMPT_EXCLUDE_KEYS = new Set([
+  "budget", "Approximate budget", "תקציב משוער",
+  "timeline", "Preferred timeline", "לוח זמנים רצוי", "לוח זמנים",
+]);
+
 /** Human-readable English label for a questionnaire key (for Replit/Cursor prompts). Keys may be English or Hebrew. */
 function questionLabelEn(key: string): string {
   const trimmed = String(key).trim();
@@ -165,7 +173,7 @@ function questionLabelEn(key: string): string {
   );
 }
 
-/** Shared data for generating copy-paste prompts (English only, for Replit/Cursor). */
+/** Shared data for generating copy-paste prompts (English only, for Replit/Cursor). Excludes budget/timeline. */
 function buildPromptData(data: {
   clientName: string;
   service: string;
@@ -173,12 +181,13 @@ function buildPromptData(data: {
   chatSummary?: string;
 }) {
   const serviceNameEn = SERVICE_NAMES_EN[data.service] || data.service;
-  const qaDetails = Object.entries(data.questionnaireData)
-    .filter(([_, v]) => v && String(v).trim())
+  const qaEntries = Object.entries(data.questionnaireData)
+    .filter(([k, v]) => v && String(v).trim() && !PROMPT_EXCLUDE_KEYS.has(String(k).trim()));
+  const qaDetails = qaEntries
     .map(([k, v]) => `  - ${questionLabelEn(k)}: ${v}`)
     .join("\n");
   const chatContext = data.chatSummary
-    ? `\n\nClient conversation summary:\n${data.chatSummary}`
+    ? `\n\nClient conversation summary (from professional briefing):\n${data.chatSummary}`
     : "";
   const colors =
     data.questionnaireData["brandColors"] ||
@@ -187,7 +196,7 @@ function buildPromptData(data: {
   return { serviceNameEn, qaDetails, chatContext, colors };
 }
 
-/** English prompt for pasting into Replit Agent. */
+/** English prompt for Replit Agent — only info needed to build site/landing; no budget/timeline. */
 export function generateReplitPrompt(data: {
   clientName: string;
   service: string;
@@ -198,7 +207,7 @@ export function generateReplitPrompt(data: {
 
   return `Build a ${serviceNameEn} for "${data.clientName}".
 
-Project requirements:
+Project requirements (relevant for building the site/landing only):
 ${qaDetails || "  - No specific requirements provided"}
 ${chatContext}
 
@@ -211,7 +220,7 @@ Technical guidelines:
 - Fast performance, high Lighthouse score`;
 }
 
-/** English prompt for pasting into Cursor (AI in the editor). */
+/** English prompt for Cursor — only info needed to build site/landing; no budget/timeline. */
 export function generateCursorPrompt(data: {
   clientName: string;
   service: string;
@@ -222,7 +231,7 @@ export function generateCursorPrompt(data: {
 
   return `In this Cursor project, build a ${serviceNameEn} for client "${data.clientName}".
 
-Project requirements (from questionnaire):
+Project requirements (relevant for building the site/landing only):
 ${qaDetails || "  - No specific requirements provided"}
 ${chatContext}
 
@@ -333,13 +342,23 @@ export type OnboardingEmailData = {
   clientPhone: string;
   service: string;
   questionnaireData: Record<string, any>;
+  /** Full transcript: סוכן / לקוח Q&A */
   chatSummary: string;
+  /** Professional summary for management/developer (AI-generated) */
+  aiSummary?: string;
   uploadedFiles: string[];
 };
 
-/** Returns subject, html and text for the onboarding email (for preview or send). */
+/** Base URL for upload links in email (e.g. https://yoursite.com). Uses BASE_URL or CORS_ORIGIN. */
+function getUploadBaseUrl(): string {
+  const base = (process.env.BASE_URL || process.env.CORS_ORIGIN || "").replace(/\/$/, "");
+  return base || "http://localhost:5000";
+}
+
+/** Returns subject, html and text for the onboarding email (for preview or send). Order: client → questionnaire → AI chat → AI summary → files → prompts. */
 export function getOnboardingEmailContent(data: OnboardingEmailData): { subject: string; html: string; text: string } {
   const serviceName = SERVICE_NAMES[data.service] || data.service;
+  const baseUrl = getUploadBaseUrl();
 
   const qaRows = Object.entries(data.questionnaireData)
     .filter(([_, v]) => v && String(v).trim())
@@ -347,31 +366,43 @@ export function getOnboardingEmailContent(data: OnboardingEmailData): { subject:
     .join("");
 
   const filesSection = data.uploadedFiles.length > 0
-    ? `<h3 style="color: #2d3142; margin-top: 24px;">קבצים שהועלו (${data.uploadedFiles.length})</h3>
-       <ul style="padding-right: 20px; font-size: 13px; color: #444;">
-         ${data.uploadedFiles.map(f => `<li style="padding: 4px 0;">${escapeHtml(f)}</li>`).join("")}
+    ? `<h2 style="color: #2d3142; margin-top: 28px;">קבצים שהועלו (${data.uploadedFiles.length})</h2>
+       <p style="color: #666; font-size: 13px; margin-bottom: 10px;">הקבצים מצורפים למייל — ניתן לפתוח ולהוריד ישירות מתוך המייל. בנוסף ניתן לפתוח דרך הקישורים:</p>
+       <ul style="list-style: none; padding-right: 0; margin: 0;">
+         ${data.uploadedFiles.map(f => {
+           const url = `${baseUrl}/uploads/${encodeURIComponent(f)}`;
+           return `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><a href="${escapeHtml(url)}" style="color: #3b6de0; font-size: 14px; text-decoration: none;" target="_blank" rel="noopener">${escapeHtml(f)}</a> <span style="color: #888; font-size: 12px;">— לחץ לפתיחה</span></li>`;
+         }).join("")}
        </ul>`
     : "";
 
-  const chatSection = data.chatSummary
-    ? `<h2 style="color: #2d3142;">סיכום שיחת AI</h2>
+  const chatTranscriptSection = data.chatSummary
+    ? `<h2 style="color: #2d3142; margin-top: 28px;">שיחת AI (שאלות הסוכן ותשובות הלקוח)</h2>
        <div style="background: white; border: 1px solid #e8e4de; border-radius: 8px; padding: 16px; font-size: 13px; line-height: 1.8; color: #333;">
          ${escapeHtml(data.chatSummary).replace(/\n/g, "<br>")}
        </div>`
     : `<p style="color: #999; font-size: 13px;">שיחת AI לא הושלמה</p>`;
 
+  const aiSummarySection = data.aiSummary
+    ? `<h2 style="color: #2d3142; margin-top: 28px;">סיכום AI (לצוות הנהלה ולמתכנת)</h2>
+       <div style="background: #f0f7ff; border: 1px solid #c5d9f0; border-radius: 8px; padding: 18px; font-size: 14px; line-height: 1.7; color: #1a1a2e;">
+         ${escapeHtml(data.aiSummary).replace(/\n/g, "<br>")}
+       </div>`
+    : "";
+
+  const promptChatContext = data.aiSummary || data.chatSummary;
   const replitPrompt = generateReplitPrompt({
     clientName: data.clientName,
     service: data.service,
     questionnaireData: data.questionnaireData,
-    chatSummary: data.chatSummary,
+    chatSummary: promptChatContext,
   });
 
   const cursorPrompt = generateCursorPrompt({
     clientName: data.clientName,
     service: data.service,
     questionnaireData: data.questionnaireData,
-    chatSummary: data.chatSummary,
+    chatSummary: promptChatContext,
   });
 
   const htmlBody = `
@@ -395,18 +426,18 @@ export function getOnboardingEmailContent(data: OnboardingEmailData): { subject:
           ${qaRows || '<tr><td style="padding: 12px; color: #999; font-size: 13px;">לא מולא שאלון</td></tr>'}
         </table>
 
-        ${chatSection}
-
+        ${chatTranscriptSection}
+        ${aiSummarySection}
         ${filesSection}
 
         <h2 style="color: #2d3142; margin-top: 30px;">פרומפט מוכן ל-Replit</h2>
-        <p style="color: #666; font-size: 12px; margin-bottom: 8px;">העתק את הבלוק הבא ל-Replit Agent:</p>
+        <p style="color: #666; font-size: 12px; margin-bottom: 8px;">העתק את הבלוק הבא ל-Replit Agent (באנגלית, מותאם ל-AI של Replit):</p>
         <div style="background: #1e1e2e; color: #cdd6f4; padding: 20px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.8; direction: ltr; text-align: left; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">
 ${escapeHtml(replitPrompt)}
         </div>
 
         <h2 style="color: #2d3142; margin-top: 30px;">פרומפט מוכן ל-Cursor</h2>
-        <p style="color: #666; font-size: 12px; margin-bottom: 8px;">העתק את הבלוק הבא ל-Cursor (צ'אט או Agent) כדי לבנות את הפרויקט בפרויקט הקיים:</p>
+        <p style="color: #666; font-size: 12px; margin-bottom: 8px;">העתק את הבלוק הבא ל-Cursor (באנגלית, מותאם ל-AI של Cursor):</p>
         <div style="background: #1e1e2e; color: #cdd6f4; padding: 20px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.8; direction: ltr; text-align: left; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">
 ${escapeHtml(cursorPrompt)}
         </div>
@@ -421,14 +452,20 @@ ${escapeHtml(cursorPrompt)}
   const textBody = [
     `WEB13 - ליד חדש מתהליך Onboarding`,
     ``,
-    `פרטי לקוח: ${data.clientName}, ${data.clientEmail}, ${data.clientPhone || "לא צוין"}, ${serviceName}`,
+    `--- פרטי לקוח ---`,
+    `שם: ${data.clientName}`,
+    `אימייל: ${data.clientEmail}`,
+    `טלפון: ${data.clientPhone || "לא צוין"}`,
+    `סוג שירות: ${serviceName}`,
     ``,
     `--- תוצאות שאלון ---`,
     ...Object.entries(data.questionnaireData)
       .filter(([_, v]) => v && String(v).trim())
       .map(([k, v]) => `${k}: ${v}`),
     ``,
-    data.chatSummary ? `--- סיכום שיחת AI ---\n${data.chatSummary}` : `(שיחת AI לא הושלמה)`,
+    data.chatSummary ? `--- שיחת AI ---\n${data.chatSummary}` : `(שיחת AI לא הושלמה)`,
+    ...(data.aiSummary ? ["", "--- סיכום AI ---", data.aiSummary] : []),
+    ...(data.uploadedFiles.length > 0 ? ["", "--- קבצים ---", ...data.uploadedFiles.map(f => `${baseUrl}/uploads/${f}`)] : []),
     ``,
     `========== PROMPT FOR REPLIT ==========`,
     replitPrompt,
@@ -443,14 +480,26 @@ ${escapeHtml(cursorPrompt)}
   return { subject, html: htmlBody, text: textBody };
 }
 
+const UPLOADS_DIR = path.join(process.cwd(), "uploads");
+
 export async function sendOnboardingEmail(data: OnboardingEmailData): Promise<{ success: boolean; attempts: number }> {
   const { subject, html, text } = getOnboardingEmailContent(data);
+  const attachments: nodemailer.SendMailOptions["attachments"] = [];
+  if (data.uploadedFiles.length > 0 && fs.existsSync(UPLOADS_DIR)) {
+    for (const filename of data.uploadedFiles) {
+      const fullPath = path.join(UPLOADS_DIR, filename);
+      if (fs.existsSync(fullPath)) {
+        attachments.push({ filename, path: fullPath });
+      }
+    }
+  }
   return sendWithRetry({
     from: `"WEB13" <${SENDER_EMAIL}>`,
     to: RECIPIENT_EMAIL,
     subject,
     html,
     text,
+    ...(attachments.length > 0 ? { attachments } : {}),
   });
 }
 

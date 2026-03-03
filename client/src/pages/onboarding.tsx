@@ -529,51 +529,71 @@ export default function Onboarding() {
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files || !onboardingId) return;
+    if (!files || files.length === 0) return;
 
     setUploading(true);
     const formData = new FormData();
-    formData.append("onboardingId", String(onboardingId));
-    Array.from(files).forEach(f => formData.append("files", f));
+    if (onboardingId != null) formData.append("onboardingId", String(onboardingId));
+    Array.from(files).forEach((f) => formData.append("files", f));
 
     try {
-      const response = await fetch(API_BASE + "/api/onboarding/upload", { method: "POST", credentials: "include", body: formData });
+      const url = `${API_BASE || ""}/api/onboarding/upload`.replace(/\/+/g, "/");
+      const response = await fetch(url, { method: "POST", credentials: "include", body: formData });
       const data = await response.json().catch(() => ({}));
-      if (response.ok && data.files?.length) {
-        setUploadedFiles(prev => [...prev, ...data.files]);
+      if (response.ok && Array.isArray(data.files) && data.files.length > 0) {
+        setUploadedFiles((prev) => [...prev, ...data.files]);
         toast({ title: "הקבצים הועלו בהצלחה!" });
+      } else if (response.ok && Array.isArray(data.files)) {
+        toast({ title: "לא התקבלו שמות קבצים. נסה שוב.", variant: "destructive" });
       } else {
-        toast({ title: data.message || "שגיאה בהעלאה", variant: "destructive" });
+        const msg = data.message || (response.status === 400 ? "בחר קבצים (JPG, PNG, PDF ועד 10MB)." : response.status === 500 ? "שגיאה בשרת בהעלאה. נסה שוב או קבצים קטנים יותר." : "שגיאה בהעלאת קבצים.");
+        toast({ title: msg, variant: "destructive" });
       }
     } catch {
-      toast({ title: "שגיאה בהעלאה", variant: "destructive" });
+      toast({ title: "שגיאת רשת. בדוק חיבור ונסה שוב.", variant: "destructive" });
     }
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleComplete = async () => {
-    if (!onboardingId) return;
+    const contactValues = contactForm.getValues();
+    if (!contactValues.name?.trim() || !contactValues.email?.trim()) {
+      toast({ title: "נא למלא שם ואימייל.", variant: "destructive" });
+      return;
+    }
     setCompleting(true);
     try {
-      const contactValues = contactForm.getValues();
       const chatSummary = chatComplete
         ? chatMessages.map((m) => `${m.role === "user" ? "לקוח" : "סוכן"}: ${m.content}`).join("\n")
         : "";
-      await apiRequest("POST", "/api/onboarding/complete", {
-        onboardingId,
-        name: contactValues.name,
-        email: contactValues.email,
-        phone: contactValues.phone ?? "",
-        service: selectedService,
-        questionnaireData,
-        chatSummary,
-        uploadedFiles,
+      const url = `${API_BASE || ""}/api/onboarding/complete`.replace(/\/+/g, "/");
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          onboardingId: onboardingId ?? 0,
+          name: contactValues.name,
+          email: contactValues.email,
+          phone: contactValues.phone ?? "",
+          service: selectedService,
+          questionnaireData,
+          chatSummary,
+          uploadedFiles,
+        }),
       });
-      setCompleted(true);
-      clearStorage();
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success !== false) {
+        setCompleted(true);
+        clearStorage();
+        toast({ title: "הפרטים נשלחו בהצלחה!" });
+      } else {
+        const msg = data.message || (res.status === 404 ? "שליחה לא זמינה כרגע. נסה שוב או פנה אלינו ישירות." : res.status === 400 ? "חסרים פרטים. נא למלא שם ואימייל." : "שליחה נכשלה. נסה שוב.");
+        toast({ title: msg, variant: "destructive" });
+      }
     } catch {
-      toast({ title: "שגיאה", variant: "destructive" });
+      toast({ title: "שגיאת רשת. בדוק חיבור ונסה שוב.", variant: "destructive" });
     }
     setCompleting(false);
   };
@@ -869,19 +889,17 @@ export default function Onboarding() {
             <motion.div key="step4" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-extrabold text-charcoal mb-2" data-testid="text-step-title">
-                  שיחה עם הסוכן AI
+                  שיחה עם יערה
                 </h2>
-                <p className="text-sm text-charcoal-light">הסוכן שלנו ישאל כמה שאלות קצרות כדי להבין את הצרכים שלך</p>
+                <p className="text-sm text-charcoal-light">יערה, מומחית אפיון המוצר, תשאל כמה שאלות קצרות כדי להבין את הצרכים שלך</p>
               </div>
 
               <div className="bg-card rounded-2xl border border-border/60 overflow-hidden flex flex-col" style={{ height: "min(500px, calc(100dvh - 200px))" }}>
                 <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-l from-copper to-copper-dark text-white">
-                  <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
-                    <Smile className="w-5 h-5" />
-                  </div>
+                  <img src="/yaara-avatar.png" alt="יערה" className="w-9 h-9 rounded-full object-cover ring-2 ring-white/30" />
                   <div>
-                    <h3 className="font-semibold text-sm">סוכן AI — WebSuite</h3>
-                    <span className="text-[11px] text-white/70">סוכן אפיון מקצועי</span>
+                    <h3 className="font-semibold text-sm">יערה — WebSuite</h3>
+                    <span className="text-[11px] text-white/70">מומחית אפיון מוצר</span>
                   </div>
                 </div>
 
@@ -893,10 +911,10 @@ export default function Onboarding() {
                       animate={{ opacity: 1, y: 0 }}
                       className={`flex gap-2 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
                     >
-                      <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-1 ${
-                        msg.role === "user" ? "bg-copper/15 text-copper" : "bg-sage/30 text-foreground/70"
+                      <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-1 overflow-hidden ${
+                        msg.role === "user" ? "bg-copper/15 text-copper" : ""
                       }`}>
-                        {msg.role === "user" ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
+                        {msg.role === "user" ? <User className="w-3.5 h-3.5" /> : <img src="/yaara-avatar.png" alt="יערה" className="w-full h-full object-cover" />}
                       </div>
                       <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                         msg.role === "user" ? "bg-copper text-white rounded-tr-md" : "bg-muted/60 text-foreground rounded-tl-md"
@@ -908,8 +926,8 @@ export default function Onboarding() {
 
                   {chatLoading && (
                     <div className="flex gap-2">
-                      <div className="w-7 h-7 rounded-full bg-sage/30 flex items-center justify-center">
-                        <Bot className="w-3.5 h-3.5 text-foreground/70" />
+                      <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0">
+                        <img src="/yaara-avatar.png" alt="יערה" className="w-full h-full object-cover" />
                       </div>
                       <div className="bg-muted/60 rounded-2xl rounded-tl-md px-4 py-3">
                         <div className="flex gap-1.5">
