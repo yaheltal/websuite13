@@ -39,6 +39,7 @@ import {
   Sparkles,
   SkipForward,
   Smile,
+  RefreshCw,
 } from "lucide-react";
 
 const STORAGE_KEY = "web13_onboarding";
@@ -430,7 +431,7 @@ export default function Onboarding() {
     }
   };
 
-  const startAiChat = async (oid?: number) => {
+  const startAiChat = async (oid?: number, retryCount = 0) => {
     const currentId = oid ?? onboardingId;
     setChatLoading(true);
     try {
@@ -461,13 +462,19 @@ export default function Onboarding() {
           { role: "bot", content: data.reply },
         ]);
       } else {
-        const fallback = response.status === 429
-          ? "שלום! הסוכן שלנו עמוס כרגע. אנא נסה שוב בעוד כמה רגעים."
-          : "שלום! סליחה, הייתה תקלה זמנית. נסה שוב בעוד רגע.";
-        setChatMessages([{ role: "bot", content: fallback }]);
+        // Auto-retry once before showing fallback to user
+        if (retryCount < 1) {
+          setChatLoading(false);
+          return startAiChat(currentId, retryCount + 1);
+        }
+        setChatMessages([{ role: "bot", content: "שלום! הסוכן שלנו נטען כרגע. אפשר לדלג על השיחה ולהמשיך להעלאת קבצים, או לנסות שוב." }]);
       }
     } catch {
-      setChatMessages([{ role: "bot", content: "שלום! סליחה, הייתה תקלה זמנית. נסה שוב בעוד רגע." }]);
+      if (retryCount < 1) {
+        setChatLoading(false);
+        return startAiChat(currentId, retryCount + 1);
+      }
+      setChatMessages([{ role: "bot", content: "שלום! הסוכן שלנו נטען כרגע. אפשר לדלג על השיחה ולהמשיך להעלאת קבצים, או לנסות שוב." }]);
     }
     setChatLoading(false);
   };
@@ -504,19 +511,19 @@ export default function Onboarding() {
 
       if (!response.ok) {
         const fallback = response.status === 429
-          ? "הסוכן שלנו עמוס כרגע. אנא נסה שוב בעוד כמה רגעים — הפרטים שלך שמורים!"
-          : "סליחה, הייתה תקלה זמנית. נסה שוב בעוד רגע.";
+          ? "רגע אחד, אני מעבד... שלח את ההודעה שוב בעוד כמה שניות."
+          : "לא הצלחתי לעבד את ההודעה. נסה לשלוח שוב.";
         setChatMessages(prev => [...prev, { role: "bot", content: fallback }]);
       } else {
         if (!chatSessionId && data.sessionId) setChatSessionId(data.sessionId);
-        setChatMessages(prev => [...prev, { role: "bot", content: data.reply ?? "סליחה, לא התקבלה תשובה. נסה שוב." }]);
+        setChatMessages(prev => [...prev, { role: "bot", content: data.reply ?? "לא הצלחתי לעבד את ההודעה. נסה לשלוח שוב." }]);
 
         if (data.isComplete) {
           setChatComplete(true);
         }
       }
     } catch {
-      setChatMessages(prev => [...prev, { role: "bot", content: "סליחה, הייתה תקלה זמנית. נסה שוב בעוד רגע." }]);
+      setChatMessages(prev => [...prev, { role: "bot", content: "לא הצלחתי לעבד את ההודעה. נסה לשלוח שוב." }]);
     }
     setChatLoading(false);
   };
@@ -942,10 +949,17 @@ export default function Onboarding() {
                 </div>
 
                 <div className="px-3 py-3 border-t border-border/40" dir="rtl">
-                  {chatMessages.some((m) => m.role === "bot" && (m.content?.includes("תקלה זמנית") || m.content?.includes("עמוס כרגע"))) && (
-                    <p className="text-xs text-muted-foreground mb-2 text-center">
-                      אם הבעיה נמשכת — וודא שהמפתח נוצר ב־Google AI Studio (לא ב־Cloud Console) והפעילי Billing אם נדרש.
-                    </p>
+                  {chatMessages.length === 1 && chatMessages[0].role === "bot" && chatMessages[0].content?.includes("הסוכן שלנו נטען") && (
+                    <div className="flex justify-center gap-2 mb-2">
+                      <Button variant="outline" size="sm" onClick={() => startAiChat()} className="text-xs gap-1">
+                        <RefreshCw className="w-3 h-3" />
+                        נסה שוב
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={handleSkipChat} className="text-xs gap-1">
+                        <SkipForward className="w-3 h-3" />
+                        דלג והמשך
+                      </Button>
+                    </div>
                   )}
                   {!chatComplete && (
                     <div className="flex gap-2 items-center">

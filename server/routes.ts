@@ -107,7 +107,7 @@ const MAX_SESSIONS = 500;
 const MAX_HISTORY_LENGTH = 40;
 const SESSION_TTL_MS = 30 * 60 * 1000;
 
-const GEMINI_REST_MODEL = "gemini-1.5-flash";
+const GEMINI_REST_MODEL = "gemini-2.0-flash";
 const GEMINI_REST_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 const OPENAI_CHAT_MODEL = "gpt-4o-mini";
 
@@ -322,7 +322,7 @@ export async function registerRoutes(
       const geminiRaw = process.env.GEMINI_API_KEY ?? "";
       const genAI = new GoogleGenerativeAI(geminiRaw.replace(/^["']|["']$/g, "").trim() || "");
       const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.0-flash",
         systemInstruction: `אתה סוכן מכירות ושירות של WEB13 — סוכנות בוטיק לבניית אתרים.
 אתה עוזר ללקוחות פוטנציאליים להבין מה הם צריכים ומעודד אותם להתחיל את תהליך ההרשמה.
 
@@ -480,7 +480,7 @@ export async function registerRoutes(
     }
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
       const result = await model.generateContent(testPrompt);
       const text = result.response.text();
       return res.json({ ok: true, reply: text });
@@ -562,33 +562,36 @@ export async function registerRoutes(
         : session.history;
 
       let reply = "";
-      const MAX_RETRIES = 2;
+      const MAX_RETRIES = 1;
 
       if (apiKey) {
         const genAI = new GoogleGenerativeAI(apiKey);
-        const modelIds = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"];
+        const modelIds = ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-1.5-flash"];
         for (const modelId of modelIds) {
-          const model = genAI.getGenerativeModel({
-            model: modelId,
-            systemInstruction: systemPrompt,
-          });
-          const chat = model.startChat({ history: historyForChat });
-          for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-            try {
-              const result = await chat.sendMessage(message);
-              reply = result.response.text();
-              break;
-            } catch (retryErr: any) {
-              if (retryErr?.status === 429 && attempt < MAX_RETRIES) {
-                const retryMatch = retryErr?.message?.match(/retry in (\d+)/i);
-                const waitSec = retryMatch ? Math.min(parseInt(retryMatch[1], 10), 40) : 10;
-                await new Promise(r => setTimeout(r, (waitSec + 2) * 1000));
-                continue;
+          try {
+            const model = genAI.getGenerativeModel({
+              model: modelId,
+              systemInstruction: systemPrompt,
+            });
+            const chat = model.startChat({ history: historyForChat });
+            for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+              try {
+                const result = await chat.sendMessage(message);
+                reply = result.response.text();
+                break;
+              } catch (retryErr: any) {
+                console.error(`[chat] Gemini ${modelId} attempt ${attempt} failed:`, retryErr?.message || retryErr);
+                if (retryErr?.status === 429 && attempt < MAX_RETRIES) {
+                  await new Promise(r => setTimeout(r, 2000));
+                  continue;
+                }
+                break;
               }
-              break;
             }
+            if (reply) break;
+          } catch (modelErr: any) {
+            console.error(`[chat] Gemini model ${modelId} init failed:`, modelErr?.message || modelErr);
           }
-          if (reply) break;
         }
         if (!reply) {
           try {
@@ -597,8 +600,8 @@ export async function registerRoutes(
               { role: "user" as const, parts: [{ text: message }] },
             ];
             reply = await geminiRestGenerate(apiKey, systemPrompt, restContents);
-          } catch {
-            // fall through to OpenAI
+          } catch (restErr: any) {
+            console.error("[chat] Gemini REST fallback failed:", restErr?.message || restErr);
           }
         }
       }
