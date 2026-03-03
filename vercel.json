@@ -11,6 +11,6 @@
     "api/onboarding/start.js": { "maxDuration": 30 },
     "api/onboarding/chat.js": { "maxDuration": 30 },
     "api/onboarding/complete.js": { "maxDuration": 10 },
-    "api/onboarding/upload.js": { "maxDuration": 30, "bodyParser": false }
+    "api/onboarding/upload.js": { "maxDuration": 30 }
   }
 }
