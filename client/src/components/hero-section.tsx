@@ -260,8 +260,8 @@ export function HeroSection() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative flex items-center justify-center overflow-hidden py-16 md:py-24"
-      style={{ minHeight: "min(65vh, 520px)" }}
+      className="relative flex items-center justify-center overflow-hidden py-10 sm:py-16 md:py-24"
+      style={{ minHeight: "min(55vh, 520px)" }}
       data-testid="section-hero"
     >
       {!IS_MOBILE && (
@@ -524,7 +524,7 @@ export function HeroSection() {
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[hsl(var(--background))] to-transparent pointer-events-none opacity-90" />
+      <div className="absolute bottom-0 left-0 right-0 h-20 sm:h-40 bg-gradient-to-t from-[hsl(var(--background))] to-transparent pointer-events-none opacity-90" />
     </section>
   );
 }
