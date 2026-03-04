@@ -478,34 +478,39 @@ export function ScrollytellingSection() {
               </ScrollReveal>
 
               {index < storyBlocks.length - 1 && (
-                <div className="flex justify-center py-4 sm:py-6 pointer-events-none select-none" aria-hidden="true">
+                <div className="flex justify-center py-6 sm:py-8 pointer-events-none select-none" aria-hidden="true">
                   <svg
-                    viewBox="0 0 40 80"
+                    viewBox="0 0 60 120"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
-                    className="w-6 h-12 sm:w-8 sm:h-16 opacity-20"
+                    className="w-12 h-24 sm:w-14 sm:h-28 md:w-16 md:h-32"
                   >
+                    <defs>
+                      <linearGradient id={`arrowGrad${index}`} x1="30" y1="0" x2="30" y2="120" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="hsl(220, 75%, 65%)" stopOpacity="0.35" />
+                        <stop offset="50%" stopColor="hsl(260, 60%, 60%)" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="hsl(25, 55%, 55%)" stopOpacity="0.4" />
+                      </linearGradient>
+                    </defs>
+                    {/* Curly S-curve path */}
                     <path
-                      d="M20 2 C8 18, 32 28, 20 42 C8 56, 32 62, 20 72"
-                      stroke="url(#arrowGrad)"
-                      strokeWidth="2"
+                      d="M30 4 C12 20, 48 35, 30 55 C12 75, 48 85, 30 100"
+                      stroke={`url(#arrowGrad${index})`}
+                      strokeWidth="2.5"
                       strokeLinecap="round"
                       fill="none"
                     />
+                    {/* Arrowhead */}
                     <path
-                      d="M14 64 L20 74 L26 64"
-                      stroke="url(#arrowGrad)"
-                      strokeWidth="2"
+                      d="M22 92 L30 106 L38 92"
+                      stroke={`url(#arrowGrad${index})`}
+                      strokeWidth="2.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       fill="none"
                     />
-                    <defs>
-                      <linearGradient id="arrowGrad" x1="20" y1="0" x2="20" y2="80" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stopColor="hsl(220, 80%, 60%)" />
-                        <stop offset="100%" stopColor="hsl(25, 60%, 55%)" />
-                      </linearGradient>
-                    </defs>
+                    {/* Small decorative dot at top */}
+                    <circle cx="30" cy="4" r="2.5" fill="hsl(220, 75%, 65%)" opacity="0.25" />
                   </svg>
                 </div>
               )}
