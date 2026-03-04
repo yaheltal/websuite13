@@ -48,8 +48,11 @@ export function Hero3DBackground() {
   const timeRef = useRef(0);
   const visibleRef = useRef(true);
 
-  // Detect mobile once
   const isMobileRef = useRef(typeof window !== "undefined" && window.innerWidth < 768);
+
+  if (isMobileRef.current) {
+    return null;
+  }
 
   // Config based on device
   const getConfig = useCallback(() => {

@@ -1,6 +1,9 @@
 import express, { type Express } from "express";
+import compression from "compression";
 import fs from "fs";
 import path from "path";
+
+const ONE_YEAR = 365 * 24 * 60 * 60;
 
 export function serveStatic(app: Express) {
   const distPath = path.resolve(__dirname, "public");
@@ -10,10 +13,32 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  app.use(compression({ level: 6, threshold: 1024 }));
 
-  // fall through to index.html if the file doesn't exist
+  app.use(
+    "/assets",
+    express.static(path.join(distPath, "assets"), {
+      maxAge: ONE_YEAR * 1000,
+      immutable: true,
+      etag: false,
+      lastModified: false,
+    }),
+  );
+
+  app.use(
+    express.static(distPath, {
+      maxAge: "1h",
+      etag: true,
+      setHeaders(res, filePath) {
+        if (filePath.endsWith(".html")) {
+          res.setHeader("Cache-Control", "no-cache, must-revalidate");
+        }
+      },
+    }),
+  );
+
   app.use("/{*path}", (_req, res) => {
+    res.setHeader("Cache-Control", "no-cache, must-revalidate");
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

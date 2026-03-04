@@ -9,11 +9,13 @@ export function useLenis() {
     }
     window.scrollTo(0, 0);
 
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+    if (isMobile) return;
+
     let cleanup: (() => void) | null = null;
     let destroyed = false;
-
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
-    const delay = isMobile ? 1500 : 0;
+    const delay = 0;
 
     const loadLenis = () => {
       Promise.all([

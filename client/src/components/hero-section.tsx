@@ -1,10 +1,14 @@
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback, useState, lazy, Suspense } from "react";
 import { gsap } from "gsap";
 import { Button } from "@/components/ui/button";
 import { MagneticButton } from "@/components/magnetic-button";
 import { Link } from "wouter";
 import { useI18n } from "@/lib/i18n";
-import { Hero3DBackground } from "./hero-3d-background";
+
+const IS_MOBILE = typeof window !== "undefined" && window.innerWidth < 768;
+const Hero3DBackground = IS_MOBILE
+  ? () => null
+  : lazy(() => import("./hero-3d-background").then((m) => ({ default: m.Hero3DBackground })));
 
 /** Animated counter — starts automatically after page load */
 function AnimatedCounter({ target, suffix = "", duration = 2, delay = 0 }: { target: number; suffix?: string; duration?: number; delay?: number }) {
@@ -206,41 +210,44 @@ export function HeroSection() {
       }
 
       const isMobile = window.innerWidth < 768;
-      const runShimmer = () => {
-        const stl = gsap.timeline({
-          onComplete: () => {
-            shimmerRef.current = gsap.delayedCall(isMobile ? 10 : 6, runShimmer);
-          },
+
+      if (!isMobile) {
+        const runShimmer = () => {
+          const stl = gsap.timeline({
+            onComplete: () => {
+              shimmerRef.current = gsap.delayedCall(6, runShimmer);
+            },
+          });
+
+          bChars.forEach((c, i) => {
+            stl.to(c, {
+              backgroundImage: "linear-gradient(135deg, hsl(175 90% 65%), hsl(220 90% 80%), hsl(260 80% 75%))",
+              y: -4,
+              duration: 0.15,
+              ease: "power1.in",
+            }, i * 0.05);
+            stl.to(c, {
+              backgroundImage: "linear-gradient(135deg, hsl(220 80% 68%), hsl(260 72% 65%), hsl(175 80% 55%))",
+              y: 0,
+              duration: 0.25,
+              ease: "power1.out",
+            }, i * 0.05 + 0.15);
+          });
+        };
+
+        tl.call(() => {
+          shimmerRef.current = gsap.delayedCall(3, runShimmer);
         });
 
-        bChars.forEach((c, i) => {
-          stl.to(c, {
-            backgroundImage: "linear-gradient(135deg, hsl(175 90% 65%), hsl(220 90% 80%), hsl(260 80% 75%))",
-            y: -4,
-            duration: 0.15,
-            ease: "power1.in",
-          }, i * 0.05);
-          stl.to(c, {
-            backgroundImage: "linear-gradient(135deg, hsl(220 80% 68%), hsl(260 72% 65%), hsl(175 80% 55%))",
-            y: 0,
-            duration: 0.25,
-            ease: "power1.out",
-          }, i * 0.05 + 0.15);
+        gsap.to(brand, {
+          y: "6px",
+          duration: 3,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+          delay: 2,
         });
-      };
-
-      tl.call(() => {
-        shimmerRef.current = gsap.delayedCall(3, runShimmer);
-      });
-
-      gsap.to(brand, {
-        y: "6px",
-        duration: 3,
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: -1,
-        delay: 2,
-      });
+      }
     }, section);
 
     return () => {
@@ -257,56 +264,51 @@ export function HeroSection() {
       style={{ minHeight: "min(65vh, 520px)" }}
       data-testid="section-hero"
     >
-      <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ contain: "strict" }}>
-        <div
-          className="hero-orb absolute rounded-full"
-          style={{
-            width: "min(500px, 60vw)",
-            height: "min(500px, 60vw)",
-            top: "10%",
-            right: "-10%",
-            background: "radial-gradient(circle, hsla(220, 70%, 55%, 0.06) 0%, hsla(260, 60%, 48%, 0.015) 50%, transparent 70%)",
-            filter: "blur(20px)",
-            animation: "heroFloat 12s ease-in-out infinite",
-            contain: "paint",
-          }}
-        />
-        <div
-          className="hero-orb absolute rounded-full"
-          style={{
-            width: "min(400px, 50vw)",
-            height: "min(400px, 50vw)",
-            bottom: "5%",
-            left: "-5%",
-            background: "radial-gradient(circle, hsla(170, 60%, 50%, 0.05) 0%, hsla(170, 50%, 60%, 0.015) 50%, transparent 70%)",
-            filter: "blur(18px)",
-            animation: "heroFloat 15s ease-in-out infinite reverse",
-            contain: "paint",
-          }}
-        />
-        <div
-          className="hero-orb absolute rounded-full"
-          style={{
-            width: "min(280px, 35vw)",
-            height: "min(280px, 35vw)",
-            top: "40%",
-            left: "30%",
-            background: "radial-gradient(circle, hsla(260, 50%, 60%, 0.04) 0%, transparent 60%)",
-            filter: "blur(15px)",
-            animation: "heroFloat 18s ease-in-out infinite 3s",
-            contain: "paint",
-          }}
-        />
-      </div>
+      {!IS_MOBILE && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ contain: "strict" }}>
+          <div
+            className="hero-orb absolute rounded-full"
+            style={{
+              width: "min(500px, 60vw)",
+              height: "min(500px, 60vw)",
+              top: "10%",
+              right: "-10%",
+              background: "radial-gradient(circle, hsla(220, 70%, 55%, 0.06) 0%, hsla(260, 60%, 48%, 0.015) 50%, transparent 70%)",
+              filter: "blur(20px)",
+              animation: "heroFloat 12s ease-in-out infinite",
+              contain: "paint",
+            }}
+          />
+          <div
+            className="hero-orb absolute rounded-full"
+            style={{
+              width: "min(400px, 50vw)",
+              height: "min(400px, 50vw)",
+              bottom: "5%",
+              left: "-5%",
+              background: "radial-gradient(circle, hsla(170, 60%, 50%, 0.05) 0%, hsla(170, 50%, 60%, 0.015) 50%, transparent 70%)",
+              filter: "blur(18px)",
+              animation: "heroFloat 15s ease-in-out infinite reverse",
+              contain: "paint",
+            }}
+          />
+        </div>
+      )}
 
-      <Hero3DBackground />
+      {!IS_MOBILE && (
+        <Suspense fallback={null}>
+          <Hero3DBackground />
+        </Suspense>
+      )}
 
-      <div className="absolute inset-0 pointer-events-none opacity-[0.015]"
-        style={{
-          backgroundImage: "radial-gradient(hsl(220 15% 18% / 0.4) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      />
+      {!IS_MOBILE && (
+        <div className="absolute inset-0 pointer-events-none opacity-[0.015]"
+          style={{
+            backgroundImage: "radial-gradient(hsl(220 15% 18% / 0.4) 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+          }}
+        />
+      )}
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div

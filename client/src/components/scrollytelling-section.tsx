@@ -104,7 +104,7 @@ function generateMockups(count: number): FloatingMockup[] {
 }
 
 const ALL_MOCKUPS = generateMockups(14);
-const MOBILE_MOCKUP_COUNT = 6;
+const MOBILE_MOCKUP_COUNT = 3;
 
 
 export function ScrollytellingSection() {
@@ -157,16 +157,18 @@ export function ScrollytellingSection() {
         el.style.willChange = 'transform';
         innerCard.style.willChange = 'transform, filter';
 
-        gsap.to(innerCard, {
-          x: `+=${m.hoverDx * (i % 2 === 0 ? 1 : -1)}`,
-          y: `+=${m.hoverDy * (i % 2 === 0 ? -1 : 1)}`,
-          rotateZ: `+=${m.hoverRotZ * (i % 2 === 0 ? 1 : -1)}`,
-          duration: m.hoverDur,
-          ease: "sine.inOut",
-          yoyo: true,
-          repeat: -1,
-          force3D: true,
-        });
+        if (!isMobile) {
+          gsap.to(innerCard, {
+            x: `+=${m.hoverDx * (i % 2 === 0 ? 1 : -1)}`,
+            y: `+=${m.hoverDy * (i % 2 === 0 ? -1 : 1)}`,
+            rotateZ: `+=${m.hoverRotZ * (i % 2 === 0 ? 1 : -1)}`,
+            duration: m.hoverDur,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1,
+            force3D: true,
+          });
+        }
 
         const direction = i % 2 === 0 ? -1 : 1;
         const yTravel = window.innerHeight * (0.5 + m.speed * 0.9) * direction;
@@ -237,28 +239,30 @@ export function ScrollytellingSection() {
         }
       );
 
-      const velocityTracker = { skew: 0 };
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top bottom",
-        end: "bottom top",
-        onUpdate: (self) => {
-          const velocity = self.getVelocity();
-          const clampedSkew = gsap.utils.clamp(-3, 3, velocity / 500);
-          gsap.to(velocityTracker, {
-            skew: clampedSkew,
-            duration: 0.3,
-            overwrite: true,
-            onUpdate: () => {
-              blockRefs.current.forEach((block) => {
-                if (block) {
-                  block.style.transform = `skewY(${velocityTracker.skew}deg)`;
-                }
-              });
-            },
-          });
-        },
-      });
+      if (!isMobile) {
+        const velocityTracker = { skew: 0 };
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          onUpdate: (self) => {
+            const velocity = self.getVelocity();
+            const clampedSkew = gsap.utils.clamp(-3, 3, velocity / 500);
+            gsap.to(velocityTracker, {
+              skew: clampedSkew,
+              duration: 0.3,
+              overwrite: true,
+              onUpdate: () => {
+                blockRefs.current.forEach((block) => {
+                  if (block) {
+                    block.style.transform = `skewY(${velocityTracker.skew}deg)`;
+                  }
+                });
+              },
+            });
+          },
+        });
+      }
 
       blockRefs.current.forEach((block) => {
         if (!block) return;

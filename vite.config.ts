@@ -28,10 +28,11 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
-    target: "es2020",
+    target: "es2022",
     minify: "esbuild",
     cssMinify: "esbuild",
     sourcemap: false,
+    modulePreload: { polyfill: false },
     rollupOptions: {
       output: {
         manualChunks: {
@@ -41,6 +42,14 @@ export default defineConfig({
           lenis: ["lenis"],
           router: ["wouter"],
           query: ["@tanstack/react-query"],
+          "ui-primitives": [
+            "@radix-ui/react-tooltip",
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-select",
+            "@radix-ui/react-accordion",
+            "@radix-ui/react-label",
+            "@radix-ui/react-slot",
+          ],
         },
         chunkFileNames: "assets/[name]-[hash].js",
         entryFileNames: "assets/[name]-[hash].js",

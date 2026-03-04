@@ -136,9 +136,18 @@ export function ScrollBackground() {
   const smoothY = useRef([0, 0, 0]);
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-  const lc = isMobile ? LAYERS_M : LAYERS;
-  const thumbCounts = isMobile ? [3, 3, 2] : [8, 6, 5];
-  const colCount = isMobile ? 2 : 4;
+
+  if (isMobile) {
+    return (
+      <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute inset-0 bg-background/35" />
+      </div>
+    );
+  }
+
+  const lc = LAYERS;
+  const thumbCounts = [8, 6, 5];
+  const colCount = 4;
 
   const blobs = useMemo(
     () => generateBlobs(isMobile ? 2 : 3, isMobile),
