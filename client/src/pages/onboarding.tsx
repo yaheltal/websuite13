@@ -613,9 +613,9 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl" data-testid="page-onboarding">
+    <div className="min-h-[100dvh] bg-background" dir="rtl" data-testid="page-onboarding">
       <div className="sticky top-0 z-40 bg-card/90 backdrop-blur-md border-b border-border/40">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <Link href="/" data-testid="link-back-home">
             <div className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity select-none">
               <WebSuiteLogo size={40} gradientId="onb" className="w-9 h-9 sm:w-10 sm:h-10" />
@@ -641,7 +641,7 @@ export default function Onboarding() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
         {!(resumeChoice === null && hasSavedData) && step >= 2 && step <= 5 && !completed && (
           <ProgressBar stepsRemaining={getStepsRemaining()} />
         )}
@@ -901,9 +901,9 @@ export default function Onboarding() {
                 <p className="text-sm text-charcoal-light">יערה, מומחית אפיון המוצר, תשאל כמה שאלות קצרות כדי להבין את הצרכים שלך</p>
               </div>
 
-              <div className="bg-card rounded-2xl border border-border/60 overflow-hidden flex flex-col" style={{ height: "min(500px, calc(100dvh - 200px))" }}>
+              <div className="bg-card rounded-2xl border border-border/60 overflow-hidden flex flex-col" style={{ height: "min(500px, calc(100dvh - 180px))" }}>
                 <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-l from-copper to-copper-dark text-white">
-                  <img src="/yaara-avatar.png" alt="יערה" className="w-9 h-9 rounded-full object-cover ring-2 ring-white/30" />
+                  <img src="/yaara-avatar.png" alt="יערה" width={36} height={36} loading="eager" className="w-9 h-9 rounded-full object-cover ring-2 ring-white/30" />
                   <div>
                     <h3 className="font-semibold text-sm">יערה — WebSuite</h3>
                     <span className="text-[11px] text-white/70">מומחית אפיון מוצר</span>
@@ -921,7 +921,7 @@ export default function Onboarding() {
                       <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-1 overflow-hidden ${
                         msg.role === "user" ? "bg-copper/15 text-copper" : ""
                       }`}>
-                        {msg.role === "user" ? <User className="w-3.5 h-3.5" /> : <img src="/yaara-avatar.png" alt="יערה" className="w-full h-full object-cover" />}
+                        {msg.role === "user" ? <User className="w-3.5 h-3.5" /> : <img src="/yaara-avatar.png" alt="יערה" width={28} height={28} loading="lazy" className="w-full h-full object-cover" />}
                       </div>
                       <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                         msg.role === "user" ? "bg-copper text-white rounded-tr-md" : "bg-muted/60 text-foreground rounded-tl-md"
@@ -934,7 +934,7 @@ export default function Onboarding() {
                   {chatLoading && (
                     <div className="flex gap-2">
                       <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0">
-                        <img src="/yaara-avatar.png" alt="יערה" className="w-full h-full object-cover" />
+                        <img src="/yaara-avatar.png" alt="יערה" width={28} height={28} loading="lazy" className="w-full h-full object-cover" />
                       </div>
                       <div className="bg-muted/60 rounded-2xl rounded-tl-md px-4 py-3">
                         <div className="flex gap-1.5">
@@ -1017,7 +1017,7 @@ export default function Onboarding() {
                 <p className="text-charcoal-light">העלאת לוגו ותמונות היא צעד קריטי למיתוג מקצועי</p>
               </div>
 
-              <div className="bg-card rounded-2xl border border-border/60 p-8">
+              <div className="bg-card rounded-2xl border border-border/60 p-4 sm:p-8">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -1030,7 +1030,7 @@ export default function Onboarding() {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                  className="w-full border-2 border-dashed border-border/60 rounded-xl p-10 text-center hover:border-copper/40 transition-colors group"
+                  className="w-full border-2 border-dashed border-border/60 rounded-xl p-6 sm:p-10 text-center hover:border-copper/40 transition-colors group"
                   data-testid="button-upload-area"
                 >
                   {uploading ? (

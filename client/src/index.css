@@ -29,6 +29,37 @@ button, [role="button"], a {
   touch-action: manipulation;
 }
 
+/* GPU compositing hints for animated elements */
+.hero-orb,
+[data-hero-line],
+.scrollytelling-glass-card {
+  will-change: transform;
+}
+
+/* Contain paint for heavy sections */
+section {
+  contain: layout style;
+}
+
+/* Passive touch scrolling for chat containers */
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Mobile-first: larger tap targets on small screens */
+@media (max-width: 640px) {
+  button, [role="button"], a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Reduce heavy animations on mobile for performance */
+  .hero-orb {
+    animation-duration: 20s !important;
+  }
+}
+
 .scrollytelling-glass-card {
   contain: layout style;
   background: linear-gradient(

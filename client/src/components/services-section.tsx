@@ -13,7 +13,11 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { BrowserPreviewModal } from "@/components/browser-preview-modal";
+import { lazy, Suspense } from "react";
+
+const BrowserPreviewModal = lazy(() =>
+  import("@/components/browser-preview-modal").then((m) => ({ default: m.BrowserPreviewModal }))
+);
 import { ScrollReveal } from "@/components/scroll-reveal";
 import { useI18n } from "@/lib/i18n";
 
@@ -230,6 +234,10 @@ export function ServicesSection() {
                           key={active.id + "-img"}
                           src={active.previewImage}
                           alt={active.previewLabel}
+                          width={600}
+                          height={400}
+                          loading="lazy"
+                          decoding="async"
                           className="absolute inset-0 w-full h-full object-cover"
                           initial={{ scale: 1.05, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
@@ -423,11 +431,15 @@ export function ServicesSection() {
         </div>
       </section>
 
-      <BrowserPreviewModal
-        isOpen={previewOpen}
-        onClose={() => setPreviewOpen(false)}
-        serviceType={previewService}
-      />
+      {previewOpen && (
+        <Suspense fallback={null}>
+          <BrowserPreviewModal
+            isOpen={previewOpen}
+            onClose={() => setPreviewOpen(false)}
+            serviceType={previewService}
+          />
+        </Suspense>
+      )}
     </>
   );
 }

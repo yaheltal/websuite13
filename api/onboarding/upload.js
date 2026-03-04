@@ -3,20 +3,26 @@
  * ב-Vercel: מפרסר multipart ומחזיר שמות קבצים (ללא אחסון; הלקוח שומר ברשימה ושולח ב-complete).
  * בשרת Express: הקבצים נשמרים ב-uploads/ (server/routes.ts).
  */
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 const ALLOWED_EXT = /\.(jpg|jpeg|png|gif|svg|pdf|ai|psd|webp)$/i;
 const MAX_FILES = 10;
 
-/** Get raw body as Buffer — works when Vercel hasn't consumed the stream. */
+/** Get raw body as Buffer — bodyParser is disabled so stream is intact. */
 function getRawBody(req) {
   if (Buffer.isBuffer(req.body) && req.body.length > 0) return Promise.resolve(req.body);
-  if (typeof req.arrayBuffer === "function") {
-    return req.arrayBuffer().then((ab) => Buffer.from(ab));
-  }
+  if (typeof req.body === "string" && req.body.length > 0) return Promise.resolve(Buffer.from(req.body, "binary"));
   return new Promise((resolve, reject) => {
     const chunks = [];
     req.on("data", (c) => chunks.push(c));
     req.on("end", () => resolve(Buffer.concat(chunks)));
     req.on("error", reject);
+    setTimeout(() => reject(new Error("Body read timeout")), 25000);
   });
 }
 

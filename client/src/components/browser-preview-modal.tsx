@@ -117,6 +117,9 @@ function LandingPageMockup() {
             <img
               src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=450&h=600&fit=crop"
               alt="Pilates session"
+              loading="lazy"
+              width={450}
+              height={600}
               className="w-full h-full object-cover"
             />
           </div>
@@ -224,6 +227,9 @@ function BusinessCardMockup() {
           <img
             src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=500&h=350&fit=crop&crop=face&facepad=2.5"
             alt="Noa Dahan"
+            loading="lazy"
+            width={500}
+            height={350}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0" style={{
@@ -557,6 +563,9 @@ function EcommerceMockup() {
             <img
               src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=350&fit=crop"
               alt="Running shoe"
+              loading="lazy"
+              width={500}
+              height={350}
               className="w-[90%] object-contain"
               style={{ filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))" }}
             />

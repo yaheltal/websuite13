@@ -25,11 +25,13 @@ export default defineConfig({
     },
   },
   root: path.resolve(import.meta.dirname, "client"),
-                            build: {
+  build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     target: "es2020",
     minify: "esbuild",
+    cssMinify: "esbuild",
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -42,9 +44,11 @@ export default defineConfig({
         },
         chunkFileNames: "assets/[name]-[hash].js",
         entryFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash][extname]",
       },
     },
     chunkSizeWarningLimit: 600,
+    assetsInlineLimit: 4096,
   },
   server: {
     fs: {
