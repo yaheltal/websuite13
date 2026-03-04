@@ -225,6 +225,7 @@ export default function Onboarding() {
   const [chatSessionId, setChatSessionId] = useState<string | null>(saved.chatSessionId || null);
   const [chatComplete, setChatComplete] = useState(saved.chatComplete || false);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>(saved.uploadedFiles || []);
+  const [fileDataStore, setFileDataStore] = useState<Array<{ name: string; originalName: string; mimeType: string; base64: string; size: number }>>([]);
   const [uploading, setUploading] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [completed, setCompleted] = useState(saved.completed || false);
@@ -337,6 +338,7 @@ export default function Onboarding() {
     setChatSessionId(null);
     setChatComplete(false);
     setUploadedFiles([]);
+    setFileDataStore([]);
     setCompleted(false);
     setLeadNotified(false);
     contactForm.reset({ name: "", email: "", phone: "" });
@@ -549,6 +551,9 @@ export default function Onboarding() {
       const data = await response.json().catch(() => ({}));
       if (response.ok && Array.isArray(data.files) && data.files.length > 0) {
         setUploadedFiles((prev) => [...prev, ...data.files]);
+        if (Array.isArray(data.fileData)) {
+          setFileDataStore((prev) => [...prev, ...data.fileData]);
+        }
         toast({ title: "הקבצים הועלו בהצלחה!" });
       } else if (response.ok && Array.isArray(data.files)) {
         toast({ title: "לא התקבלו שמות קבצים. נסה שוב.", variant: "destructive" });
@@ -588,6 +593,7 @@ export default function Onboarding() {
           questionnaireData,
           chatSummary,
           uploadedFiles,
+          fileData: fileDataStore.length > 0 ? fileDataStore : undefined,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -1173,6 +1179,7 @@ export default function Onboarding() {
                     setChatSessionId(null);
                     setChatComplete(false);
                     setUploadedFiles([]);
+                    setFileDataStore([]);
                     setCompleted(false);
                     setLeadNotified(false);
                   }}

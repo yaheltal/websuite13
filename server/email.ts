@@ -347,6 +347,8 @@ export type OnboardingEmailData = {
   /** Professional summary for management/developer (AI-generated) */
   aiSummary?: string;
   uploadedFiles: string[];
+  /** Base64-encoded file data from Vercel upload (when files aren't stored on disk). */
+  fileData?: Array<{ name: string; originalName: string; mimeType: string; base64: string; size: number }>;
   /** AI-synthesized prompt for Replit (English, structured brief). When present, replaces template prompt. */
   synthesizedReplitPrompt?: string;
   /** AI-synthesized prompt for Cursor (English, structured brief). When present, replaces template prompt. */
@@ -498,7 +500,16 @@ const UPLOADS_DIR = path.join(process.cwd(), "uploads");
 export async function sendOnboardingEmail(data: OnboardingEmailData): Promise<{ success: boolean; attempts: number }> {
   const { subject, html, text } = getOnboardingEmailContent(data);
   const attachments: nodemailer.SendMailOptions["attachments"] = [];
-  if (data.uploadedFiles.length > 0 && fs.existsSync(UPLOADS_DIR)) {
+
+  if (data.fileData && data.fileData.length > 0) {
+    for (const fd of data.fileData) {
+      attachments.push({
+        filename: fd.originalName || fd.name,
+        content: Buffer.from(fd.base64, "base64"),
+        contentType: fd.mimeType || "application/octet-stream",
+      });
+    }
+  } else if (data.uploadedFiles.length > 0 && fs.existsSync(UPLOADS_DIR)) {
     for (const filename of data.uploadedFiles) {
       const fullPath = path.join(UPLOADS_DIR, filename);
       if (fs.existsSync(fullPath)) {
@@ -506,6 +517,7 @@ export async function sendOnboardingEmail(data: OnboardingEmailData): Promise<{ 
       }
     }
   }
+
   return sendWithRetry({
     from: `"WEB13" <${SENDER_EMAIL}>`,
     to: RECIPIENT_EMAIL,

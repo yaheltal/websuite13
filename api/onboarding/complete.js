@@ -2,6 +2,14 @@
  * POST /api/onboarding/complete — סיום תהליך אונבורדינג.
  * שולח מייל תוצאות (שאלון + שיחת AI + קבצים) רק כאן — אחרי שהמשתמש סיים או דילג על שיחת AI.
  */
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "50mb",
+    },
+  },
+};
+
 import nodemailer from "nodemailer";
 
 const TO = (process.env.RECIPIENT_EMAIL || "WEBSUITE153@GMAIL.COM").trim();
@@ -235,7 +243,7 @@ export default async function handler(req, res) {
 
   try {
     const body = await getBodyAsync(req);
-    const { name, email, phone, service, questionnaireData, chatSummary, uploadedFiles } = body;
+    const { name, email, phone, service, questionnaireData, chatSummary, uploadedFiles, fileData } = body;
 
     if (!name?.trim() || !email?.trim()) {
       return res.status(400).json({ message: "Name and email are required" });
@@ -244,6 +252,7 @@ export default async function handler(req, res) {
     const qa = questionnaireData || {};
     const serviceName = SERVICE_NAMES[service] || service;
     const files = Array.isArray(uploadedFiles) ? uploadedFiles : [];
+    const rawFileData = Array.isArray(fileData) ? fileData : [];
     const chat = typeof chatSummary === "string" ? chatSummary.trim() : "";
 
     const qaRows = Object.entries(qa)
@@ -255,10 +264,33 @@ export default async function handler(req, res) {
       ? `<h2 style="color: #2d3142;">סיכום שיחת AI</h2><div style="background: white; border: 1px solid #e8e4de; border-radius: 8px; padding: 16px; font-size: 13px; line-height: 1.8; color: #333;">${escapeHtml(chat).replace(/\n/g, "<br>")}</div>`
       : `<p style="color: #999; font-size: 13px;">שיחת AI לא הושלמה</p>`;
 
-    const filesSection =
-      files.length > 0
-        ? `<h3 style="color: #2d3142; margin-top: 24px;">קבצים שהועלו (${files.length})</h3><ul style="padding-right: 20px; font-size: 13px;">${files.map((f) => `<li>${escapeHtml(String(f))}</li>`).join("")}</ul>`
-        : "";
+    const emailAttachments = [];
+    const fileCount = rawFileData.length || files.length;
+    let filesSection = "";
+    if (rawFileData.length > 0) {
+      const filePreviews = rawFileData.map((fd, idx) => {
+        const cid = `file${idx}_${Date.now()}`;
+        const isImage = /^image\//i.test(fd.mimeType || "");
+        emailAttachments.push({
+          filename: fd.originalName || fd.name || `file-${idx}`,
+          content: Buffer.from(fd.base64, "base64"),
+          contentType: fd.mimeType || "application/octet-stream",
+          cid,
+        });
+        if (isImage) {
+          return `<div style="margin-bottom: 12px; border: 1px solid #e8e4de; border-radius: 8px; overflow: hidden;">
+            <img src="cid:${cid}" alt="${escapeHtml(fd.originalName || fd.name || "")}" style="max-width: 100%; max-height: 400px; display: block;" />
+            <p style="margin: 4px 8px; font-size: 12px; color: #666;">${escapeHtml(fd.originalName || fd.name || "")}</p>
+          </div>`;
+        }
+        return `<div style="margin-bottom: 8px; padding: 10px; background: #f5f5f5; border-radius: 6px; font-size: 13px;">📎 ${escapeHtml(fd.originalName || fd.name || `file-${idx}`)}</div>`;
+      }).join("");
+      filesSection = `<h3 style="color: #2d3142; margin-top: 24px;">קבצים שהועלו (${fileCount})</h3>
+        <p style="color: #666; font-size: 12px; margin-bottom: 10px;">הקבצים מצורפים למייל — ניתן להוריד ישירות. תמונות מוצגות למטה:</p>
+        ${filePreviews}`;
+    } else if (files.length > 0) {
+      filesSection = `<h3 style="color: #2d3142; margin-top: 24px;">קבצים שהועלו (${files.length})</h3><ul style="padding-right: 20px; font-size: 13px;">${files.map((f) => `<li>${escapeHtml(String(f))}</li>`).join("")}</ul>`;
+    }
 
     let replitPrompt, cursorPrompt;
     let hasSynthesized = false;
@@ -320,6 +352,7 @@ export default async function handler(req, res) {
           to: TO,
           subject: `[URGENT] New WebSuite Lead - ${name} (Replit + Cursor prompts)`,
           html,
+          ...(emailAttachments.length > 0 ? { attachments: emailAttachments } : {}),
         });
       } catch (mailErr) {
         console.error("Complete email error:", mailErr);

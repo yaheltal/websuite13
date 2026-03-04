@@ -860,6 +860,7 @@ export async function registerRoutes(
         questionnaireData: bodyQuestionnaire,
         chatSummary: bodyChatSummary,
         uploadedFiles: bodyUploadedFiles,
+        fileData: bodyFileData,
       } = req.body || {};
 
       const id = onboardingId != null ? Number(onboardingId) : NaN;
@@ -919,6 +920,7 @@ export async function registerRoutes(
         chatSummary,
         aiSummary: aiSummary || undefined,
         uploadedFiles,
+        fileData: Array.isArray(bodyFileData) ? bodyFileData : undefined,
         synthesizedReplitPrompt,
         synthesizedCursorPrompt,
       });

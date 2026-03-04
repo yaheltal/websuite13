@@ -10,7 +10,7 @@
     "api/onboarding/lead-notify.js": { "maxDuration": 30 },
     "api/onboarding/start.js": { "maxDuration": 30 },
     "api/onboarding/chat.js": { "maxDuration": 30 },
-    "api/onboarding/complete.js": { "maxDuration": 10 },
+    "api/onboarding/complete.js": { "maxDuration": 60 },
     "api/onboarding/upload.js": { "maxDuration": 30 }
   }
 }

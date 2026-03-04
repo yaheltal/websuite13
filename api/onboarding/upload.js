@@ -1,18 +1,19 @@
 /**
  * POST /api/onboarding/upload — העלאת קבצים באונבורדינג.
- * ב-Vercel: מפרסר multipart ומחזיר שמות קבצים (ללא אחסון; הלקוח שומר ברשימה ושולח ב-complete).
+ * ב-Vercel: מפרסר multipart, מחזיר שמות קבצים + base64 כדי שהלקוח ישלח אותם ב-complete.
  * בשרת Express: הקבצים נשמרים ב-uploads/ (server/routes.ts).
  */
 
 export const config = {
   api: {
     bodyParser: false,
+    responseLimit: false,
   },
 };
 
 const ALLOWED_EXT = /\.(jpg|jpeg|png|gif|svg|pdf|ai|psd|webp)$/i;
-const ALLOWED_MIME = /^(image\/(jpeg|png|gif|svg\+xml|webp)|application\/(pdf|postscript|x-photoshop|octet-stream))$/i;
 const MAX_FILES = 10;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 function getRawBody(req) {
   if (Buffer.isBuffer(req.body) && req.body.length > 0) return Promise.resolve(req.body);
@@ -23,7 +24,7 @@ function getRawBody(req) {
     req.on("data", (c) => {
       chunks.push(c);
       size += c.length;
-      if (size > 50 * 1024 * 1024) reject(new Error("Body too large"));
+      if (size > 60 * 1024 * 1024) reject(new Error("Body too large"));
     });
     req.on("end", () => resolve(Buffer.concat(chunks)));
     req.on("error", reject);
@@ -35,88 +36,76 @@ function getRawBody(req) {
   });
 }
 
-function parseMultipart(buf, contentType) {
-  const files = [];
-  const boundary = extractBoundary(contentType);
-  if (!boundary) return { files: [] };
-
-  const boundaryBuf = Buffer.from(`--${boundary}`);
-  const parts = splitBuffer(buf, boundaryBuf);
-
-  for (const part of parts) {
-    const headerEnd = findDoubleCRLF(part);
-    if (headerEnd === -1) continue;
-
-    const headerStr = part.slice(0, headerEnd).toString("utf-8");
-    const filenameMatch = headerStr.match(/filename="([^"]+)"/i) || headerStr.match(/filename=([^\s;]+)/i);
-    if (!filenameMatch) continue;
-
-    const filename = filenameMatch[1].trim();
-    if (!filename) continue;
-
-    const ext = filename.includes(".") ? filename.slice(filename.lastIndexOf(".")) : "";
-    if (ALLOWED_EXT.test(ext) && files.length < MAX_FILES) {
-      files.push(`${Date.now()}-${Math.random().toString(36).slice(2)}-${filename}`);
-    }
-  }
-
-  return { files };
-}
-
 function extractBoundary(contentType) {
   if (!contentType) return null;
   const match = contentType.match(/boundary=(?:"([^"]+)"|([^\s;]+))/i);
   return match ? (match[1] || match[2]) : null;
 }
 
-function splitBuffer(buf, delimiter) {
-  const parts = [];
-  let start = 0;
-  while (start < buf.length) {
-    const idx = buf.indexOf(delimiter, start);
-    if (idx === -1) {
-      if (start < buf.length) parts.push(buf.slice(start));
-      break;
-    }
-    if (idx > start) parts.push(buf.slice(start, idx));
-    start = idx + delimiter.length;
-    if (buf[start] === 0x0d) start++;
-    if (buf[start] === 0x0a) start++;
-  }
-  return parts;
-}
+function parseMultipartFiles(buf, contentType) {
+  const boundary = extractBoundary(contentType);
+  if (!boundary) return [];
 
-function findDoubleCRLF(buf) {
-  for (let i = 0; i < buf.length - 3; i++) {
-    if (buf[i] === 0x0d && buf[i + 1] === 0x0a && buf[i + 2] === 0x0d && buf[i + 3] === 0x0a) return i;
-  }
-  return -1;
-}
+  const boundaryStr = `--${boundary}`;
+  const boundaryBuf = Buffer.from(boundaryStr);
+  const results = [];
 
-function parseBusboy(buf, headers) {
-  let busboy;
-  try {
-    busboy = require("busboy");
-  } catch {
-    return null;
-  }
-  const { Readable } = require("stream");
-  const files = [];
-  return new Promise((resolve) => {
-    const bb = busboy({ headers, limits: { files: MAX_FILES } });
-    bb.on("file", (_name, fileStream, info) => {
-      const filename = (info && info.filename) || "file";
-      const ext = filename.includes(".") ? filename.slice(filename.lastIndexOf(".")) : "";
-      if (ALLOWED_EXT.test(ext) && files.length < MAX_FILES) {
-        files.push(`${Date.now()}-${Math.random().toString(36).slice(2)}-${filename}`);
+  let pos = 0;
+  while (pos < buf.length && results.length < MAX_FILES) {
+    const bStart = buf.indexOf(boundaryBuf, pos);
+    if (bStart === -1) break;
+
+    const afterBoundary = bStart + boundaryBuf.length;
+    if (buf[afterBoundary] === 0x2d && buf[afterBoundary + 1] === 0x2d) break;
+
+    let headerStart = afterBoundary;
+    if (buf[headerStart] === 0x0d) headerStart++;
+    if (buf[headerStart] === 0x0a) headerStart++;
+
+    let headerEnd = -1;
+    for (let i = headerStart; i < buf.length - 3; i++) {
+      if (buf[i] === 0x0d && buf[i + 1] === 0x0a && buf[i + 2] === 0x0d && buf[i + 3] === 0x0a) {
+        headerEnd = i;
+        break;
       }
-      fileStream.resume();
+    }
+    if (headerEnd === -1) { pos = afterBoundary + 1; continue; }
+
+    const headerStr = buf.slice(headerStart, headerEnd).toString("utf-8");
+    const bodyStart = headerEnd + 4;
+
+    const nextBoundary = buf.indexOf(boundaryBuf, bodyStart);
+    const bodyEnd = nextBoundary !== -1 ? nextBoundary - 2 : buf.length;
+
+    const filenameMatch = headerStr.match(/filename="([^"]+)"/i) || headerStr.match(/filename=([^\s;]+)/i);
+    if (!filenameMatch) { pos = bodyStart; continue; }
+
+    const originalName = filenameMatch[1].trim();
+    if (!originalName) { pos = bodyStart; continue; }
+
+    const ext = originalName.includes(".") ? originalName.slice(originalName.lastIndexOf(".")) : "";
+    if (!ALLOWED_EXT.test(ext)) { pos = bodyStart; continue; }
+
+    const fileData = buf.slice(bodyStart, bodyEnd > bodyStart ? bodyEnd : bodyStart);
+    if (fileData.length === 0 || fileData.length > MAX_FILE_SIZE) { pos = bodyStart; continue; }
+
+    const mimeMatch = headerStr.match(/Content-Type:\s*([^\r\n;]+)/i);
+    const mimeType = mimeMatch ? mimeMatch[1].trim() : "application/octet-stream";
+
+    const generatedName = `${Date.now()}-${Math.random().toString(36).slice(2)}-${originalName}`;
+
+    results.push({
+      name: generatedName,
+      originalName,
+      mimeType,
+      base64: fileData.toString("base64"),
+      size: fileData.length,
     });
-    bb.on("finish", () => resolve({ files }));
-    bb.on("error", () => resolve(null));
-    setTimeout(() => resolve(files.length > 0 ? { files } : null), 10000);
-    Readable.from(buf).pipe(bb);
-  });
+
+    pos = nextBoundary !== -1 ? nextBoundary : buf.length;
+  }
+
+  return results;
 }
 
 export default async function handler(req, res) {
@@ -140,20 +129,25 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: "גוף הבקשה ריק. נא לבחור קבצים ולשלוח שוב." });
     }
 
-    let result = await parseBusboy(buf, req.headers);
+    const parsedFiles = parseMultipartFiles(buf, contentType);
 
-    if (!result || !result.files || result.files.length === 0) {
-      result = parseMultipart(buf, contentType);
-    }
-
-    if (!result || !result.files || result.files.length === 0) {
+    if (parsedFiles.length === 0) {
       console.error("Upload: no files parsed. Buffer size:", buf.length, "Content-Type:", contentType);
       return res.status(400).json({
         message: "לא זוהו קבצים מתאימים. השתמש ב-JPG, PNG, GIF, SVG, PDF, AI, PSD או WEBP (עד 10 קבצים).",
       });
     }
 
-    return res.status(200).json({ files: result.files });
+    return res.status(200).json({
+      files: parsedFiles.map((f) => f.name),
+      fileData: parsedFiles.map((f) => ({
+        name: f.name,
+        originalName: f.originalName,
+        mimeType: f.mimeType,
+        base64: f.base64,
+        size: f.size,
+      })),
+    });
   } catch (err) {
     console.error("Upload error:", err);
     return res.status(500).json({
