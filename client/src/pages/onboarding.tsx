@@ -40,6 +40,7 @@ import {
   SkipForward,
   Smile,
   RefreshCw,
+  Trash2,
 } from "lucide-react";
 
 const STORAGE_KEY = "web13_onboarding";
@@ -540,10 +541,22 @@ export default function Onboarding() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    const remaining = MAX_FILES - uploadedFiles.length;
+    if (remaining <= 0) {
+      toast({ title: `ניתן להעלות עד ${MAX_FILES} קבצים בלבד.`, variant: "destructive" });
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    const selected = Array.from(files).slice(0, remaining);
+    if (files.length > remaining) {
+      toast({ title: `נבחרו ${files.length} קבצים, אבל יש מקום רק ל-${remaining} עוד. הועלו ${selected.length} הראשונים.` });
+    }
+
     setUploading(true);
     const formData = new FormData();
     if (onboardingId != null) formData.append("onboardingId", String(onboardingId));
-    Array.from(files).forEach((f) => formData.append("files", f));
+    selected.forEach((f) => formData.append("files", f));
 
     try {
       const url = `${API_BASE || ""}/api/onboarding/upload`.replace(/\/+/g, "/");
@@ -567,6 +580,13 @@ export default function Onboarding() {
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  const handleRemoveFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+    setFileDataStore((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const MAX_FILES = 4;
 
   const handleComplete = async () => {
     const contactValues = contactForm.getValues();
@@ -1020,7 +1040,11 @@ export default function Onboarding() {
                 <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
                   העלאת קבצים
                 </h2>
-                <p className="text-charcoal-light">העלאת לוגו ותמונות היא צעד קריטי למיתוג מקצועי</p>
+                <p className="text-charcoal-light text-base leading-relaxed max-w-md mx-auto">
+                  צרפו את <strong>הלוגו</strong> שלכם ועד <strong>2–3 תמונות</strong> נוספות
+                  <br />
+                  <span className="text-xs text-charcoal-light/70">(מקסימום {MAX_FILES} קבצים — לוגו + תמונות השראה / מוצרים)</span>
+                </p>
               </div>
 
               <div className="bg-card rounded-2xl border border-border/60 p-4 sm:p-8">
@@ -1035,8 +1059,12 @@ export default function Onboarding() {
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                  className="w-full border-2 border-dashed border-border/60 rounded-xl p-6 sm:p-10 text-center hover:border-copper/40 transition-colors group"
+                  disabled={uploading || uploadedFiles.length >= MAX_FILES}
+                  className={`w-full border-2 border-dashed rounded-xl p-6 sm:p-10 text-center transition-colors group ${
+                    uploadedFiles.length >= MAX_FILES
+                      ? "border-border/30 opacity-50 cursor-not-allowed"
+                      : "border-border/60 hover:border-copper/40"
+                  }`}
                   data-testid="button-upload-area"
                 >
                   {uploading ? (
@@ -1045,21 +1073,38 @@ export default function Onboarding() {
                     <Upload className="w-10 h-10 mx-auto text-charcoal-light group-hover:text-copper transition-colors mb-3" />
                   )}
                   <p className="font-medium text-charcoal mb-1">
-                    {uploading ? "מעלה קבצים..." : "לחץ כאן להעלאת קבצים"}
+                    {uploading
+                      ? "מעלה קבצים..."
+                      : uploadedFiles.length >= MAX_FILES
+                        ? `הועלו ${MAX_FILES} קבצים — הגעת למקסימום`
+                        : "לחצו כאן או צלמו מהטלפון"}
                   </p>
                   <p className="text-xs text-charcoal-light">
-                    JPG, PNG, SVG, PDF, AI, PSD — עד 10MB לקובץ
+                    JPG, PNG, SVG, PDF, AI, PSD — עד 10MB לקובץ · איכות מלאה
                   </p>
+                  {uploadedFiles.length > 0 && uploadedFiles.length < MAX_FILES && (
+                    <p className="text-xs text-copper mt-2 font-medium">
+                      {MAX_FILES - uploadedFiles.length} מקומות פנויים מתוך {MAX_FILES}
+                    </p>
+                  )}
                 </button>
 
                 {uploadedFiles.length > 0 && (
                   <div className="mt-6 space-y-2">
-                    <h4 className="text-sm font-semibold text-charcoal mb-3">קבצים שהועלו ({uploadedFiles.length})</h4>
+                    <h4 className="text-sm font-semibold text-charcoal mb-3">קבצים שהועלו ({uploadedFiles.length}/{MAX_FILES})</h4>
                     {uploadedFiles.map((file, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                      <div key={i} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg group/file">
                         <FileImage className="w-5 h-5 text-copper flex-shrink-0" />
                         <span className="text-sm text-charcoal truncate flex-1" dir="ltr">{file}</span>
-                        <Check className="w-4 h-4 text-green-600" />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(i)}
+                          className="p-1.5 rounded-md text-charcoal-light hover:text-red-500 hover:bg-red-50 transition-colors"
+                          title="הסר קובץ"
+                          data-testid={`button-remove-file-${i}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     ))}
                   </div>
