@@ -126,41 +126,38 @@ function generateBlobs(count: number, isMobile: boolean): SoftBlob[] {
 }
 
 /* ═══════════════════════════════════════════
-   MAIN COMPONENT
+   MAIN COMPONENT — routes to mobile/desktop
    ═══════════════════════════════════════════ */
+const IS_MOBILE_BG = typeof window !== "undefined" && window.innerWidth < 768;
+
 export function ScrollBackground() {
-  const [pageHeight, setPageHeight] = useState(0);
-  const layerRefs = useRef<(HTMLDivElement | null)[]>([null, null, null]);
-  const rafRef = useRef<number>(0);
-  const scrollYRef = useRef(0);
-  const smoothY = useRef([0, 0, 0]);
-
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-
-  if (isMobile) {
+  if (IS_MOBILE_BG) {
     return (
       <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
         <div className="absolute inset-0 bg-background/35" />
       </div>
     );
   }
+  return <DesktopScrollBackground />;
+}
+
+function DesktopScrollBackground() {
+  const [pageHeight, setPageHeight] = useState(0);
+  const layerRefs = useRef<(HTMLDivElement | null)[]>([null, null, null]);
+  const rafRef = useRef<number>(0);
+  const scrollYRef = useRef(0);
+  const smoothY = useRef([0, 0, 0]);
 
   const lc = LAYERS;
   const thumbCounts = [8, 6, 5];
   const colCount = 4;
 
-  const blobs = useMemo(
-    () => generateBlobs(isMobile ? 2 : 3, isMobile),
-    [isMobile]
-  );
-  const edgeThumbs = useMemo(
-    () => generateEdgeThumbs(isMobile ? 2 : 4, isMobile),
-    [isMobile]
-  );
+  const blobs = useMemo(() => generateBlobs(3, false), []);
+  const edgeThumbs = useMemo(() => generateEdgeThumbs(4, false), []);
   const layerThumbs = useMemo(
     () => lc.map((c, i) => genLayerThumbs(thumbCounts[i], pageHeight, c, 42 + i * 17, colCount)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pageHeight, isMobile]
+    [pageHeight]
   );
 
   useEffect(() => {
@@ -174,7 +171,7 @@ export function ScrollBackground() {
   useEffect(() => {
     let scrollDirty = true;
     const onScroll = () => { scrollYRef.current = window.scrollY; scrollDirty = true; };
-    const frameInterval = isMobile ? 1000 / 24 : 1000 / 30;
+    const frameInterval = 1000 / 30;
     let lastFrame = 0;
     let settled = 0;
 
@@ -183,7 +180,6 @@ export function ScrollBackground() {
       if (ts - lastFrame < frameInterval) return;
       lastFrame = ts;
 
-      // Skip if scroll hasn't changed AND layers have settled
       if (!scrollDirty && settled >= 3) return;
       scrollDirty = false;
       settled = 0;
@@ -206,12 +202,10 @@ export function ScrollBackground() {
       window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(rafRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMobile]);
+  }, []);
 
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
-      {/* Soft color blobs */}
       {blobs.map((blob, i) => (
         <div
           key={`blob-${i}`}
@@ -229,7 +223,6 @@ export function ScrollBackground() {
         />
       ))}
 
-      {/* Fixed edge thumbnails — always visible, floating at viewport edges */}
       {edgeThumbs.map((t, i) => (
         <div
           key={`edge-${i}`}
@@ -259,7 +252,6 @@ export function ScrollBackground() {
         </div>
       ))}
 
-      {/* 3 parallax depth layers of website screenshots */}
       {lc.map((config, li) => (
         <div
           key={`layer-${li}`}
@@ -308,7 +300,6 @@ export function ScrollBackground() {
         </div>
       ))}
 
-      {/* Light overlay to keep text readable */}
       <div className="absolute inset-0 bg-background/35 scroll-bg-overlay" />
     </div>
   );

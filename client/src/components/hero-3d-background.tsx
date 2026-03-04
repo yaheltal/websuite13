@@ -48,24 +48,16 @@ export function Hero3DBackground() {
   const timeRef = useRef(0);
   const visibleRef = useRef(true);
 
-  const isMobileRef = useRef(typeof window !== "undefined" && window.innerWidth < 768);
-
-  if (isMobileRef.current) {
-    return null;
-  }
-
-  // Config based on device
   const getConfig = useCallback(() => {
-    const mobile = isMobileRef.current;
     return {
-      count: mobile ? 6 : 16,
-      connDist: mobile ? 0 : 70,
+      count: 16,
+      connDist: 70,
       connOpacity: 0.04,
       mouseInfluence: 0.03,
-      zRange: mobile ? 200 : 350,
+      zRange: 350,
       perspective: 800,
       glowLayers: 0,
-      targetFps: mobile ? 10 : 15,
+      targetFps: 15,
     };
   }, []);
 
@@ -100,7 +92,7 @@ export function Hero3DBackground() {
 
     let width = canvas.offsetWidth;
     let height = canvas.offsetHeight;
-    const dpr = Math.min(window.devicePixelRatio || 1, isMobileRef.current ? 1.5 : 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     const resize = () => {
       width = canvas.offsetWidth;
@@ -117,7 +109,7 @@ export function Hero3DBackground() {
 
     // Mouse tracking (desktop only)
     const handleMouseMove = (e: MouseEvent) => {
-      if (isMobileRef.current) return;
+      
       mouseRef.current.x = (e.clientX / width - 0.5) * 2;
       mouseRef.current.y = (e.clientY / height - 0.5) * 2;
     };
@@ -207,7 +199,7 @@ export function Hero3DBackground() {
       proj.sort((a, b) => a.z - b.z);
 
       // Draw connections (skip on mobile for perf)
-      if (!isMobileRef.current) {
+      {
         const connDistSq = cfg.connDist * cfg.connDist;
         ctx.lineWidth = 0.5;
         for (let i = 0; i < proj.length; i++) {
