@@ -101,6 +101,29 @@ export function ServicesSection() {
     setActiveIndex((prev) => (prev - 1 + 3) % 3);
   }, []);
 
+  const touchRef = useRef<{ startX: number; startY: number; time: number } | null>(null);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchRef.current = { startX: touch.clientX, startY: touch.clientY, time: Date.now() };
+    setPaused(true);
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!touchRef.current) return;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - touchRef.current.startX;
+    const dy = touch.clientY - touchRef.current.startY;
+    const elapsed = Date.now() - touchRef.current.time;
+    touchRef.current = null;
+
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5 && elapsed < 500) {
+      if (dx < 0) goNext();
+      else goPrev();
+    }
+    setTimeout(() => setPaused(false), 2000);
+  }, [goNext, goPrev]);
+
   // Auto-rotate
   useEffect(() => {
     if (paused) return;
@@ -172,9 +195,11 @@ export function ServicesSection() {
           {/* ── Showcase Carousel ── */}
           <ScrollReveal>
             <div
-              className="relative"
+              className="relative touch-pan-y"
               onMouseEnter={() => setPaused(true)}
               onMouseLeave={() => setPaused(false)}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
             >
               {/* Auto-progress bar */}
               <div className="flex gap-2 mb-6">
