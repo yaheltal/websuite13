@@ -501,7 +501,7 @@ export function HeroSection() {
 
         <div
           ref={statsRef}
-          className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-16 mt-10 sm:mt-14 md:mt-20"
+          className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-16 mt-16 sm:mt-14 md:mt-20"
           style={{ opacity: 0 }}
         >
           {[
