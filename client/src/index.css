@@ -51,9 +51,13 @@ section {
 
 /* Mobile-first: larger tap targets + disable expensive effects */
 @media (max-width: 767px) {
-  button, [role="button"], a {
+  button, [role="button"] {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  input, textarea, select {
+    min-height: 44px;
   }
 
   .hero-orb {

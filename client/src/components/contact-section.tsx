@@ -201,7 +201,7 @@ export function ContactSection() {
                         href="https://wa.me/972547966616?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A0%D7%99%20%D7%A4%D7%95%D7%A0%D7%94%20%D7%93%D7%A8%D7%9A%20%D7%90%D7%AA%D7%A8%20WebSuite%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A4%D7%A8%D7%98%D7%99%D7%9D%20%D7%A0%D7%95%D7%A1%D7%A4%D7%99%D7%9D%20%D7%A2%D7%9C%20%D7%94%D7%A9%D7%99%D7%A8%D7%95%D7%AA%D7%99%D7%9D%20%D7%A9%D7%9C%D7%9B%D7%9D"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-green-700 transition-colors"
+                        className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-3 min-h-[44px] rounded-xl text-sm font-bold hover:bg-green-700 transition-colors"
                         data-testid="link-whatsapp-fallback"
                       >
                         <MessageSquare className="w-4 h-4" />
@@ -227,7 +227,7 @@ export function ContactSection() {
                     </Button>
                     <button
                       onClick={() => { mutation.reset(); setEmailFailed(false); }}
-                      className="text-sm text-charcoal-light hover:text-charcoal transition-colors"
+                      className="text-sm text-charcoal-light hover:text-charcoal transition-colors py-2 px-4 min-h-[44px]"
                       data-testid="button-send-another"
                     >
                       {t("contact.success.dismiss")}
@@ -419,7 +419,7 @@ export function ContactSection() {
                   </div>
                   <div>
                     <h3 className="font-extrabold text-white text-sm mb-0.5">{t("contact.phone")}</h3>
-                    <p className="text-white/50 text-[10px]">{t("contact.phone.subtitle")}</p>
+                    <p className="text-white/50 text-xs">{t("contact.phone.subtitle")}</p>
                   </div>
                 </div>
               </a>
@@ -448,7 +448,7 @@ export function ContactSection() {
                   </div>
                   <div>
                     <h3 className="font-extrabold text-white text-sm mb-0.5">{t("contact.email")}</h3>
-                    <p className="text-white/50 text-[10px]">{t("contact.email.subtitle")}</p>
+                    <p className="text-white/50 text-xs">{t("contact.email.subtitle")}</p>
                   </div>
                 </div>
               </a>

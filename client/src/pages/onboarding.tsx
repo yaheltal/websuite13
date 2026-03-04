@@ -707,7 +707,7 @@ export default function Onboarding() {
           {!(resumeChoice === null && hasSavedData) && step === 0 && (
             <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
                   מה תרצה לבנות?
                 </h2>
                 <p className="text-charcoal-light">בחר את סוג האתר שמתאים לך ונתחיל</p>
@@ -736,13 +736,13 @@ export default function Onboarding() {
           {!(resumeChoice === null && hasSavedData) && step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
                   פרטי התקשרות
                 </h2>
                 <p className="text-charcoal-light">השאר פרטים ונחזור אליך עם הצעה מותאמת</p>
               </div>
 
-              <div className="bg-card rounded-2xl border border-border/60 p-6 max-w-lg mx-auto">
+              <div className="bg-card rounded-2xl border border-border/60 p-4 sm:p-6 max-w-lg mx-auto">
                 <h3 className="text-lg font-bold text-charcoal mb-4 flex items-center gap-2">
                   <User className="w-5 h-5 text-copper" />
                   פרטי קשר
@@ -865,13 +865,13 @@ export default function Onboarding() {
           {!(resumeChoice === null && hasSavedData) && step === 3 && (
             <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
                   ספר לנו על הפרויקט
                 </h2>
                 <p className="text-charcoal-light">מלא את השאלון וניצור לך הצעה מותאמת</p>
               </div>
 
-              <div className="bg-card rounded-2xl border border-border/60 p-6">
+              <div className="bg-card rounded-2xl border border-border/60 p-4 sm:p-6">
                 <h3 className="text-lg font-bold text-charcoal mb-4 flex items-center gap-2">
                   {services.find(s => s.id === selectedService)?.icon && (() => {
                     const Icon = services.find(s => s.id === selectedService)!.icon;
@@ -927,7 +927,7 @@ export default function Onboarding() {
                 <p className="text-sm text-charcoal-light">יערה, מומחית אפיון המוצר, תשאל כמה שאלות קצרות כדי להבין את הצרכים שלך</p>
               </div>
 
-              <div className="bg-card rounded-2xl border border-border/60 overflow-hidden flex flex-col" style={{ height: "min(500px, calc(100dvh - 180px))" }}>
+              <div className="bg-card rounded-2xl border border-border/60 overflow-hidden flex flex-col" style={{ height: "min(500px, calc(100dvh - 160px))" }}>
                 <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-l from-copper to-copper-dark text-white">
                   <img src="/yaara-avatar.png" alt="יערה" width={36} height={36} loading="eager" className="w-9 h-9 rounded-full object-cover ring-2 ring-white/30" />
                   <div>
@@ -996,10 +996,10 @@ export default function Onboarding() {
                         onChange={(e) => setChatInput(e.target.value)}
                         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChatMessage(); } }}
                         placeholder="כתוב הודעה..."
-                        className="flex-1 bg-muted/40 border border-border/40 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper/40 transition-all"
+                        className="flex-1 bg-muted/40 border border-border/40 rounded-xl px-3.5 py-2.5 min-h-[44px] text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper/40 transition-all"
                         data-testid="input-chat-message"
                       />
-                      <Button onClick={sendChatMessage} disabled={!chatInput.trim() || chatLoading} size="icon" className="rounded-xl bg-copper hover:bg-copper-dark text-white h-10 w-10" data-testid="button-send-chat">
+                      <Button onClick={sendChatMessage} disabled={!chatInput.trim() || chatLoading} size="icon" className="rounded-xl bg-copper hover:bg-copper-dark text-white h-11 w-11" data-testid="button-send-chat">
                         <Send className="w-4 h-4 rotate-180" />
                       </Button>
                     </div>
@@ -1037,7 +1037,7 @@ export default function Onboarding() {
           {!(resumeChoice === null && hasSavedData) && step === 5 && (
             <motion.div key="step5" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
                   העלאת קבצים
                 </h2>
                 <p className="text-charcoal-light text-base leading-relaxed max-w-md mx-auto">
@@ -1099,7 +1099,7 @@ export default function Onboarding() {
                         <button
                           type="button"
                           onClick={() => handleRemoveFile(i)}
-                          className="p-1.5 rounded-md text-charcoal-light hover:text-red-500 hover:bg-red-50 transition-colors"
+                          className="p-2 rounded-md text-charcoal-light hover:text-red-500 hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                           title="הסר קובץ"
                           data-testid={`button-remove-file-${i}`}
                         >
@@ -1127,13 +1127,13 @@ export default function Onboarding() {
           {!(resumeChoice === null && hasSavedData) && step === 6 && !completed && (
             <motion.div key="step6" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-charcoal mb-3" data-testid="text-step-title">
                   סיכום ושליחה
                 </h2>
                 <p className="text-charcoal-light">בדוק את הפרטים ושלח</p>
               </div>
 
-              <div className="bg-card rounded-2xl border border-border/60 p-6 mb-6">
+              <div className="bg-card rounded-2xl border border-border/60 p-4 sm:p-6 mb-6">
                 <h3 className="text-lg font-bold text-charcoal mb-4 flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-copper" />
                   פרטי הפרויקט
@@ -1197,7 +1197,7 @@ export default function Onboarding() {
               >
                 <CheckCircle2 className="w-10 h-10" style={{ color: "hsl(160 55% 42%)" }} />
               </motion.div>
-              <h2 className="text-3xl font-extrabold text-charcoal mb-3" data-testid="text-completion-title">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-charcoal mb-3" data-testid="text-completion-title">
                 הפרטים שלכם בדרך אלינו
               </h2>
               <p className="text-charcoal-light mb-2 max-w-md mx-auto leading-relaxed">

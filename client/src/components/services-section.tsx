@@ -135,7 +135,7 @@ export function ServicesSection() {
           orientation="vertical"
         />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14 md:mb-18">
+          <div className="text-center mb-10 md:mb-16">
             <ScrollReveal staggerDelay={0}>
               <Badge
                 variant="secondary"
@@ -182,22 +182,23 @@ export function ServicesSection() {
                   <button
                     key={s.id}
                     onClick={() => goTo(i)}
-                    className="flex-1 h-1 rounded-full overflow-hidden relative"
-                    style={{ background: "rgba(0,0,0,0.06)" }}
+                    className="flex-1 relative py-3"
                     data-cursor-hover
                   >
-                    <motion.div
-                      className="absolute inset-y-0 right-0 rounded-full"
-                      style={{ background: services[i].gradient }}
-                      initial={{ width: "0%" }}
-                      animate={{
-                        width: i === activeIndex ? "100%" : i < activeIndex ? "100%" : "0%",
-                      }}
-                      transition={{
-                        duration: i === activeIndex ? AUTO_INTERVAL / 1000 : 0.3,
-                        ease: i === activeIndex ? "linear" : "easeOut",
-                      }}
-                    />
+                    <div className="h-1 rounded-full overflow-hidden relative" style={{ background: "rgba(0,0,0,0.06)" }}>
+                      <motion.div
+                        className="absolute inset-y-0 right-0 rounded-full"
+                        style={{ background: services[i].gradient }}
+                        initial={{ width: "0%" }}
+                        animate={{
+                          width: i === activeIndex ? "100%" : i < activeIndex ? "100%" : "0%",
+                        }}
+                        transition={{
+                          duration: i === activeIndex ? AUTO_INTERVAL / 1000 : 0.3,
+                          ease: i === activeIndex ? "linear" : "easeOut",
+                        }}
+                      />
+                    </div>
                   </button>
                 ))}
               </div>
@@ -314,7 +315,7 @@ export function ServicesSection() {
                       </div>
 
                       {/* ── Content Side ── */}
-                      <div className="flex-1 p-7 md:p-10 lg:p-12 flex flex-col justify-center">
+                      <div className="flex-1 p-4 sm:p-7 md:p-10 lg:p-12 flex flex-col justify-center">
                         <motion.div
                           key={active.id + "-content"}
                           initial={{ opacity: 0, y: 20 }}
@@ -386,20 +387,20 @@ export function ServicesSection() {
               <div className="flex items-center justify-between mt-6">
                 <button
                   onClick={goPrev}
-                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white border border-gray-200/60 shadow-sm hover:shadow transition-shadow"
+                  className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-gray-200/60 shadow-sm hover:shadow transition-shadow"
                   data-cursor-hover
                 >
                   <ChevronRight className="w-5 h-5 text-foreground/60" />
                 </button>
 
-                <div className="flex items-center gap-5 md:gap-8">
+                <div className="flex items-center gap-2 sm:gap-5 md:gap-8">
                   {services.map((s, i) => {
                     const SIcon = s.icon;
                     return (
                       <button
                         key={s.id}
                         onClick={() => goTo(i)}
-                        className="flex items-center gap-2 group transition-opacity duration-200"
+                        className="flex items-center justify-center gap-2 group transition-opacity duration-200 min-w-[44px] min-h-[44px]"
                         style={{ opacity: i === activeIndex ? 1 : 0.45 }}
                         data-cursor-hover
                       >
@@ -420,7 +421,7 @@ export function ServicesSection() {
 
                 <button
                   onClick={goNext}
-                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white border border-gray-200/60 shadow-sm hover:shadow transition-shadow"
+                  className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-gray-200/60 shadow-sm hover:shadow transition-shadow"
                   data-cursor-hover
                 >
                   <ChevronLeft className="w-5 h-5 text-foreground/60" />

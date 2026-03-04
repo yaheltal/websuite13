@@ -432,7 +432,7 @@ export function ScrollytellingSection() {
       </div>
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-[25vh] lg:py-[35vh] space-y-[40vh] lg:space-y-[50vh]">
+        <div className="py-[20vh] sm:py-[25vh] lg:py-[35vh] space-y-[30vh] sm:space-y-[40vh] lg:space-y-[50vh]">
           {storyBlocks.map((block, index) => (
             <div
               key={index}
@@ -442,7 +442,7 @@ export function ScrollytellingSection() {
               data-testid={`text-story-block-${index}`}
             >
               <ScrollReveal staggerDelay={index * 0.1}>
-                <div className="scrollytelling-glass-card rounded-2xl p-7 sm:p-8 border border-gray-200/60 backdrop-blur-xl transition-shadow duration-500 hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.12)]">
+                <div className="scrollytelling-glass-card rounded-2xl p-4 sm:p-7 md:p-8 border border-gray-200/60 backdrop-blur-xl transition-shadow duration-500 hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.12)]">
                 <div className="absolute inset-0 rounded-2xl pointer-events-none"
                   style={{
                     background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(245,247,252,0.2) 50%, transparent 70%)",
@@ -463,7 +463,7 @@ export function ScrollytellingSection() {
                   {block.tagline}
                 </p>
 
-                <h3 className="text-3xl sm:text-4xl md:text-[2.75rem] font-extrabold leading-[1.1] mb-4 text-charcoal overflow-hidden relative">
+                <h3 className="text-2xl sm:text-3xl md:text-[2.75rem] font-extrabold leading-[1.1] mb-4 text-charcoal overflow-hidden relative">
                   {splitIntoWords(block.title)}
                 </h3>
 

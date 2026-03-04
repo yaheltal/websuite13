@@ -43,11 +43,11 @@ export function Footer() {
             <h4 className="font-bold text-charcoal mb-4 text-sm" data-testid="text-footer-services-title">
               {t("footer.services")}
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-1">
               <li>
                 <button
                   onClick={() => scrollTo("#services")}
-                  className="text-sm text-charcoal-light hover:text-charcoal transition-colors"
+                  className="text-sm text-charcoal-light hover:text-charcoal transition-colors py-2 block"
                   data-testid="link-footer-websites"
                 >
                   {t("footer.services.websites")}
@@ -56,7 +56,7 @@ export function Footer() {
               <li>
                 <button
                   onClick={() => scrollTo("#services")}
-                  className="text-sm text-charcoal-light hover:text-charcoal transition-colors"
+                  className="text-sm text-charcoal-light hover:text-charcoal transition-colors py-2 block"
                   data-testid="link-footer-landing"
                 >
                   {t("footer.services.landing")}
@@ -65,7 +65,7 @@ export function Footer() {
               <li>
                 <button
                   onClick={() => scrollTo("#services")}
-                  className="text-sm text-charcoal-light hover:text-charcoal transition-colors"
+                  className="text-sm text-charcoal-light hover:text-charcoal transition-colors py-2 block"
                   data-testid="link-footer-card"
                 >
                   {t("footer.services.card")}
@@ -78,11 +78,11 @@ export function Footer() {
             <h4 className="font-bold text-charcoal mb-4 text-sm" data-testid="text-footer-contact-title">
               {t("footer.contact")}
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-1">
               <li>
                 <button
                   onClick={() => scrollTo("#contact")}
-                  className="text-sm text-charcoal-light hover:text-charcoal transition-colors"
+                  className="text-sm text-charcoal-light hover:text-charcoal transition-colors py-2 block"
                   data-testid="link-footer-quote"
                 >
                   {t("footer.contact.quote")}
@@ -91,7 +91,7 @@ export function Footer() {
               <li>
                 <a
                   href="mailto:websuite153@gmail.com"
-                  className="text-sm text-charcoal-light hover:text-charcoal transition-colors"
+                  className="text-sm text-charcoal-light hover:text-charcoal transition-colors py-2 block"
                   data-testid="link-footer-email"
                 >
                   {t("footer.contact.email")}
@@ -104,19 +104,19 @@ export function Footer() {
             <h4 className="font-bold text-charcoal mb-4 text-sm" data-testid="text-footer-legal-title">
               {t("footer.legal")}
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-1">
               <li>
-                <Link href="/legal/privacy" className="text-sm text-charcoal-light hover:text-charcoal transition-colors" data-testid="link-footer-privacy">
+                <Link href="/legal/privacy" className="text-sm text-charcoal-light hover:text-charcoal transition-colors py-2 block" data-testid="link-footer-privacy">
                   {t("footer.legal.privacy")}
                 </Link>
               </li>
               <li>
-                <Link href="/legal/terms" className="text-sm text-charcoal-light hover:text-charcoal transition-colors" data-testid="link-footer-terms">
+                <Link href="/legal/terms" className="text-sm text-charcoal-light hover:text-charcoal transition-colors py-2 block" data-testid="link-footer-terms">
                   {t("footer.legal.terms")}
                 </Link>
               </li>
               <li>
-                <Link href="/legal/cookies" className="text-sm text-charcoal-light hover:text-charcoal transition-colors" data-testid="link-footer-cookies">
+                <Link href="/legal/cookies" className="text-sm text-charcoal-light hover:text-charcoal transition-colors py-2 block" data-testid="link-footer-cookies">
                   {t("footer.legal.cookies")}
                 </Link>
               </li>

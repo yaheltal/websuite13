@@ -331,7 +331,7 @@ export function HeroSection() {
               className="font-black"
               style={{
                 display: "inline-block",
-                fontSize: "clamp(3rem, 10vw, 7rem)",
+                fontSize: "clamp(2rem, 10vw, 7rem)",
                 lineHeight: 1,
                 letterSpacing: "-0.03em",
                 background: "linear-gradient(135deg, hsl(220 80% 68%), hsl(260 72% 65%), hsl(175 80% 55%))",
@@ -418,7 +418,7 @@ export function HeroSection() {
               className="font-black"
               style={{
                 display: "inline-block",
-                fontSize: "clamp(3rem, 10vw, 7rem)",
+                fontSize: "clamp(2rem, 10vw, 7rem)",
                 lineHeight: 1,
                 letterSpacing: "-0.03em",
                 background: "linear-gradient(135deg, hsl(220 80% 68%), hsl(260 72% 65%), hsl(175 80% 55%))",
@@ -437,7 +437,7 @@ export function HeroSection() {
           ref={titleRef}
           key={lang}
           className="font-extrabold leading-[1.08] mb-6 text-charcoal"
-          style={{ fontSize: "clamp(2.2rem, 6vw, 5rem)" }}
+          style={{ fontSize: "clamp(1.75rem, 6vw, 5rem)" }}
           data-testid="text-hero-title"
         >
           <span data-hero-line className="block" style={{
@@ -450,7 +450,7 @@ export function HeroSection() {
 
         <p
           ref={subtitleRef}
-          className="text-charcoal-light max-w-2xl mx-auto mb-10 leading-relaxed"
+          className="text-charcoal-light max-w-2xl mx-auto mb-6 sm:mb-8 md:mb-10 leading-relaxed"
           style={{ opacity: 0, fontSize: "clamp(1rem, 2vw, 1.25rem)" }}
           data-testid="text-hero-subtitle"
         >
@@ -501,7 +501,7 @@ export function HeroSection() {
 
         <div
           ref={statsRef}
-          className="flex items-center justify-center gap-12 md:gap-16 mt-16 md:mt-20"
+          className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-16 mt-10 sm:mt-14 md:mt-20"
           style={{ opacity: 0 }}
         >
           {[
