@@ -354,7 +354,7 @@ export function ScrollytellingSection() {
       ref={sectionRef}
       id="scrollytelling"
       className="relative overflow-hidden"
-      style={{ minHeight: isMobileInit ? "200vh" : "350vh" }}
+      style={{ minHeight: isMobileInit ? "auto" : "350vh" }}
       data-testid="section-scrollytelling"
     >
 
@@ -432,7 +432,7 @@ export function ScrollytellingSection() {
       </div>
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="pt-[20vh] pb-[8vh] sm:py-[25vh] lg:py-[35vh] space-y-[30vh] sm:space-y-[40vh] lg:space-y-[50vh]">
+        <div className="pt-[12vh] pb-[6vh] sm:pt-[20vh] sm:pb-[12vh] lg:py-[35vh] space-y-8 sm:space-y-[40vh] lg:space-y-[50vh]">
           {storyBlocks.map((block, index) => (
             <div
               key={index}
@@ -478,12 +478,12 @@ export function ScrollytellingSection() {
               </ScrollReveal>
 
               {index < storyBlocks.length - 1 && (
-                <div className="flex justify-center items-center py-8 sm:py-10 pointer-events-none select-none" aria-hidden="true">
+                <div className="flex justify-center items-center py-2 sm:py-8 pointer-events-none select-none" aria-hidden="true">
                   <svg
                     viewBox="0 0 80 180"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
-                    className="w-16 h-36 sm:w-20 sm:h-40 md:w-20 md:h-44"
+                    className="w-10 h-20 sm:w-16 sm:h-36 md:w-20 md:h-44"
                   >
                     <defs>
                       <linearGradient id={`arrowGrad${index}`} x1="40" y1="0" x2="40" y2="180" gradientUnits="userSpaceOnUse">
