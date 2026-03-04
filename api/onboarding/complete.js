@@ -88,9 +88,11 @@ Each prompt must follow this structure:
 3. **Technical Requirements** – list of concrete components (Hero section, contact form, product catalog, WhatsApp button, social links, gallery, testimonials, pricing table, etc.)
 4. **Development Instructions** – RTL support, Hebrew content, SEO meta-tags, mobile-first, performance, accessibility (Israeli law AA)
 
+CRITICAL: Both prompts are for building a NEW website from scratch (greenfield project). NEVER use words like "update", "enhance", "improve", "fix", "modify existing", or "upgrade". Use "create", "build", "initialize", "implement", "set up" instead. There is NO existing site — everything is built from zero.
+
 Differences between the two prompts:
-- **Replit prompt**: assumes a brand-new project from scratch.
-- **Cursor prompt**: assumes an existing project structure; add the line "Use the existing project structure, conventions, and any .cursor/rules or AGENTS.md if present."
+- **Replit prompt**: assumes a brand-new project created from scratch inside Replit. Start with project initialization.
+- **Cursor prompt**: assumes a brand-new project built from scratch inside Cursor IDE. Include the line "Initialize a new project from scratch. If .cursor/rules or AGENTS.md exist in the workspace, follow their conventions."
 
 Output format (strict):
 - First line: exactly \`---REPLIT---\`
