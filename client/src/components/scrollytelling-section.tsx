@@ -476,6 +476,39 @@ export function ScrollytellingSection() {
                 )}
                 </div>
               </ScrollReveal>
+
+              {index < storyBlocks.length - 1 && (
+                <div className="flex justify-center py-4 sm:py-6 pointer-events-none select-none" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 40 80"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-6 h-12 sm:w-8 sm:h-16 opacity-20"
+                  >
+                    <path
+                      d="M20 2 C8 18, 32 28, 20 42 C8 56, 32 62, 20 72"
+                      stroke="url(#arrowGrad)"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      fill="none"
+                    />
+                    <path
+                      d="M14 64 L20 74 L26 64"
+                      stroke="url(#arrowGrad)"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      fill="none"
+                    />
+                    <defs>
+                      <linearGradient id="arrowGrad" x1="20" y1="0" x2="20" y2="80" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="hsl(220, 80%, 60%)" />
+                        <stop offset="100%" stopColor="hsl(25, 60%, 55%)" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+              )}
             </div>
           ))}
         </div>
