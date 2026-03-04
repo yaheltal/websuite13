@@ -9,7 +9,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 function FaqItem({ question, answer, index }: { question: string; answer: string; index: number }) {
   const [isOpen, setIsOpen] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const cloudRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const iconRef = useRef<HTMLSpanElement>(null);
   const isOpenRef = useRef(false);
@@ -17,28 +17,28 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
   const buttonId = `faq-button-${index}`;
 
   const toggle = () => {
-    const content = contentRef.current;
+    const cloud = cloudRef.current;
     const inner = innerRef.current;
     const icon = iconRef.current;
-    if (!content || !inner || !icon) return;
+    if (!cloud || !inner || !icon) return;
 
     const nextOpen = !isOpenRef.current;
     isOpenRef.current = nextOpen;
     setIsOpen(nextOpen);
 
-    gsap.killTweensOf(content);
+    gsap.killTweensOf(cloud);
     gsap.killTweensOf(icon);
 
     if (nextOpen) {
       const targetH = inner.offsetHeight;
-      gsap.fromTo(content,
-        { height: 0, opacity: 0 },
-        { height: targetH, opacity: 1, duration: 0.5, ease: "power3.out", onComplete: () => { gsap.set(content, { height: "auto" }); } }
+      gsap.fromTo(cloud,
+        { height: 0, opacity: 0, scale: 0.92, y: -8 },
+        { height: targetH, opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.4)", onComplete: () => { gsap.set(cloud, { height: "auto" }); } }
       );
       gsap.to(icon, { rotation: 135, duration: 0.4, ease: "power2.out" });
     } else {
-      gsap.set(content, { height: content.offsetHeight });
-      gsap.to(content, { height: 0, opacity: 0, duration: 0.35, ease: "power2.in" });
+      gsap.set(cloud, { height: cloud.offsetHeight });
+      gsap.to(cloud, { height: 0, opacity: 0, scale: 0.95, y: -4, duration: 0.3, ease: "power2.in" });
       gsap.to(icon, { rotation: 0, duration: 0.4, ease: "power2.out" });
     }
   };
@@ -56,12 +56,12 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
         className="w-full flex items-center justify-between gap-4 p-5 sm:p-6 text-right transition-colors duration-300 rounded-xl group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
         style={{
           background: isOpen
-            ? "linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(248,250,255,0.85) 50%, rgba(240,244,255,0.8) 100%)"
+            ? "linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(248,250,255,0.9) 50%, rgba(240,244,255,0.85) 100%)"
             : "linear-gradient(145deg, rgba(255,255,255,0.75) 0%, rgba(250,252,255,0.7) 50%, rgba(245,248,255,0.65) 100%)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          border: isOpen ? "1px solid rgba(100,140,220,0.25)" : "1px solid rgba(200,210,230,0.4)",
-          boxShadow: isOpen ? "0 4px 20px rgba(0,0,0,0.06)" : "0 2px 8px rgba(0,0,0,0.03)",
+          border: isOpen ? "1px solid rgba(100,140,220,0.3)" : "1px solid rgba(200,210,230,0.4)",
+          boxShadow: isOpen ? "0 4px 24px rgba(60,100,200,0.1)" : "0 2px 8px rgba(0,0,0,0.03)",
         }}
         data-testid={`button-faq-${index}`}
       >
@@ -82,18 +82,54 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
           +
         </span>
       </button>
+
+      {/* Answer cloud bubble */}
       <div
         id={contentId}
-        ref={contentRef}
+        ref={cloudRef}
         role="region"
         aria-labelledby={buttonId}
         className="overflow-hidden"
-        style={{ height: 0, opacity: 0 }}
+        style={{ height: 0, opacity: 0, transformOrigin: "top center" }}
       >
-        <div ref={innerRef} className="px-5 sm:px-6 pb-5 sm:pb-6 pt-2">
-          <p className="text-charcoal-light leading-[1.8] text-sm sm:text-base">
-            {answer}
-          </p>
+        <div ref={innerRef} className="pt-3 pb-1 px-1">
+          {/* Caret arrow */}
+          <div className="flex justify-center -mb-[1px] relative z-10">
+            <div
+              style={{
+                width: 0,
+                height: 0,
+                borderLeft: "10px solid transparent",
+                borderRight: "10px solid transparent",
+                borderBottom: "10px solid rgba(235,240,255,0.95)",
+                filter: "drop-shadow(0 -2px 3px rgba(60,100,200,0.06))",
+              }}
+            />
+          </div>
+          {/* Cloud body */}
+          <div
+            className="rounded-2xl p-5 sm:p-6 relative"
+            style={{
+              background: "linear-gradient(160deg, rgba(240,244,255,0.95) 0%, rgba(235,240,255,0.9) 40%, rgba(248,245,255,0.88) 100%)",
+              border: "1px solid rgba(100,140,220,0.18)",
+              boxShadow: `
+                0 8px 32px rgba(60,100,200,0.08),
+                0 2px 8px rgba(60,100,200,0.04),
+                inset 0 1px 0 rgba(255,255,255,0.6)
+              `,
+            }}
+          >
+            {/* Decorative glow dot */}
+            <div
+              className="absolute -top-1 -right-1 w-3 h-3 rounded-full opacity-60 pointer-events-none"
+              style={{
+                background: "radial-gradient(circle, hsl(220 80% 65%), transparent 70%)",
+              }}
+            />
+            <p className="text-charcoal-light leading-[1.85] text-sm sm:text-base relative z-[1]">
+              {answer}
+            </p>
+          </div>
         </div>
       </div>
     </div>
