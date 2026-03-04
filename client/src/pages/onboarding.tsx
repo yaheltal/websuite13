@@ -68,25 +68,25 @@ function clearStorage() {
 
 const services = [
   {
-    id: "landing-page",
-    title: "דף נחיתה",
-    description: "דף נחיתה ממוקד המרה שימשוך לידים ויגביר מכירות",
-    icon: Globe,
-    color: "from-blue-500 to-blue-600",
+    id: "digital-card",
+    title: "התחלה חכמה",
+    description: "כרטיס ביקור דיגיטלי",
+    icon: CreditCard,
+    color: "from-teal-500 to-teal-600",
   },
   {
-    id: "digital-card",
-    title: "כרטיס ביקור דיגיטלי",
-    description: "כרטיס ביקור מעוצב ומקצועי שמשאיר רושם",
-    icon: CreditCard,
-    color: "from-purple-500 to-purple-600",
+    id: "landing-page",
+    title: "הבית הדיגיטלי",
+    description: "אתר תדמית מלא",
+    icon: Globe,
+    color: "from-blue-500 to-indigo-600",
   },
   {
     id: "ecommerce",
-    title: "חנות אונליין",
-    description: "חנות מסחר אלקטרוני מלאה עם תשלומים ומשלוחים",
+    title: "חנות אונליין מלאה",
+    description: "פתרון מסחר ברמה הכי גבוהה",
     icon: ShoppingBag,
-    color: "from-emerald-500 to-emerald-600",
+    color: "from-purple-500 to-purple-600",
   },
 ];
 
