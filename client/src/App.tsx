@@ -25,15 +25,22 @@ const GA_MEASUREMENT_ID = (import.meta.env.VITE_GA_MEASUREMENT_ID as string)?.tr
 function useGoogleAnalytics() {
   useEffect(() => {
     if (!GA_MEASUREMENT_ID) return;
-    const script = document.createElement("script");
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-    script.async = true;
-    document.head.appendChild(script);
-    (window as any).dataLayer = (window as any).dataLayer || [];
-    const gtag = (...a: unknown[]) => ((window as any).dataLayer as unknown[]).push(a);
-    (window as any).gtag = gtag;
-    gtag("js", new Date());
-    gtag("config", GA_MEASUREMENT_ID);
+    const load = () => {
+      const script = document.createElement("script");
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+      script.async = true;
+      document.head.appendChild(script);
+      (window as any).dataLayer = (window as any).dataLayer || [];
+      const gtag = (...a: unknown[]) => ((window as any).dataLayer as unknown[]).push(a);
+      (window as any).gtag = gtag;
+      gtag("js", new Date());
+      gtag("config", GA_MEASUREMENT_ID);
+    };
+    if ("requestIdleCallback" in window) {
+      (window as any).requestIdleCallback(load, { timeout: 3000 });
+    } else {
+      setTimeout(load, 2000);
+    }
   }, []);
 }
 

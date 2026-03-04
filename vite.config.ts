@@ -42,6 +42,7 @@ export default defineConfig({
           lenis: ["lenis"],
           router: ["wouter"],
           query: ["@tanstack/react-query"],
+          form: ["react-hook-form", "@hookform/resolvers"],
           "ui-primitives": [
             "@radix-ui/react-tooltip",
             "@radix-ui/react-dialog",
@@ -58,6 +59,7 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 600,
     assetsInlineLimit: 4096,
+    reportCompressedSize: false,
   },
   server: {
     fs: {

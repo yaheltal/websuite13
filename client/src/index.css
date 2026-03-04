@@ -43,6 +43,15 @@ section {
   contain: layout style;
 }
 
+/* Skip rendering for below-fold sections until near viewport */
+#scrollytelling,
+#services,
+#faq,
+#contact {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
+
 /* Passive touch scrolling for chat containers */
 .overflow-y-auto {
   -webkit-overflow-scrolling: touch;
@@ -521,17 +530,20 @@ html:not(.theme-luxury) {
   }
 }
 
-@keyframes heroFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(15px, -20px) scale(1.03); }
-  66% { transform: translate(-10px, 10px) scale(0.97); }
-}
+/* Disable complex CSS animations entirely on mobile for GPU savings */
+@media (min-width: 768px) {
+  @keyframes heroFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(15px, -20px) scale(1.03); }
+    66% { transform: translate(-10px, 10px) scale(0.97); }
+  }
 
-@keyframes bgFloat {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(8px, -12px) rotate(1.5deg); }
-  50% { transform: translate(-5px, -20px) rotate(-1deg); }
-  75% { transform: translate(10px, -8px) rotate(2deg); }
+  @keyframes bgFloat {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(8px, -12px) rotate(1.5deg); }
+    50% { transform: translate(-5px, -20px) rotate(-1deg); }
+    75% { transform: translate(10px, -8px) rotate(2deg); }
+  }
 }
 
 

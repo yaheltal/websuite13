@@ -116,25 +116,32 @@ export function HeroSection() {
 
     const bChars = brandCharsRef.current.filter(Boolean) as HTMLSpanElement[];
 
+    const isMobile = window.innerWidth < 768;
+
+    let chars: HTMLSpanElement[] = [];
     const lines = title.querySelectorAll("[data-hero-line]");
-    const chars: HTMLSpanElement[] = [];
-    lines.forEach((line) => {
-      const text = line.textContent || "";
-      line.textContent = "";
-      text.split("").forEach((char) => {
-        const span = document.createElement("span");
-        span.textContent = char === " " ? "\u00A0" : char;
-        span.style.display = "inline-block";
-        span.style.opacity = "0";
-        span.style.transform = "translateY(100%)";
-        line.appendChild(span);
-        chars.push(span);
+
+    if (isMobile) {
+      lines.forEach((line) => { (line as HTMLElement).style.opacity = "0"; });
+    } else {
+      lines.forEach((line) => {
+        const text = line.textContent || "";
+        line.textContent = "";
+        text.split("").forEach((char) => {
+          const span = document.createElement("span");
+          span.textContent = char === " " ? "\u00A0" : char;
+          span.style.display = "inline-block";
+          span.style.opacity = "0";
+          span.style.transform = "translateY(100%)";
+          line.appendChild(span);
+          chars.push(span);
+        });
       });
-    });
+    }
 
     const ctx = gsap.context(() => {
 
-      const tl = gsap.timeline({ delay: 0.5 });
+      const tl = gsap.timeline({ delay: isMobile ? 0.2 : 0.5 });
       
       gsap.set(brand, { opacity: 1 });
 
@@ -143,60 +150,58 @@ export function HeroSection() {
         gsap.set(suitIcon, { opacity: 0, scale: 0, rotateZ: -20 });
       }
 
-      tl.fromTo(bChars,
-        {
-          opacity: 0,
-          y: 80,
-          rotateX: -90,
-          rotateZ: () => gsap.utils.random(-15, 15),
-          scale: 0.3,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          rotateX: 0,
-          rotateZ: 0,
-          scale: 1,
-          duration: 0.9,
-          stagger: 0.06,
-          ease: "back.out(1.4)",
-        },
-        0
-      );
-
-      if (suitIcon) {
-        tl.to(suitIcon, {
-          opacity: 1,
-          scale: 1,
-          rotateZ: 0,
-          duration: 0.7,
-          ease: "back.out(2.5)",
-        }, 0.2);
+      if (isMobile) {
+        tl.fromTo(bChars,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.5, stagger: 0.03, ease: "power2.out" },
+          0
+        );
+        if (suitIcon) {
+          tl.to(suitIcon, { opacity: 1, scale: 1, rotateZ: 0, duration: 0.4, ease: "back.out(2)" }, 0.1);
+        }
+        tl.to(lines, { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.25);
+      } else {
+        tl.fromTo(bChars,
+          {
+            opacity: 0,
+            y: 80,
+            rotateX: -90,
+            rotateZ: () => gsap.utils.random(-15, 15),
+            scale: 0.3,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            rotateZ: 0,
+            scale: 1,
+            duration: 0.9,
+            stagger: 0.06,
+            ease: "back.out(1.4)",
+          },
+          0
+        );
+        if (suitIcon) {
+          tl.to(suitIcon, { opacity: 1, scale: 1, rotateZ: 0, duration: 0.7, ease: "back.out(2.5)" }, 0.2);
+        }
+        tl.to(chars, { opacity: 1, y: 0, duration: 0.7, stagger: 0.02, ease: "power3.out" }, 0.55);
       }
-
-      tl.to(chars, {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-        stagger: 0.02,
-        ease: "power3.out",
-      }, 0.55);
 
       if (subtitleRef.current) {
         tl.fromTo(
           subtitleRef.current,
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" },
-          "-=0.2"
+          { opacity: 0, y: isMobile ? 15 : 30 },
+          { opacity: 1, y: 0, duration: isMobile ? 0.5 : 0.9, ease: "expo.out" },
+          isMobile ? "-=0.1" : "-=0.2"
         );
       }
 
       if (ctaRef.current) {
         tl.fromTo(
           ctaRef.current,
-          { opacity: 0, y: 25, scale: 0.9 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "expo.out" },
-          "-=0.4"
+          { opacity: 0, y: isMobile ? 15 : 25, scale: isMobile ? 0.95 : 0.9 },
+          { opacity: 1, y: 0, scale: 1, duration: isMobile ? 0.4 : 0.8, ease: "expo.out" },
+          isMobile ? "-=0.2" : "-=0.4"
         );
       }
 
@@ -204,12 +209,10 @@ export function HeroSection() {
         tl.fromTo(
           statsRef.current,
           { opacity: 0, y: 15 },
-          { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
-          "-=0.3"
+          { opacity: 1, y: 0, duration: isMobile ? 0.4 : 0.8, ease: "power2.out" },
+          isMobile ? "-=0.15" : "-=0.3"
         );
       }
-
-      const isMobile = window.innerWidth < 768;
 
       if (!isMobile) {
         const runShimmer = () => {
