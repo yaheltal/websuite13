@@ -261,7 +261,7 @@ export function HeroSection() {
       ref={sectionRef}
       id="hero"
       className="relative flex items-center justify-center overflow-hidden py-10 sm:py-16 md:py-24"
-      style={{ minHeight: "min(55vh, 520px)" }}
+      style={{ minHeight: "min(100dvh, 900px)" }}
       data-testid="section-hero"
     >
       {!IS_MOBILE && (
