@@ -354,7 +354,7 @@ export function ScrollytellingSection() {
       ref={sectionRef}
       id="scrollytelling"
       className="relative overflow-hidden"
-      style={{ minHeight: "350vh" }}
+      style={{ minHeight: isMobileInit ? "200vh" : "350vh" }}
       data-testid="section-scrollytelling"
     >
 
@@ -432,7 +432,7 @@ export function ScrollytellingSection() {
       </div>
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-[20vh] sm:py-[25vh] lg:py-[35vh] space-y-[30vh] sm:space-y-[40vh] lg:space-y-[50vh]">
+        <div className="pt-[20vh] pb-[8vh] sm:py-[25vh] lg:py-[35vh] space-y-[30vh] sm:space-y-[40vh] lg:space-y-[50vh]">
           {storyBlocks.map((block, index) => (
             <div
               key={index}

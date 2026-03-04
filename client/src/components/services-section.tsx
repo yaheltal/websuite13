@@ -125,7 +125,7 @@ export function ServicesSection() {
       <section
         ref={sectionRef}
         id="services"
-        className="py-24 md:py-32 relative"
+        className="py-16 md:py-24 lg:py-32 relative"
         style={{ contentVisibility: "auto", containIntrinsicSize: "auto 900px" }}
         data-testid="section-services"
       >
