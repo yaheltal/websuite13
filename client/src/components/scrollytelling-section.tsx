@@ -478,39 +478,46 @@ export function ScrollytellingSection() {
               </ScrollReveal>
 
               {index < storyBlocks.length - 1 && (
-                <div className="flex justify-center py-6 sm:py-8 pointer-events-none select-none" aria-hidden="true">
+                <div className="flex justify-center items-center py-8 sm:py-10 pointer-events-none select-none" aria-hidden="true">
                   <svg
-                    viewBox="0 0 60 120"
+                    viewBox="0 0 80 180"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
-                    className="w-12 h-24 sm:w-14 sm:h-28 md:w-16 md:h-32"
+                    className="w-16 h-36 sm:w-20 sm:h-40 md:w-20 md:h-44"
                   >
                     <defs>
-                      <linearGradient id={`arrowGrad${index}`} x1="30" y1="0" x2="30" y2="120" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stopColor="hsl(220, 75%, 65%)" stopOpacity="0.35" />
-                        <stop offset="50%" stopColor="hsl(260, 60%, 60%)" stopOpacity="0.3" />
-                        <stop offset="100%" stopColor="hsl(25, 55%, 55%)" stopOpacity="0.4" />
+                      <linearGradient id={`arrowGrad${index}`} x1="40" y1="0" x2="40" y2="180" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="hsl(220, 75%, 70%)" stopOpacity="0.4" />
+                        <stop offset="40%" stopColor="hsl(260, 55%, 65%)" stopOpacity="0.35" />
+                        <stop offset="100%" stopColor="hsl(25, 60%, 58%)" stopOpacity="0.45" />
                       </linearGradient>
+                      <filter id={`glow${index}`}>
+                        <feGaussianBlur stdDeviation="2" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
                     </defs>
-                    {/* Curly S-curve path */}
                     <path
-                      d="M30 4 C12 20, 48 35, 30 55 C12 75, 48 85, 30 100"
+                      d="M40 8 C14 30, 66 50, 40 75 C14 100, 66 120, 40 145"
                       stroke={`url(#arrowGrad${index})`}
                       strokeWidth="2.5"
                       strokeLinecap="round"
                       fill="none"
+                      filter={`url(#glow${index})`}
                     />
-                    {/* Arrowhead */}
                     <path
-                      d="M22 92 L30 106 L38 92"
+                      d="M30 136 L40 158 L50 136"
                       stroke={`url(#arrowGrad${index})`}
                       strokeWidth="2.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       fill="none"
+                      filter={`url(#glow${index})`}
                     />
-                    {/* Small decorative dot at top */}
-                    <circle cx="30" cy="4" r="2.5" fill="hsl(220, 75%, 65%)" opacity="0.25" />
+                    <circle cx="40" cy="8" r="3" fill="hsl(220, 75%, 70%)" opacity="0.3" />
+                    <circle cx="40" cy="158" r="2" fill="hsl(25, 60%, 58%)" opacity="0.25" />
                   </svg>
                 </div>
               )}
