@@ -347,6 +347,10 @@ export type OnboardingEmailData = {
   /** Professional summary for management/developer (AI-generated) */
   aiSummary?: string;
   uploadedFiles: string[];
+  /** AI-synthesized prompt for Replit (English, structured brief). When present, replaces template prompt. */
+  synthesizedReplitPrompt?: string;
+  /** AI-synthesized prompt for Cursor (English, structured brief). When present, replaces template prompt. */
+  synthesizedCursorPrompt?: string;
 };
 
 /** Base URL for upload links in email (e.g. https://yoursite.com). Uses BASE_URL or CORS_ORIGIN. */
@@ -390,20 +394,29 @@ export function getOnboardingEmailContent(data: OnboardingEmailData): { subject:
        </div>`
     : "";
 
-  const promptChatContext = data.aiSummary || data.chatSummary;
-  const replitPrompt = generateReplitPrompt({
-    clientName: data.clientName,
-    service: data.service,
-    questionnaireData: data.questionnaireData,
-    chatSummary: promptChatContext,
-  });
+  const hasSynthesized = !!(data.synthesizedReplitPrompt?.trim() && data.synthesizedCursorPrompt?.trim());
 
-  const cursorPrompt = generateCursorPrompt({
-    clientName: data.clientName,
-    service: data.service,
-    questionnaireData: data.questionnaireData,
-    chatSummary: promptChatContext,
-  });
+  let replitPrompt: string;
+  let cursorPrompt: string;
+
+  if (hasSynthesized) {
+    replitPrompt = data.synthesizedReplitPrompt!;
+    cursorPrompt = data.synthesizedCursorPrompt!;
+  } else {
+    const promptChatContext = data.aiSummary || data.chatSummary;
+    replitPrompt = generateReplitPrompt({
+      clientName: data.clientName,
+      service: data.service,
+      questionnaireData: data.questionnaireData,
+      chatSummary: promptChatContext,
+    });
+    cursorPrompt = generateCursorPrompt({
+      clientName: data.clientName,
+      service: data.service,
+      questionnaireData: data.questionnaireData,
+      chatSummary: promptChatContext,
+    });
+  }
 
   const htmlBody = `
     <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px;">
@@ -430,13 +443,13 @@ export function getOnboardingEmailContent(data: OnboardingEmailData): { subject:
         ${aiSummarySection}
         ${filesSection}
 
-        <h2 style="color: #2d3142; margin-top: 30px;">פרומפט מוכן ל-Replit</h2>
+        <h2 style="color: #2d3142; margin-top: 30px;">פרומפט מוכן ל-Replit${hasSynthesized ? ' <span style="color: #16a34a; font-size: 13px; font-weight: normal;">(מסונתז)</span>' : ""}</h2>
         <p style="color: #666; font-size: 12px; margin-bottom: 8px;">העתק את הבלוק הבא ל-Replit Agent (באנגלית, מותאם ל-AI של Replit):</p>
         <div style="background: #1e1e2e; color: #cdd6f4; padding: 20px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.8; direction: ltr; text-align: left; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">
 ${escapeHtml(replitPrompt)}
         </div>
 
-        <h2 style="color: #2d3142; margin-top: 30px;">פרומפט מוכן ל-Cursor</h2>
+        <h2 style="color: #2d3142; margin-top: 30px;">פרומפט מוכן ל-Cursor${hasSynthesized ? ' <span style="color: #16a34a; font-size: 13px; font-weight: normal;">(מסונתז)</span>' : ""}</h2>
         <p style="color: #666; font-size: 12px; margin-bottom: 8px;">העתק את הבלוק הבא ל-Cursor (באנגלית, מותאם ל-AI של Cursor):</p>
         <div style="background: #1e1e2e; color: #cdd6f4; padding: 20px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.8; direction: ltr; text-align: left; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">
 ${escapeHtml(cursorPrompt)}
@@ -467,10 +480,10 @@ ${escapeHtml(cursorPrompt)}
     ...(data.aiSummary ? ["", "--- סיכום AI ---", data.aiSummary] : []),
     ...(data.uploadedFiles.length > 0 ? ["", "--- קבצים ---", ...data.uploadedFiles.map(f => `${baseUrl}/uploads/${f}`)] : []),
     ``,
-    `========== PROMPT FOR REPLIT ==========`,
+    `========== PROMPT FOR REPLIT${hasSynthesized ? " (SYNTHESIZED)" : ""} ==========`,
     replitPrompt,
     ``,
-    `========== PROMPT FOR CURSOR ==========`,
+    `========== PROMPT FOR CURSOR${hasSynthesized ? " (SYNTHESIZED)" : ""} ==========`,
     cursorPrompt,
     ``,
     `-- WEB13 Onboarding System`,

@@ -78,6 +78,119 @@ ${qaDetails || "  - No specific requirements provided"}${chatPart}
 Instructions: Modern UI, RTL, Hebrew font, colors: ${colors}, contact form, SEO, performance.`;
 }
 
+const SYNTH_SYSTEM_PROMPT = `You are a senior web-development project manager. You receive a client questionnaire (key-value pairs) and a conversation transcript (in Hebrew) between a sales agent and the client about building a website / landing page / e-commerce store.
+
+Your job: produce TWO developer-ready prompts **in English only**. Do NOT paste the transcript or questionnaire verbatim. Instead, **synthesize** the information into a clear, actionable brief that an AI coding assistant can execute to build roughly 50 % of the project.
+
+Each prompt must follow this structure:
+1. **Project Goals** – what the site should achieve (leads, sales, brand presence, etc.)
+2. **UI/UX Design System** – vibe/mood, color palette, typography, layout style, reference sites if mentioned
+3. **Technical Requirements** – list of concrete components (Hero section, contact form, product catalog, WhatsApp button, social links, gallery, testimonials, pricing table, etc.)
+4. **Development Instructions** – RTL support, Hebrew content, SEO meta-tags, mobile-first, performance, accessibility (Israeli law AA)
+
+Differences between the two prompts:
+- **Replit prompt**: assumes a brand-new project from scratch.
+- **Cursor prompt**: assumes an existing project structure; add the line "Use the existing project structure, conventions, and any .cursor/rules or AGENTS.md if present."
+
+Output format (strict):
+- First line: exactly \`---REPLIT---\`
+- Then the full Replit prompt
+- Then a line: exactly \`---CURSOR---\`
+- Then the full Cursor prompt
+- Nothing else before or after.`;
+
+async function geminiSynthesize(apiKey, userContent, timeoutMs = 15000) {
+  const models = ["gemini-2.0-flash", "gemini-1.5-flash"];
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: SYNTH_SYSTEM_PROMPT }] },
+            contents: [{ role: "user", parts: [{ text: userContent }] }],
+          }),
+        });
+        if (!res.ok) throw new Error(`Gemini ${model} ${res.status}`);
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error(`Gemini ${model}: no text`);
+        return text;
+      } finally {
+        clearTimeout(timer);
+      }
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+async function openaiSynthesize(userContent, timeoutMs = 15000) {
+  const key = (process.env.OPENAI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
+  if (!key) return null;
+  try {
+    const { default: OpenAI } = await import("openai");
+    const client = new OpenAI({ apiKey: key, timeout: timeoutMs });
+    const r = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: SYNTH_SYSTEM_PROMPT },
+        { role: "user", content: userContent },
+      ],
+      max_tokens: 2048,
+    });
+    return r.choices?.[0]?.message?.content?.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+function parseSynthOutput(raw) {
+  if (!raw) return null;
+  const replitIdx = raw.indexOf("---REPLIT---");
+  const cursorIdx = raw.indexOf("---CURSOR---");
+  if (replitIdx === -1 || cursorIdx === -1 || cursorIdx <= replitIdx) return null;
+  const replit = raw.substring(replitIdx + "---REPLIT---".length, cursorIdx).trim();
+  const cursor = raw.substring(cursorIdx + "---CURSOR---".length).trim();
+  if (!replit || !cursor || replit.length < 50 || cursor.length < 50) return null;
+  return { replitPrompt: replit, cursorPrompt: cursor };
+}
+
+async function synthesizePrompts(clientName, service, questionnaireData, chatSummary) {
+  const geminiKey = ((process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY) ?? "").replace(/^["']|["']$/g, "").trim();
+  const serviceEn = SERVICE_NAMES_EN[service] || service;
+  const qaText = Object.entries(questionnaireData || {})
+    .filter(([_, v]) => v && String(v).trim())
+    .map(([k, v]) => `${k}: ${v}`)
+    .join("\n");
+
+  const userContent = [
+    `Client name: ${clientName}`,
+    `Service type: ${serviceEn}`,
+    "",
+    "=== QUESTIONNAIRE ===",
+    qaText || "(empty)",
+    "",
+    "=== CONVERSATION TRANSCRIPT ===",
+    chatSummary || "(no conversation)",
+  ].join("\n");
+
+  if (geminiKey) {
+    const raw = await geminiSynthesize(geminiKey, userContent);
+    const result = parseSynthOutput(raw);
+    if (result) return result;
+  }
+
+  const raw = await openaiSynthesize(userContent);
+  return parseSynthOutput(raw);
+}
+
 function readBodyStream(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
@@ -145,8 +258,23 @@ export default async function handler(req, res) {
         ? `<h3 style="color: #2d3142; margin-top: 24px;">קבצים שהועלו (${files.length})</h3><ul style="padding-right: 20px; font-size: 13px;">${files.map((f) => `<li>${escapeHtml(String(f))}</li>`).join("")}</ul>`
         : "";
 
-    const replitPrompt = generateReplitPrompt(name || "", service || "landing-page", qa, chat);
-    const cursorPrompt = generateCursorPrompt(name || "", service || "landing-page", qa, chat);
+    let replitPrompt, cursorPrompt;
+    let hasSynthesized = false;
+    try {
+      const synth = await synthesizePrompts(name || "", service || "landing-page", qa, chat);
+      if (synth) {
+        replitPrompt = synth.replitPrompt;
+        cursorPrompt = synth.cursorPrompt;
+        hasSynthesized = true;
+        console.log(`Synthesized prompts generated for: ${name}`);
+      }
+    } catch (synthErr) {
+      console.error("Prompt synthesis failed (using template fallback):", synthErr);
+    }
+    if (!hasSynthesized) {
+      replitPrompt = generateReplitPrompt(name || "", service || "landing-page", qa, chat);
+      cursorPrompt = generateCursorPrompt(name || "", service || "landing-page", qa, chat);
+    }
 
     const html = `
 <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px;">
@@ -168,9 +296,9 @@ export default async function handler(req, res) {
     </table>
     ${chatSection}
     ${filesSection}
-    <h2 style="color: #2d3142; margin-top: 30px;">פרומפט ל-Replit</h2>
+    <h2 style="color: #2d3142; margin-top: 30px;">פרומפט ל-Replit${hasSynthesized ? ' <span style="color: #16a34a; font-size: 13px; font-weight: normal;">(מסונתז)</span>' : ""}</h2>
     <div style="background: #1e1e2e; color: #cdd6f4; padding: 20px; border-radius: 12px; font-family: monospace; font-size: 12px; line-height: 1.8; direction: ltr; text-align: left; white-space: pre-wrap;">${escapeHtml(replitPrompt)}</div>
-    <h2 style="color: #2d3142; margin-top: 30px;">פרומפט ל-Cursor</h2>
+    <h2 style="color: #2d3142; margin-top: 30px;">פרומפט ל-Cursor${hasSynthesized ? ' <span style="color: #16a34a; font-size: 13px; font-weight: normal;">(מסונתז)</span>' : ""}</h2>
     <div style="background: #1e1e2e; color: #cdd6f4; padding: 20px; border-radius: 12px; font-family: monospace; font-size: 12px; line-height: 1.8; direction: ltr; text-align: left; white-space: pre-wrap;">${escapeHtml(cursorPrompt)}</div>
   </div>
   <div style="background: #f0ede8; padding: 16px 30px; border-radius: 0 0 16px 16px; text-align: center; border: 1px solid #e8e4de; border-top: none;">

@@ -1022,7 +1022,7 @@ export default function Onboarding() {
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  accept="image/*,.pdf,.ai,.psd,.svg"
+                  accept="image/*,.pdf,.ai,.psd,.svg,.webp"
                   onChange={handleFileUpload}
                   className="hidden"
                   data-testid="input-file-upload"

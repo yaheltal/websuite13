@@ -221,6 +221,102 @@ async function generateConversationSummary(chatTranscript: string): Promise<stri
   return "";
 }
 
+const SYNTH_SYSTEM_PROMPT = `You are a senior web-development project manager. You receive a client questionnaire (key-value pairs) and a conversation transcript (in Hebrew) between a sales agent and the client about building a website / landing page / e-commerce store.
+
+Your job: produce TWO developer-ready prompts **in English only**. Do NOT paste the transcript or questionnaire verbatim. Instead, **synthesize** the information into a clear, actionable brief that an AI coding assistant can execute to build roughly 50 % of the project.
+
+Each prompt must follow this structure:
+1. **Project Goals** – what the site should achieve (leads, sales, brand presence, etc.)
+2. **UI/UX Design System** – vibe/mood, color palette, typography, layout style, reference sites if mentioned
+3. **Technical Requirements** – list of concrete components (Hero section, contact form, product catalog, WhatsApp button, social links, gallery, testimonials, pricing table, etc.)
+4. **Development Instructions** – RTL support, Hebrew content, SEO meta-tags, mobile-first, performance, accessibility (Israeli law AA)
+
+Differences between the two prompts:
+- **Replit prompt**: assumes a brand-new project from scratch.
+- **Cursor prompt**: assumes an existing project structure; add the line "Use the existing project structure, conventions, and any .cursor/rules or AGENTS.md if present."
+
+Output format (strict):
+- First line: exactly \`---REPLIT---\`
+- Then the full Replit prompt
+- Then a line: exactly \`---CURSOR---\`
+- Then the full Cursor prompt
+- Nothing else before or after.`;
+
+async function generateSynthesizedPrompts(params: {
+  clientName: string;
+  service: string;
+  questionnaireData: Record<string, any>;
+  chatSummary: string;
+  aiSummary?: string;
+}): Promise<{ replitPrompt: string; cursorPrompt: string } | null> {
+  const geminiKey = (process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
+  const openaiKey = (process.env.OPENAI_API_KEY ?? "").replace(/^["']|["']$/g, "").trim();
+  if (!geminiKey && !openaiKey) return null;
+
+  const serviceNames: Record<string, string> = {
+    "landing-page": "Landing page",
+    "digital-card": "Digital business card",
+    "ecommerce": "Online store / E-commerce",
+  };
+  const serviceEn = serviceNames[params.service] || params.service;
+
+  const qaText = Object.entries(params.questionnaireData)
+    .filter(([_, v]) => v && String(v).trim())
+    .map(([k, v]) => `${k}: ${v}`)
+    .join("\n");
+
+  const userContent = [
+    `Client name: ${params.clientName}`,
+    `Service type: ${serviceEn}`,
+    "",
+    "=== QUESTIONNAIRE ===",
+    qaText || "(empty)",
+    "",
+    "=== CONVERSATION TRANSCRIPT ===",
+    params.chatSummary || "(no conversation)",
+    ...(params.aiSummary ? ["", "=== AI SUMMARY ===", params.aiSummary] : []),
+  ].join("\n");
+
+  function parseSynthOutput(raw: string): { replitPrompt: string; cursorPrompt: string } | null {
+    const replitIdx = raw.indexOf("---REPLIT---");
+    const cursorIdx = raw.indexOf("---CURSOR---");
+    if (replitIdx === -1 || cursorIdx === -1 || cursorIdx <= replitIdx) return null;
+    const replit = raw.substring(replitIdx + "---REPLIT---".length, cursorIdx).trim();
+    const cursor = raw.substring(cursorIdx + "---CURSOR---".length).trim();
+    if (!replit || !cursor || replit.length < 50 || cursor.length < 50) return null;
+    return { replitPrompt: replit, cursorPrompt: cursor };
+  }
+
+  if (geminiKey) {
+    for (const model of ["gemini-2.0-flash", "gemini-1.5-flash"]) {
+      try {
+        const text = await geminiRestGenerate(
+          geminiKey,
+          SYNTH_SYSTEM_PROMPT,
+          [{ role: "user", parts: [{ text: userContent }] }],
+          model,
+        );
+        const result = parseSynthOutput(text);
+        if (result) return result;
+      } catch {
+        continue;
+      }
+    }
+  }
+
+  if (openaiKey) {
+    try {
+      const text = await openaiChat(SYNTH_SYSTEM_PROMPT, [], userContent);
+      const result = parseSynthOutput(text);
+      if (result) return result;
+    } catch {
+      // ignore
+    }
+  }
+
+  return null;
+}
+
 const chatSessions = new Map<string, { history: Array<{ role: string; parts: Array<{ text: string }> }>; lastAccess: number }>();
 
 setInterval(() => {
@@ -763,6 +859,25 @@ export async function registerRoutes(
         }
       }
 
+      let synthesizedReplitPrompt: string | undefined;
+      let synthesizedCursorPrompt: string | undefined;
+      try {
+        const synth = await generateSynthesizedPrompts({
+          clientName,
+          service: serviceType,
+          questionnaireData: questionnaireData || {},
+          chatSummary,
+          aiSummary: aiSummary || undefined,
+        });
+        if (synth) {
+          synthesizedReplitPrompt = synth.replitPrompt;
+          synthesizedCursorPrompt = synth.cursorPrompt;
+          console.log(`Synthesized prompts generated for: ${clientName}`);
+        }
+      } catch (err) {
+        console.error("Prompt synthesis failed (using template fallback):", err);
+      }
+
       const emailResult = await sendOnboardingEmail({
         clientName,
         clientEmail,
@@ -772,6 +887,8 @@ export async function registerRoutes(
         chatSummary,
         aiSummary: aiSummary || undefined,
         uploadedFiles,
+        synthesizedReplitPrompt,
+        synthesizedCursorPrompt,
       });
       if (emailResult.success) {
         console.log(`Onboarding complete email sent for: ${clientName}`);

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateReplitPrompt, generateCursorPrompt } from "./email";
+import { generateReplitPrompt, generateCursorPrompt, getOnboardingEmailContent } from "./email";
 
 describe("email prompts (Replit / Cursor)", () => {
   const baseData = {
@@ -116,8 +116,63 @@ describe("onboarding email content (prompts embedded)", () => {
     expect(cursor).toContain("Business name: Shop");
     expect(cursor).toContain("Approximate number of products: 50");
     expect(cursor).toContain("Client conversation summary");
-    // No Hebrew labels in prompt body
     expect(replit).not.toMatch(/שם העסק|כמה מוצרים|תקציב|לוח זמנים/);
     expect(cursor).not.toMatch(/שם העסק|כמה מוצרים|תקציב|לוח זמנים/);
+  });
+});
+
+describe("synthesized prompts in email", () => {
+  const baseEmailData = {
+    clientName: "Synth Client",
+    clientEmail: "synth@example.com",
+    clientPhone: "050-9999999",
+    service: "landing-page" as const,
+    questionnaireData: { businessName: "Flower Shop", targetAudience: "Events" },
+    chatSummary: "לקוח רוצה דף נחיתה עם טופס צור קשר",
+    uploadedFiles: [],
+  };
+
+  const synthReplit = "## Project Goals\nBuild a landing page for Flower Shop targeting events.\n## UI/UX Design System\nClean, elegant, floral theme.\n## Technical Requirements\nHero, contact form, WhatsApp button.\n## Development Instructions\nRTL, Hebrew, SEO, Lighthouse.";
+  const synthCursor = "## Project Goals\nBuild a landing page for Flower Shop targeting events.\n## UI/UX Design System\nClean, elegant, floral theme.\n## Technical Requirements\nHero, contact form, WhatsApp button.\n## Development Instructions\nRTL, Hebrew, SEO, Lighthouse. Use the existing project structure.";
+
+  it("uses synthesized prompts when provided", () => {
+    const { html, text } = getOnboardingEmailContent({
+      ...baseEmailData,
+      synthesizedReplitPrompt: synthReplit,
+      synthesizedCursorPrompt: synthCursor,
+    });
+    expect(html).toContain("מסונתז");
+    expect(html).toContain("Flower Shop targeting events");
+    expect(html).toContain("Use the existing project structure");
+    expect(text).toContain("SYNTHESIZED");
+    expect(text).toContain("Flower Shop targeting events");
+  });
+
+  it("synthesized prompts replace raw chatSummary in prompt blocks", () => {
+    const { html } = getOnboardingEmailContent({
+      ...baseEmailData,
+      synthesizedReplitPrompt: synthReplit,
+      synthesizedCursorPrompt: synthCursor,
+    });
+    const promptBlockRegex = /פרומפט מוכן ל-Replit[\s\S]*?<\/div>\s*<\/div>/;
+    const promptBlock = html.match(promptBlockRegex)?.[0] || "";
+    expect(promptBlock).not.toContain("לקוח רוצה דף נחיתה עם טופס צור קשר");
+  });
+
+  it("falls back to template prompts when synthesized are missing", () => {
+    const { html, text } = getOnboardingEmailContent(baseEmailData);
+    expect(html).not.toContain("מסונתז");
+    expect(text).not.toContain("SYNTHESIZED");
+    expect(html).toContain("Build a Landing page");
+  });
+
+  it("falls back to template prompts when synthesized are empty strings", () => {
+    const { html } = getOnboardingEmailContent({
+      ...baseEmailData,
+      synthesizedReplitPrompt: "",
+      synthesizedCursorPrompt: "",
+    });
+    expect(html).not.toContain("מסונתז");
+    expect(html).toContain("Build a Landing page");
   });
 });
