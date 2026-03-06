@@ -226,7 +226,7 @@ export function HeroSection() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative flex items-start sm:items-center justify-center overflow-hidden pt-[12vh] pb-10 sm:py-12 md:py-20"
+      className="relative flex items-center justify-center overflow-hidden sm:py-12 md:py-20"
       style={{ minHeight: "min(100dvh, 900px)" }}
       data-testid="section-hero"
     >
@@ -270,11 +270,11 @@ export function HeroSection() {
         }}
       />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 text-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 text-center flex flex-col items-center min-h-[75dvh] sm:min-h-0 justify-between sm:justify-center pt-[6vh] pb-[4vh] sm:py-0">
         <div
           ref={brandRef}
           dir="ltr"
-          className="mb-4 sm:mb-5 mt-0 sm:mt-2 inline-flex items-end justify-center select-none cursor-pointer"
+          className="mb-auto sm:mb-5 mt-0 sm:mt-2 inline-flex items-end justify-center select-none cursor-pointer"
           style={{
             opacity: 0,
             perspective: "800px",
@@ -402,67 +402,69 @@ export function HeroSection() {
           WebSuite
         </h1>
 
-        <p
-          ref={subtitleRef}
-          className="text-charcoal-light max-w-[85vw] sm:max-w-xl md:max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-8 text-center"
-          style={{ opacity: 0, fontSize: "clamp(0.938rem, 2.2vw, 1.25rem)", lineHeight: 1.75 }}
-          data-testid="text-hero-subtitle"
-        >
-          {t("hero.subtitle")}
-          <br className="sm:hidden" />
-          <span className="font-extrabold text-foreground inline-block mt-1 sm:mt-0 sm:inline" style={{
-            background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}>{" "}{t("hero.subtitle.highlight")}</span>
-        </p>
+        <div className="flex flex-col items-center my-auto sm:my-0">
+          <p
+            ref={subtitleRef}
+            className="text-charcoal-light max-w-[85vw] sm:max-w-xl md:max-w-2xl mx-auto mb-7 sm:mb-7 md:mb-8 text-center"
+            style={{ opacity: 0, fontSize: "clamp(0.938rem, 2.2vw, 1.25rem)", lineHeight: 1.75 }}
+            data-testid="text-hero-subtitle"
+          >
+            {t("hero.subtitle")}
+            <br className="sm:hidden" />
+            <span className="font-extrabold text-foreground inline-block mt-1 sm:mt-0 sm:inline" style={{
+              background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}>{" "}{t("hero.subtitle.highlight")}</span>
+          </p>
 
-        <div
-          ref={ctaRef}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-sm sm:max-w-none mx-auto"
-          style={{ opacity: 0 }}
-        >
-          <Link href="/onboarding" className="inline-block w-full sm:w-auto">
+          <div
+            ref={ctaRef}
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-xs sm:max-w-none mx-auto w-full"
+            style={{ opacity: 0 }}
+          >
+            <Link href="/onboarding" className="inline-block w-full sm:w-auto">
+              <MagneticButton
+                as="span"
+                strength={0.25}
+                className="inline-block w-full"
+              >
+                <Button
+                  size="lg"
+                  className="text-white font-extrabold text-base px-8 py-3 min-h-[48px] border-0 shadow-lg w-full sm:w-auto"
+                  style={{
+                    background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))",
+                  }}
+                  data-testid="button-hero-cta"
+                  data-cursor-hover
+                >
+                  {t("hero.cta")}
+                </Button>
+              </MagneticButton>
+            </Link>
             <MagneticButton
-              as="span"
-              strength={0.25}
-              className="inline-block w-full"
+              as="button"
+              strength={0.2}
+              className="inline-block w-full sm:w-auto"
             >
               <Button
                 size="lg"
-                className="text-white font-extrabold text-base px-8 py-3 min-h-[48px] border-0 shadow-lg w-full sm:w-auto"
-                style={{
-                  background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))",
-                }}
-                data-testid="button-hero-cta"
+                variant="outline"
+                onClick={() => scrollToSection("#services")}
+                className="font-semibold text-base px-8 py-3 min-h-[48px] border-border text-foreground w-full sm:w-auto"
+                data-testid="button-hero-services"
                 data-cursor-hover
               >
-                {t("hero.cta")}
+                {t("hero.services")}
               </Button>
             </MagneticButton>
-          </Link>
-          <MagneticButton
-            as="button"
-            strength={0.2}
-            className="inline-block w-full sm:w-auto"
-          >
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => scrollToSection("#services")}
-              className="font-semibold text-base px-8 py-3 min-h-[48px] border-border text-foreground w-full sm:w-auto"
-              data-testid="button-hero-services"
-              data-cursor-hover
-            >
-              {t("hero.services")}
-            </Button>
-          </MagneticButton>
+          </div>
         </div>
 
         <div
           ref={statsRef}
-          className="flex items-center justify-center gap-12 sm:gap-16 md:gap-20 mt-6 sm:mt-10 md:mt-14"
+          className="flex items-center justify-center gap-10 sm:gap-16 md:gap-20 mt-auto sm:mt-10 md:mt-14 pt-6 sm:pt-0"
           style={{ opacity: 0 }}
         >
           {[
