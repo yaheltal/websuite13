@@ -38,12 +38,13 @@
   <rect width="1200" height="630" fill="url(#bg-grad)"/>
   <rect width="1200" height="630" fill="url(#center-glow)"/>
 
-  <g transform="translate(555, 145) scale(1.05)">
+  <g transform="translate(540, 130) scale(1.1)">
     <rect x="8" y="8" width="104" height="104" rx="26" stroke="url(#logo-stroke)" stroke-width="2.5" fill="none" opacity="0.9"/>
-    <path d="M28 42 L40 82 L52 58 L64 82 L76 42" stroke="url(#logo-fill)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    <text x="95" y="58" font-size="16" font-weight="800" fill="url(#logo-fill)" text-anchor="middle" font-family="system-ui,sans-serif" letter-spacing="-0.5">1</text>
-    <text x="95" y="82" font-size="22" font-weight="800" fill="url(#logo-fill)" text-anchor="middle" font-family="system-ui,sans-serif" letter-spacing="-0.5">3</text>
-    <circle cx="100" cy="24" r="4.5" fill="hsl(175,80%,50%)" opacity="0.9"/>
+    <path d="M22 38 L14 60 L22 82" stroke="url(#logo-fill)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.5"/>
+    <path d="M98 38 L106 60 L98 82" stroke="url(#logo-fill)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.5"/>
+    <path d="M28 42 L40 78 L52 54 L64 78 L76 42" stroke="url(#logo-fill)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M80 52 Q88 46 92 52 Q96 58 88 62 Q80 66 84 72 Q88 78 96 72" stroke="url(#logo-fill)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="100" cy="28" r="4.5" fill="hsl(175,80%,50%)" opacity="0.9"/>
   </g>
 
   <text x="600" y="345" font-size="56" font-weight="700" fill="url(#text-grad)" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" letter-spacing="12">WebSuite</text>
