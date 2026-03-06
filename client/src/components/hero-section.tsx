@@ -263,7 +263,7 @@ export function HeroSection() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative flex items-center justify-center overflow-hidden py-10 sm:py-16 md:py-24"
+      className="relative flex items-center justify-center overflow-hidden py-6 sm:py-12 md:py-20"
       style={{ minHeight: "min(100dvh, 900px)" }}
       data-testid="section-hero"
     >
@@ -453,11 +453,17 @@ export function HeroSection() {
 
         <p
           ref={subtitleRef}
-          className="text-charcoal-light max-w-2xl mx-auto mb-6 sm:mb-8 md:mb-10 leading-relaxed"
+          className="text-charcoal-light max-w-2xl mx-auto mb-4 sm:mb-6 md:mb-8 leading-relaxed"
           style={{ opacity: 0, fontSize: "clamp(1rem, 2vw, 1.25rem)" }}
           data-testid="text-hero-subtitle"
         >
-          {t("hero.subtitle")}
+          {t("hero.subtitle")}{" "}
+          <span className="font-extrabold text-foreground" style={{
+            background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}>{t("hero.subtitle.highlight")}</span>
         </p>
 
         <div
