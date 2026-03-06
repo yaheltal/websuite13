@@ -226,7 +226,7 @@ export function HeroSection() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative flex items-center justify-center overflow-hidden py-6 sm:py-12 md:py-20"
+      className="relative flex items-center justify-center overflow-hidden py-8 sm:py-12 md:py-20"
       style={{ minHeight: "min(100dvh, 900px)" }}
       data-testid="section-hero"
     >
@@ -270,11 +270,11 @@ export function HeroSection() {
         }}
       />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 text-center">
         <div
           ref={brandRef}
           dir="ltr"
-          className="mb-1 sm:mb-2 mt-2 sm:mt-4 inline-flex items-end justify-center select-none cursor-pointer"
+          className="mb-3 sm:mb-4 mt-0 sm:mt-2 inline-flex items-end justify-center select-none cursor-pointer"
           style={{
             opacity: 0,
             perspective: "800px",
@@ -404,22 +404,23 @@ export function HeroSection() {
 
         <p
           ref={subtitleRef}
-          className="text-charcoal-light max-w-2xl mx-auto mb-4 sm:mb-6 md:mb-8 leading-relaxed text-center"
-          style={{ opacity: 0, fontSize: "clamp(1rem, 2vw, 1.25rem)" }}
+          className="text-charcoal-light max-w-[90vw] sm:max-w-xl md:max-w-2xl mx-auto mb-5 sm:mb-7 md:mb-8 text-center"
+          style={{ opacity: 0, fontSize: "clamp(0.95rem, 2.2vw, 1.25rem)", lineHeight: 1.7 }}
           data-testid="text-hero-subtitle"
         >
-          {t("hero.subtitle")}{" "}
-          <span className="font-extrabold text-foreground" style={{
+          {t("hero.subtitle")}
+          <br className="sm:hidden" />
+          <span className="font-extrabold text-foreground inline-block mt-1 sm:mt-0 sm:inline" style={{
             background: "linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%))",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
-          }}>{t("hero.subtitle.highlight")}</span>
+          }}>{" "}{t("hero.subtitle.highlight")}</span>
         </p>
 
         <div
           ref={ctaRef}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-sm sm:max-w-none mx-auto"
           style={{ opacity: 0 }}
         >
           <Link href="/onboarding" className="inline-block w-full sm:w-auto">
@@ -461,16 +462,16 @@ export function HeroSection() {
 
         <div
           ref={statsRef}
-          className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-16 mt-8 sm:mt-10 md:mt-16"
+          className="flex items-center justify-center gap-8 sm:gap-12 md:gap-16 mt-6 sm:mt-10 md:mt-14"
           style={{ opacity: 0 }}
         >
           {[
             { target: 100, suffix: "+", label: t("hero.stat.projects"), duration: 2.2, delay: 0 },
             { target: 6, suffix: "+", label: t("hero.stat.experience"), duration: 1.5, delay: 0.3 },
             { target: 95, suffix: "%", label: t("hero.stat.retention"), duration: 2, delay: 0.6 },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <p className="text-2xl md:text-3xl font-extrabold" style={{
+          ].map((stat, i) => (
+            <div key={stat.label} className="text-center flex flex-col items-center">
+              <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold" style={{
                 background: "linear-gradient(135deg, hsl(220 80% 65%), hsl(170 80% 50%))",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -478,7 +479,7 @@ export function HeroSection() {
               }}>
                 <AnimatedCounter target={stat.target} suffix={stat.suffix} duration={stat.duration} delay={stat.delay} />
               </p>
-              <p className="text-xs text-charcoal-light mt-0.5">{stat.label}</p>
+              <p className="text-[11px] sm:text-xs text-charcoal-light mt-1 whitespace-nowrap">{stat.label}</p>
             </div>
           ))}
         </div>
