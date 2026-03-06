@@ -104,7 +104,7 @@ function generateMockups(count: number): FloatingMockup[] {
 }
 
 const ALL_MOCKUPS = generateMockups(14);
-const MOBILE_MOCKUP_COUNT = 3;
+const MOBILE_MOCKUP_COUNT = 7;
 
 
 export function ScrollytellingSection() {
@@ -157,18 +157,17 @@ export function ScrollytellingSection() {
         el.style.willChange = 'transform';
         innerCard.style.willChange = 'transform, filter';
 
-        if (!isMobile) {
-          gsap.to(innerCard, {
-            x: `+=${m.hoverDx * (i % 2 === 0 ? 1 : -1)}`,
-            y: `+=${m.hoverDy * (i % 2 === 0 ? -1 : 1)}`,
-            rotateZ: `+=${m.hoverRotZ * (i % 2 === 0 ? 1 : -1)}`,
-            duration: m.hoverDur,
-            ease: "sine.inOut",
-            yoyo: true,
-            repeat: -1,
-            force3D: true,
-          });
-        }
+        const hoverScale = isMobile ? 0.6 : 1;
+        gsap.to(innerCard, {
+          x: `+=${m.hoverDx * hoverScale * (i % 2 === 0 ? 1 : -1)}`,
+          y: `+=${m.hoverDy * hoverScale * (i % 2 === 0 ? -1 : 1)}`,
+          rotateZ: `+=${m.hoverRotZ * hoverScale * (i % 2 === 0 ? 1 : -1)}`,
+          duration: m.hoverDur * (isMobile ? 1.2 : 1),
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+          force3D: true,
+        });
 
         const direction = i % 2 === 0 ? -1 : 1;
         const yTravel = window.innerHeight * (0.5 + m.speed * 0.9) * direction;
@@ -209,13 +208,11 @@ export function ScrollytellingSection() {
                 if (innerCard) {
                   innerCard.style.filter = `blur(${blur.toFixed(1)}px) brightness(${brightness.toFixed(2)})`;
                 }
-                if (!isMobile) {
-                  const glare = glareRefs.current[i];
-                  if (glare) {
-                    const angle = 100 + prog * 160;
-                    const intensity = 0.08 + focusFactor * 0.12;
-                    glare.style.background = `linear-gradient(${angle}deg, rgba(255,255,255,${intensity.toFixed(2)}) 0%, transparent 50%, rgba(255,255,255,${(intensity * 0.3).toFixed(2)}) 100%)`;
-                  }
+                const glare = glareRefs.current[i];
+                if (glare) {
+                  const angle = 100 + prog * 160;
+                  const intensity = 0.08 + focusFactor * 0.12;
+                  glare.style.background = `linear-gradient(${angle}deg, rgba(255,255,255,${intensity.toFixed(2)}) 0%, transparent 50%, rgba(255,255,255,${(intensity * 0.3).toFixed(2)}) 100%)`;
                 }
               },
             },
@@ -239,30 +236,29 @@ export function ScrollytellingSection() {
         }
       );
 
-      if (!isMobile) {
-        const velocityTracker = { skew: 0 };
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top bottom",
-          end: "bottom top",
-          onUpdate: (self) => {
-            const velocity = self.getVelocity();
-            const clampedSkew = gsap.utils.clamp(-3, 3, velocity / 500);
-            gsap.to(velocityTracker, {
-              skew: clampedSkew,
-              duration: 0.3,
-              overwrite: true,
-              onUpdate: () => {
-                blockRefs.current.forEach((block) => {
-                  if (block) {
-                    block.style.transform = `skewY(${velocityTracker.skew}deg)`;
-                  }
-                });
-              },
-            });
-          },
-        });
-      }
+      const maxSkew = isMobile ? 1.5 : 3;
+      const velocityTracker = { skew: 0 };
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        onUpdate: (self) => {
+          const velocity = self.getVelocity();
+          const clampedSkew = gsap.utils.clamp(-maxSkew, maxSkew, velocity / (isMobile ? 700 : 500));
+          gsap.to(velocityTracker, {
+            skew: clampedSkew,
+            duration: 0.3,
+            overwrite: true,
+            onUpdate: () => {
+              blockRefs.current.forEach((block) => {
+                if (block) {
+                  block.style.transform = `skewY(${velocityTracker.skew}deg)`;
+                }
+              });
+            },
+          });
+        },
+      });
 
       blockRefs.current.forEach((block) => {
         if (!block) return;
@@ -366,7 +362,7 @@ export function ScrollytellingSection() {
         data-testid="floating-gallery"
       >
         {MOCKUPS.map((m, i) => {
-          const mobileScale = isMobileInit ? 0.55 : 1;
+          const mobileScale = isMobileInit ? 0.65 : 1;
           return (
             <div
               key={m.id}
@@ -406,25 +402,23 @@ export function ScrollytellingSection() {
                   </div>
                 </div>
                 <img
-                  src={isMobileInit ? m.src.replace("w=400&h=270", "w=250&h=170").replace("q=60", "q=50") : m.src}
+                  src={isMobileInit ? m.src.replace("w=400&h=270", "w=320&h=215").replace("q=60", "q=55") : m.src}
                   alt=""
-                  width={isMobileInit ? 300 : 500}
-                  height={isMobileInit ? 200 : 340}
+                  width={isMobileInit ? 320 : 500}
+                  height={isMobileInit ? 215 : 340}
                   loading="lazy"
                   decoding="async"
                   className="w-full aspect-[3/2] object-cover transition-transform duration-700"
                   style={{ display: "block" }}
                 />
-                {!isMobileInit && (
-                  <div
-                    ref={(el) => { glareRefs.current[i] = el; }}
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background: "linear-gradient(120deg, rgba(255,255,255,0.12) 0%, transparent 50%, rgba(255,255,255,0.04) 100%)",
-                      mixBlendMode: "overlay",
-                    }}
-                  />
-                )}
+                <div
+                  ref={(el) => { glareRefs.current[i] = el; }}
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: "linear-gradient(120deg, rgba(255,255,255,0.12) 0%, transparent 50%, rgba(255,255,255,0.04) 100%)",
+                    mixBlendMode: "overlay",
+                  }}
+                />
               </div>
             </div>
           );

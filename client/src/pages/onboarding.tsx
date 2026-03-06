@@ -308,15 +308,19 @@ export default function Onboarding() {
   }, [resumeChoice, saved.step, saved.completed]);
 
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
     const subscription = contactForm.watch(() => {
-      const contactValues = contactForm.getValues();
-      saveToStorage({
-        contactName: contactValues.name,
-        contactEmail: contactValues.email,
-        contactPhone: contactValues.phone,
-      });
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const contactValues = contactForm.getValues();
+        saveToStorage({
+          contactName: contactValues.name,
+          contactEmail: contactValues.email,
+          contactPhone: contactValues.phone,
+        });
+      }, 400);
     });
-    return () => subscription.unsubscribe();
+    return () => { clearTimeout(timer); subscription.unsubscribe(); };
   }, [contactForm]);
 
   useEffect(() => {

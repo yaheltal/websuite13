@@ -5,10 +5,7 @@ import { MagneticButton } from "@/components/magnetic-button";
 import { Link } from "wouter";
 import { useI18n } from "@/lib/i18n";
 
-const IS_MOBILE = typeof window !== "undefined" && window.innerWidth < 768;
-const Hero3DBackground = IS_MOBILE
-  ? () => null
-  : lazy(() => import("./hero-3d-background").then((m) => ({ default: m.Hero3DBackground })));
+const Hero3DBackground = lazy(() => import("./hero-3d-background").then((m) => ({ default: m.Hero3DBackground })));
 
 /** Animated counter — starts automatically after page load */
 function AnimatedCounter({ target, suffix = "", duration = 2, delay = 0 }: { target: number; suffix?: string; duration?: number; delay?: number }) {
@@ -118,26 +115,7 @@ export function HeroSection() {
 
     const isMobile = window.innerWidth < 768;
 
-    let chars: HTMLSpanElement[] = [];
-    const lines = title.querySelectorAll("[data-hero-line]");
-
-    if (isMobile) {
-      lines.forEach((line) => { (line as HTMLElement).style.opacity = "0"; });
-    } else {
-      lines.forEach((line) => {
-        const text = line.textContent || "";
-        line.textContent = "";
-        text.split("").forEach((char) => {
-          const span = document.createElement("span");
-          span.textContent = char === " " ? "\u00A0" : char;
-          span.style.display = "inline-block";
-          span.style.opacity = "0";
-          span.style.transform = "translateY(100%)";
-          line.appendChild(span);
-          chars.push(span);
-        });
-      });
-    }
+    const chars: HTMLSpanElement[] = [];
 
     const ctx = gsap.context(() => {
 
@@ -150,58 +128,45 @@ export function HeroSection() {
         gsap.set(suitIcon, { opacity: 0, scale: 0, rotateZ: -20 });
       }
 
-      if (isMobile) {
-        tl.fromTo(bChars,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.5, stagger: 0.03, ease: "power2.out" },
-          0
-        );
-        if (suitIcon) {
-          tl.to(suitIcon, { opacity: 1, scale: 1, rotateZ: 0, duration: 0.4, ease: "back.out(2)" }, 0.1);
-        }
-        tl.to(lines, { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.25);
-      } else {
-        tl.fromTo(bChars,
-          {
-            opacity: 0,
-            y: 80,
-            rotateX: -90,
-            rotateZ: () => gsap.utils.random(-15, 15),
-            scale: 0.3,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            rotateX: 0,
-            rotateZ: 0,
-            scale: 1,
-            duration: 0.9,
-            stagger: 0.06,
-            ease: "back.out(1.4)",
-          },
-          0
-        );
-        if (suitIcon) {
-          tl.to(suitIcon, { opacity: 1, scale: 1, rotateZ: 0, duration: 0.7, ease: "back.out(2.5)" }, 0.2);
-        }
-        tl.to(chars, { opacity: 1, y: 0, duration: 0.7, stagger: 0.02, ease: "power3.out" }, 0.55);
+      tl.fromTo(bChars,
+        {
+          opacity: 0,
+          y: isMobile ? 50 : 80,
+          rotateX: isMobile ? -60 : -90,
+          rotateZ: () => gsap.utils.random(isMobile ? -8 : -15, isMobile ? 8 : 15),
+          scale: isMobile ? 0.5 : 0.3,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          rotateX: 0,
+          rotateZ: 0,
+          scale: 1,
+          duration: isMobile ? 0.7 : 0.9,
+          stagger: isMobile ? 0.04 : 0.06,
+          ease: "back.out(1.4)",
+        },
+        0
+      );
+      if (suitIcon) {
+        tl.to(suitIcon, { opacity: 1, scale: 1, rotateZ: 0, duration: isMobile ? 0.5 : 0.7, ease: "back.out(2.5)" }, 0.15);
       }
 
       if (subtitleRef.current) {
         tl.fromTo(
           subtitleRef.current,
-          { opacity: 0, y: isMobile ? 15 : 30 },
-          { opacity: 1, y: 0, duration: isMobile ? 0.5 : 0.9, ease: "expo.out" },
-          isMobile ? "-=0.1" : "-=0.2"
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: isMobile ? 0.6 : 0.9, ease: "expo.out" },
+          "-=0.2"
         );
       }
 
       if (ctaRef.current) {
         tl.fromTo(
           ctaRef.current,
-          { opacity: 0, y: isMobile ? 15 : 25, scale: isMobile ? 0.95 : 0.9 },
-          { opacity: 1, y: 0, scale: 1, duration: isMobile ? 0.4 : 0.8, ease: "expo.out" },
-          isMobile ? "-=0.2" : "-=0.4"
+          { opacity: 0, y: 25, scale: 0.9 },
+          { opacity: 1, y: 0, scale: 1, duration: isMobile ? 0.5 : 0.8, ease: "expo.out" },
+          "-=0.4"
         );
       }
 
@@ -209,48 +174,46 @@ export function HeroSection() {
         tl.fromTo(
           statsRef.current,
           { opacity: 0, y: 15 },
-          { opacity: 1, y: 0, duration: isMobile ? 0.4 : 0.8, ease: "power2.out" },
-          isMobile ? "-=0.15" : "-=0.3"
+          { opacity: 1, y: 0, duration: isMobile ? 0.5 : 0.8, ease: "power2.out" },
+          "-=0.3"
         );
       }
 
-      if (!isMobile) {
-        const runShimmer = () => {
-          const stl = gsap.timeline({
-            onComplete: () => {
-              shimmerRef.current = gsap.delayedCall(6, runShimmer);
-            },
-          });
-
-          bChars.forEach((c, i) => {
-            stl.to(c, {
-              backgroundImage: "linear-gradient(135deg, hsl(175 90% 65%), hsl(220 90% 80%), hsl(260 80% 75%))",
-              y: -4,
-              duration: 0.15,
-              ease: "power1.in",
-            }, i * 0.05);
-            stl.to(c, {
-              backgroundImage: "linear-gradient(135deg, hsl(220 80% 68%), hsl(260 72% 65%), hsl(175 80% 55%))",
-              y: 0,
-              duration: 0.25,
-              ease: "power1.out",
-            }, i * 0.05 + 0.15);
-          });
-        };
-
-        tl.call(() => {
-          shimmerRef.current = gsap.delayedCall(3, runShimmer);
+      const runShimmer = () => {
+        const stl = gsap.timeline({
+          onComplete: () => {
+            shimmerRef.current = gsap.delayedCall(isMobile ? 8 : 6, runShimmer);
+          },
         });
 
-        gsap.to(brand, {
-          y: "6px",
-          duration: 3,
-          ease: "sine.inOut",
-          yoyo: true,
-          repeat: -1,
-          delay: 2,
+        bChars.forEach((c, i) => {
+          stl.to(c, {
+            backgroundImage: "linear-gradient(135deg, hsl(175 90% 65%), hsl(220 90% 80%), hsl(260 80% 75%))",
+            y: -4,
+            duration: 0.15,
+            ease: "power1.in",
+          }, i * 0.05);
+          stl.to(c, {
+            backgroundImage: "linear-gradient(135deg, hsl(220 80% 68%), hsl(260 72% 65%), hsl(175 80% 55%))",
+            y: 0,
+            duration: 0.25,
+            ease: "power1.out",
+          }, i * 0.05 + 0.15);
         });
-      }
+      };
+
+      tl.call(() => {
+        shimmerRef.current = gsap.delayedCall(3, runShimmer);
+      });
+
+      gsap.to(brand, {
+        y: isMobile ? "4px" : "6px",
+        duration: isMobile ? 3.5 : 3,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1,
+        delay: 2,
+      });
     }, section);
 
     return () => {
@@ -267,51 +230,45 @@ export function HeroSection() {
       style={{ minHeight: "min(100dvh, 900px)" }}
       data-testid="section-hero"
     >
-      {!IS_MOBILE && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ contain: "strict" }}>
-          <div
-            className="hero-orb absolute rounded-full"
-            style={{
-              width: "min(500px, 60vw)",
-              height: "min(500px, 60vw)",
-              top: "10%",
-              right: "-10%",
-              background: "radial-gradient(circle, hsla(220, 70%, 55%, 0.06) 0%, hsla(260, 60%, 48%, 0.015) 50%, transparent 70%)",
-              filter: "blur(20px)",
-              animation: "heroFloat 12s ease-in-out infinite",
-              contain: "paint",
-            }}
-          />
-          <div
-            className="hero-orb absolute rounded-full"
-            style={{
-              width: "min(400px, 50vw)",
-              height: "min(400px, 50vw)",
-              bottom: "5%",
-              left: "-5%",
-              background: "radial-gradient(circle, hsla(170, 60%, 50%, 0.05) 0%, hsla(170, 50%, 60%, 0.015) 50%, transparent 70%)",
-              filter: "blur(18px)",
-              animation: "heroFloat 15s ease-in-out infinite reverse",
-              contain: "paint",
-            }}
-          />
-        </div>
-      )}
-
-      {!IS_MOBILE && (
-        <Suspense fallback={null}>
-          <Hero3DBackground />
-        </Suspense>
-      )}
-
-      {!IS_MOBILE && (
-        <div className="absolute inset-0 pointer-events-none opacity-[0.015]"
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ contain: "strict" }}>
+        <div
+          className="hero-orb absolute rounded-full"
           style={{
-            backgroundImage: "radial-gradient(hsl(220 15% 18% / 0.4) 1px, transparent 1px)",
-            backgroundSize: "32px 32px",
+            width: "min(500px, 60vw)",
+            height: "min(500px, 60vw)",
+            top: "10%",
+            right: "-10%",
+            background: "radial-gradient(circle, hsla(220, 70%, 55%, 0.06) 0%, hsla(260, 60%, 48%, 0.015) 50%, transparent 70%)",
+            filter: "blur(20px)",
+            animation: "heroFloat 12s ease-in-out infinite",
+            contain: "paint",
           }}
         />
-      )}
+        <div
+          className="hero-orb absolute rounded-full"
+          style={{
+            width: "min(400px, 50vw)",
+            height: "min(400px, 50vw)",
+            bottom: "5%",
+            left: "-5%",
+            background: "radial-gradient(circle, hsla(170, 60%, 50%, 0.05) 0%, hsla(170, 50%, 60%, 0.015) 50%, transparent 70%)",
+            filter: "blur(18px)",
+            animation: "heroFloat 15s ease-in-out infinite reverse",
+            contain: "paint",
+          }}
+        />
+      </div>
+
+      <Suspense fallback={null}>
+        <Hero3DBackground />
+      </Suspense>
+
+      <div className="absolute inset-0 pointer-events-none opacity-[0.015]"
+        style={{
+          backgroundImage: "radial-gradient(hsl(220 15% 18% / 0.4) 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+        }}
+      />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div
@@ -439,16 +396,10 @@ export function HeroSection() {
         <h1
           ref={titleRef}
           key={lang}
-          className="font-extrabold leading-[1.08] mb-4 sm:mb-6 text-charcoal text-center"
-          style={{ fontSize: "clamp(1.75rem, 6vw, 5rem)" }}
+          className="sr-only"
           data-testid="text-hero-title"
         >
-          <span data-hero-line className="block" style={{
-            background: "linear-gradient(135deg, hsl(220 80% 65%), hsl(260 70% 60%), hsl(170 80% 50%))",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}>{t("hero.line1")}</span>
+          WebSuite
         </h1>
 
         <p

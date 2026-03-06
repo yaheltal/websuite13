@@ -80,9 +80,12 @@ function LiquidCursorInner({
     document.addEventListener("mouseout", handleOut);
 
     let lastFrame = 0;
-    const frameInterval = 1000 / 30; // 30fps is enough for cursor
+    let paused = false;
+    const frameInterval = 1000 / 30;
+    const onVisibility = () => { paused = document.hidden; };
     const animate = (ts: number) => {
       rafId.current = requestAnimationFrame(animate);
+      if (paused) return;
       if (ts - lastFrame < frameInterval) return;
       lastFrame = ts;
 
@@ -96,12 +99,14 @@ function LiquidCursorInner({
       ring.style.transform = `translate(${pos.current.x}px, ${pos.current.y}px)`;
       dot.style.transform = `translate(${dotTarget.current.x}px, ${dotTarget.current.y}px)`;
     };
+    document.addEventListener("visibilitychange", onVisibility);
     rafId.current = requestAnimationFrame(animate);
 
     return () => {
       document.removeEventListener("mousemove", handleMove);
       document.removeEventListener("mouseover", handleOver);
       document.removeEventListener("mouseout", handleOut);
+      document.removeEventListener("visibilitychange", onVisibility);
       cancelAnimationFrame(rafId.current);
     };
   }, [setState]);

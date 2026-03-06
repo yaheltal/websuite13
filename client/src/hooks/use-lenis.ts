@@ -11,8 +11,6 @@ export function useLenis() {
 
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
 
-    if (isMobile) return;
-
     let cleanup: (() => void) | null = null;
     let destroyed = false;
     const delay = 0;
@@ -35,8 +33,8 @@ export function useLenis() {
       const lenis = new Lenis({
         gestureOrientation: "vertical",
         smoothWheel: true,
-        touchMultiplier: 1.5,
-        lerp: 0.08,
+        touchMultiplier: isMobile ? 1.8 : 1.5,
+        lerp: isMobile ? 0.1 : 0.08,
       });
       lenisRef.current = lenis;
 

@@ -49,15 +49,16 @@ export function Hero3DBackground() {
   const visibleRef = useRef(true);
 
   const getConfig = useCallback(() => {
+    const mobile = typeof window !== "undefined" && window.innerWidth < 768;
     return {
-      count: 16,
-      connDist: 70,
+      count: mobile ? 10 : 16,
+      connDist: mobile ? 55 : 70,
       connOpacity: 0.04,
       mouseInfluence: 0.03,
-      zRange: 350,
+      zRange: mobile ? 250 : 350,
       perspective: 800,
       glowLayers: 0,
-      targetFps: 15,
+      targetFps: mobile ? 12 : 15,
     };
   }, []);
 

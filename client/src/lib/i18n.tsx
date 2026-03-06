@@ -11,9 +11,6 @@ interface I18nContextType {
 
 const translations: Record<Lang, Record<string, string>> = {
   he: {
-    "hero.line1": "אתר פרימיום.",
-    "hero.line2": "מחיר נגיש.",
-    "hero.line3": "אפס פשרות.",
     "hero.subtitle": "מלאו שאלון קצר, שוחחו עם סוכנת האפיון שלנו — ותוך 24 שעות תקבלו הדמיה ראשונה והצעת מחיר מותאמת אישית.",
     "hero.subtitle.highlight": "בלי התחייבות!",
     "hero.cta": "התחילו שאלון התאמה",
@@ -149,9 +146,6 @@ const translations: Record<Lang, Record<string, string>> = {
     "footer.legal.cookies": "מדיניות עוגיות",
   },
   en: {
-    "hero.line1": "Exceptional Websites.",
-    "hero.line2": "Honest Pricing.",
-    "hero.line3": "No Compromises.",
     "hero.subtitle": "Fill a short questionnaire, chat with our AI specialist — and within 24 hours get your first mockup and a personalized quote.",
     "hero.subtitle.highlight": "No commitment!",
     "hero.cta": "Get Your Free Consultation",

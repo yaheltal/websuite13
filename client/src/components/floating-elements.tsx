@@ -88,10 +88,12 @@ export function ParallaxSection({
   const innerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (window.innerWidth < 768) return;
     const container = ref.current;
     const inner = innerRef.current;
     if (!container || !inner) return;
+
+    const isMobile = window.innerWidth < 768;
+    const effectiveSpeed = isMobile ? speed * 0.5 : speed;
 
     let rafId: number;
     const handleScroll = () => {
@@ -100,7 +102,7 @@ export function ParallaxSection({
         const viewportCenter = window.innerHeight / 2;
         const elementCenter = rect.top + rect.height / 2;
         const distance = elementCenter - viewportCenter;
-        inner.style.transform = `translate3d(0, ${distance * speed}px, 0)`;
+        inner.style.transform = `translate3d(0, ${distance * effectiveSpeed}px, 0)`;
       });
     };
 

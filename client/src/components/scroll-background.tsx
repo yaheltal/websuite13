@@ -131,29 +131,23 @@ function generateBlobs(count: number, isMobile: boolean): SoftBlob[] {
 const IS_MOBILE_BG = typeof window !== "undefined" && window.innerWidth < 768;
 
 export function ScrollBackground() {
-  if (IS_MOBILE_BG) {
-    return (
-      <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute inset-0 bg-background/35" />
-      </div>
-    );
-  }
-  return <DesktopScrollBackground />;
+  return <ParallaxScrollBackground />;
 }
 
-function DesktopScrollBackground() {
+function ParallaxScrollBackground() {
   const [pageHeight, setPageHeight] = useState(0);
   const layerRefs = useRef<(HTMLDivElement | null)[]>([null, null, null]);
   const rafRef = useRef<number>(0);
   const scrollYRef = useRef(0);
   const smoothY = useRef([0, 0, 0]);
 
-  const lc = LAYERS;
-  const thumbCounts = [8, 6, 5];
-  const colCount = 4;
+  const isMobile = IS_MOBILE_BG;
+  const lc = isMobile ? LAYERS_M : LAYERS;
+  const thumbCounts = isMobile ? [5, 4, 3] : [8, 6, 5];
+  const colCount = isMobile ? 3 : 4;
 
-  const blobs = useMemo(() => generateBlobs(3, false), []);
-  const edgeThumbs = useMemo(() => generateEdgeThumbs(4, false), []);
+  const blobs = useMemo(() => generateBlobs(isMobile ? 2 : 3, isMobile), []);
+  const edgeThumbs = useMemo(() => generateEdgeThumbs(isMobile ? 3 : 4, isMobile), []);
   const layerThumbs = useMemo(
     () => lc.map((c, i) => genLayerThumbs(thumbCounts[i], pageHeight, c, 42 + i * 17, colCount)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -170,13 +164,16 @@ function DesktopScrollBackground() {
 
   useEffect(() => {
     let scrollDirty = true;
+    let paused = false;
     const onScroll = () => { scrollYRef.current = window.scrollY; scrollDirty = true; };
+    const onVisibility = () => { paused = document.hidden; };
     const frameInterval = 1000 / 30;
     let lastFrame = 0;
     let settled = 0;
 
     const animate = (ts: number) => {
       rafRef.current = requestAnimationFrame(animate);
+      if (paused) return;
       if (ts - lastFrame < frameInterval) return;
       lastFrame = ts;
 
@@ -196,10 +193,12 @@ function DesktopScrollBackground() {
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("visibilitychange", onVisibility);
     onScroll();
     rafRef.current = requestAnimationFrame(animate);
     return () => {
       window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("visibilitychange", onVisibility);
       cancelAnimationFrame(rafRef.current);
     };
   }, []);
