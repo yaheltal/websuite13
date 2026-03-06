@@ -8,7 +8,7 @@ export function AiChatWidget() {
   return (
     <motion.button
       onClick={() => navigate("/onboarding")}
-      className="fixed bottom-[5.5rem] sm:bottom-24 left-4 sm:left-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-copper to-copper-dark text-white shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
+      className="fixed bottom-[5.5rem] sm:bottom-8 left-4 sm:left-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-copper to-copper-dark text-white shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
       whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.95 }}
       data-testid="button-open-chat"
