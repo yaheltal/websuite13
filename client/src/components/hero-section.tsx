@@ -317,7 +317,7 @@ export function HeroSection() {
         <div
           ref={brandRef}
           dir="ltr"
-          className="mb-2 sm:mb-3 mt-6 sm:mt-8 inline-flex items-end justify-center select-none cursor-pointer"
+          className="mb-1 sm:mb-2 mt-2 sm:mt-4 inline-flex items-end justify-center select-none cursor-pointer"
           style={{
             opacity: 0,
             perspective: "800px",
@@ -439,7 +439,7 @@ export function HeroSection() {
         <h1
           ref={titleRef}
           key={lang}
-          className="font-extrabold leading-[1.08] mb-6 text-charcoal"
+          className="font-extrabold leading-[1.08] mb-4 sm:mb-6 text-charcoal text-center"
           style={{ fontSize: "clamp(1.75rem, 6vw, 5rem)" }}
           data-testid="text-hero-title"
         >
@@ -453,7 +453,7 @@ export function HeroSection() {
 
         <p
           ref={subtitleRef}
-          className="text-charcoal-light max-w-2xl mx-auto mb-4 sm:mb-6 md:mb-8 leading-relaxed"
+          className="text-charcoal-light max-w-2xl mx-auto mb-4 sm:mb-6 md:mb-8 leading-relaxed text-center"
           style={{ opacity: 0, fontSize: "clamp(1rem, 2vw, 1.25rem)" }}
           data-testid="text-hero-subtitle"
         >
