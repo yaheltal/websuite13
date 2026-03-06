@@ -510,7 +510,7 @@ export function HeroSection() {
           {[
             { target: 100, suffix: "+", label: t("hero.stat.projects"), duration: 2.2, delay: 0 },
             { target: 6, suffix: "+", label: t("hero.stat.experience"), duration: 1.5, delay: 0.3 },
-            { target: 98, suffix: "%", label: t("hero.stat.satisfaction"), duration: 2, delay: 0.6 },
+            { target: 95, suffix: "%", label: t("hero.stat.retention"), duration: 2, delay: 0.6 },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <p className="text-2xl md:text-3xl font-extrabold" style={{
