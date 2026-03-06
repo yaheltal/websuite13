@@ -17,7 +17,7 @@ const translations: Record<Lang, Record<string, string>> = {
     "hero.services": "השירותים שלנו",
     "hero.stat.projects": "פרויקטים",
     "hero.stat.experience": "שנות ניסיון",
-    "hero.stat.retention": "לקוחות חוזרים",
+    "hero.stat.retention": "מנויים",
 
     "services.badge": "השירותים שלנו",
     "services.title1": "שלושה פתרונות,",
@@ -152,7 +152,7 @@ const translations: Record<Lang, Record<string, string>> = {
     "hero.services": "Explore Our Work",
     "hero.stat.projects": "Projects Delivered",
     "hero.stat.experience": "Years of Expertise",
-    "hero.stat.retention": "Returning Clients",
+    "hero.stat.retention": "Subscribers",
 
     "services.badge": "What We Do",
     "services.title1": "One Vision,",

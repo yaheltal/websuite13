@@ -462,13 +462,13 @@ export function HeroSection() {
 
         <div
           ref={statsRef}
-          className="flex items-center justify-center gap-8 sm:gap-12 md:gap-16 mt-6 sm:mt-10 md:mt-14"
+          className="flex items-center justify-center gap-12 sm:gap-16 md:gap-20 mt-6 sm:mt-10 md:mt-14"
           style={{ opacity: 0 }}
         >
           {[
             { target: 100, suffix: "+", label: t("hero.stat.projects"), duration: 2.2, delay: 0 },
             { target: 6, suffix: "+", label: t("hero.stat.experience"), duration: 1.5, delay: 0.3 },
-            { target: 95, suffix: "%", label: t("hero.stat.retention"), duration: 2, delay: 0.6 },
+            { target: 90, suffix: "%", label: t("hero.stat.retention"), duration: 2, delay: 0.6 },
           ].map((stat, i) => (
             <div key={stat.label} className="text-center flex flex-col items-center">
               <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold" style={{
