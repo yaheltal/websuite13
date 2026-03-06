@@ -226,7 +226,7 @@ export function HeroSection() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative flex items-center justify-center overflow-hidden py-8 sm:py-12 md:py-20"
+      className="relative flex items-start sm:items-center justify-center overflow-hidden pt-[12vh] pb-10 sm:py-12 md:py-20"
       style={{ minHeight: "min(100dvh, 900px)" }}
       data-testid="section-hero"
     >
@@ -274,7 +274,7 @@ export function HeroSection() {
         <div
           ref={brandRef}
           dir="ltr"
-          className="mb-3 sm:mb-4 mt-0 sm:mt-2 inline-flex items-end justify-center select-none cursor-pointer"
+          className="mb-4 sm:mb-5 mt-0 sm:mt-2 inline-flex items-end justify-center select-none cursor-pointer"
           style={{
             opacity: 0,
             perspective: "800px",
@@ -291,7 +291,7 @@ export function HeroSection() {
               className="font-black"
               style={{
                 display: "inline-block",
-                fontSize: "clamp(2rem, 10vw, 7rem)",
+                fontSize: "clamp(2.5rem, 10vw, 7rem)",
                 lineHeight: 1,
                 letterSpacing: "-0.03em",
                 background: "linear-gradient(135deg, hsl(220 80% 68%), hsl(260 72% 65%), hsl(175 80% 55%))",
@@ -312,8 +312,8 @@ export function HeroSection() {
             xmlns="http://www.w3.org/2000/svg"
             className="inline-block"
             style={{
-              width: "clamp(2.2rem, 7.5vw, 5.2rem)",
-              height: "clamp(2.6rem, 8.5vw, 6rem)",
+              width: "clamp(2.5rem, 7.5vw, 5.2rem)",
+              height: "clamp(2.8rem, 8.5vw, 6rem)",
               marginInline: "clamp(0.1rem, 0.5vw, 0.4rem)",
               marginBottom: "clamp(0.15rem, 0.4vw, 0.35rem)",
               filter: "drop-shadow(0 0 8px hsla(220, 80%, 60%, 0.15))",
@@ -378,7 +378,7 @@ export function HeroSection() {
               className="font-black"
               style={{
                 display: "inline-block",
-                fontSize: "clamp(2rem, 10vw, 7rem)",
+                fontSize: "clamp(2.5rem, 10vw, 7rem)",
                 lineHeight: 1,
                 letterSpacing: "-0.03em",
                 background: "linear-gradient(135deg, hsl(220 80% 68%), hsl(260 72% 65%), hsl(175 80% 55%))",
@@ -404,8 +404,8 @@ export function HeroSection() {
 
         <p
           ref={subtitleRef}
-          className="text-charcoal-light max-w-[90vw] sm:max-w-xl md:max-w-2xl mx-auto mb-5 sm:mb-7 md:mb-8 text-center"
-          style={{ opacity: 0, fontSize: "clamp(0.95rem, 2.2vw, 1.25rem)", lineHeight: 1.7 }}
+          className="text-charcoal-light max-w-[85vw] sm:max-w-xl md:max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-8 text-center"
+          style={{ opacity: 0, fontSize: "clamp(0.938rem, 2.2vw, 1.25rem)", lineHeight: 1.75 }}
           data-testid="text-hero-subtitle"
         >
           {t("hero.subtitle")}
@@ -485,7 +485,7 @@ export function HeroSection() {
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-20 sm:h-40 bg-gradient-to-t from-[hsl(var(--background))] to-transparent pointer-events-none opacity-90" />
+      <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-40 bg-gradient-to-t from-[hsl(var(--background))] to-transparent pointer-events-none opacity-90" />
     </section>
   );
 }
