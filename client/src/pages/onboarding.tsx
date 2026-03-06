@@ -486,7 +486,8 @@ export default function Onboarding() {
     const trimmed = chatInput.trim();
     if (!trimmed || chatLoading) return;
 
-    setChatMessages(prev => [...prev, { role: "user", content: trimmed }]);
+    const updatedHistory = [...chatMessages, { role: "user" as const, content: trimmed }];
+    setChatMessages(updatedHistory);
     setChatInput("");
     setChatLoading(true);
 
@@ -501,7 +502,7 @@ export default function Onboarding() {
           onboardingId,
           service: selectedService,
           questionnaireData,
-          history: chatMessages.map((m) => ({ role: m.role, content: m.content })),
+          history: updatedHistory.map((m) => ({ role: m.role, content: m.content })),
         }),
       });
       let data: { reply?: string; sessionId?: string; isComplete?: boolean; message?: string } = {};
@@ -588,6 +589,45 @@ export default function Onboarding() {
 
   const MAX_FILES = 4;
 
+  const compressFileData = (
+    fileData: Array<{ name: string; originalName: string; mimeType: string; base64: string; size: number }>
+  ): Promise<Array<{ name: string; originalName: string; mimeType: string; base64: string; size: number }>> => {
+    const MAX_DIM = 1200;
+    const QUALITY = 0.75;
+    const MAX_BASE64_SIZE = 800_000;
+
+    return Promise.all(fileData.map(async (fd) => {
+      if (!fd.mimeType.startsWith("image/") || fd.base64.length <= MAX_BASE64_SIZE) return fd;
+
+      try {
+        const img = new Image();
+        const loaded = new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = rej; });
+        img.src = `data:${fd.mimeType};base64,${fd.base64}`;
+        await loaded;
+
+        let { width, height } = img;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          const ratio = Math.min(MAX_DIM / width, MAX_DIM / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return fd;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL("image/jpeg", QUALITY);
+        const compressed = dataUrl.split(",")[1];
+        return { ...fd, base64: compressed, mimeType: "image/jpeg", size: Math.round(compressed.length * 0.75) };
+      } catch {
+        return fd;
+      }
+    }));
+  };
+
   const handleComplete = async () => {
     const contactValues = contactForm.getValues();
     if (!contactValues.name?.trim() || !contactValues.email?.trim()) {
@@ -599,6 +639,7 @@ export default function Onboarding() {
       const chatSummary = chatComplete
         ? chatMessages.map((m) => `${m.role === "user" ? "לקוח" : "סוכן"}: ${m.content}`).join("\n")
         : "";
+      const compressed = fileDataStore.length > 0 ? await compressFileData(fileDataStore) : undefined;
       const url = `${API_BASE || ""}/api/onboarding/complete`.replace(/\/+/g, "/");
       const res = await fetch(url, {
         method: "POST",
@@ -613,7 +654,7 @@ export default function Onboarding() {
           questionnaireData,
           chatSummary,
           uploadedFiles,
-          fileData: fileDataStore.length > 0 ? fileDataStore : undefined,
+          fileData: compressed,
         }),
       });
       const data = await res.json().catch(() => ({}));

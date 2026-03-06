@@ -236,7 +236,14 @@ async function getBodyAsync(req) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
   }
@@ -341,22 +348,26 @@ export default async function handler(req, res) {
 </div>`;
 
     const pass = (process.env.GMAIL_APP_PASSWORD || "").trim();
-    if (pass && name?.trim() && email?.trim()) {
-      try {
-        const transporter = nodemailer.createTransport({
-          service: "gmail",
-          auth: { user: FROM, pass },
-        });
-        await transporter.sendMail({
-          from: `"WEB13" <${FROM}>`,
-          to: TO,
-          subject: `[URGENT] New WebSuite Lead - ${name} (Replit + Cursor prompts)`,
-          html,
-          ...(emailAttachments.length > 0 ? { attachments: emailAttachments } : {}),
-        });
-      } catch (mailErr) {
-        console.error("Complete email error:", mailErr);
-      }
+    if (!pass || !name?.trim() || !email?.trim()) {
+      console.error("Complete: missing GMAIL_APP_PASSWORD or required fields");
+      return res.status(500).json({ success: false, message: "Email configuration error" });
+    }
+
+    try {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: { user: FROM, pass },
+      });
+      await transporter.sendMail({
+        from: `"WEB13" <${FROM}>`,
+        to: TO,
+        subject: `[URGENT] New WebSuite Lead - ${name} (Replit + Cursor prompts)`,
+        html,
+        ...(emailAttachments.length > 0 ? { attachments: emailAttachments } : {}),
+      });
+    } catch (mailErr) {
+      console.error("Complete email error:", mailErr);
+      return res.status(502).json({ success: false, message: "Failed to send email. Please try again." });
     }
 
     return res.status(200).json({ success: true });
