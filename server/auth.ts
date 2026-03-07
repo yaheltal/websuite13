@@ -69,13 +69,16 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Seed default admin (or reset password if needed)
+  // Seed default admin (or reset password on every startup)
   const defaultPassword = process.env.ADMIN_PASSWORD?.trim() || "1503";
+  const hash = await bcrypt.hash(defaultPassword, 10);
   const existing = await storage.getAdminByUsername("admin");
   if (!existing) {
-    const hash = await bcrypt.hash(defaultPassword, 10);
     await storage.createAdmin({ username: "admin", password: hash });
     console.log("Default admin seeded (username: admin)");
+  } else {
+    await storage.updateAdminPassword(existing.id, hash);
+    console.log("Admin password reset to default");
   }
 
   // Auth routes
