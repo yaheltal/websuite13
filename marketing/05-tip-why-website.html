@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1080px;
+    background: hsl(230, 25%, 6%);
+    font-family: 'Heebo', sans-serif;
+    overflow: hidden; position: relative;
+  }
+  .mesh {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 20%, hsl(240, 40%, 18% / 0.9) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 80% at 80% 80%, hsl(260, 35%, 14% / 0.85) 0%, transparent 50%);
+  }
+  .orb { position: absolute; border-radius: 50%; filter: blur(80px); }
+  .orb-1 { width: 500px; height: 500px; top: -80px; left: -80px; background: radial-gradient(circle, hsla(220, 70%, 55%, 0.2) 0%, transparent 70%); }
+  .orb-2 { width: 400px; height: 400px; bottom: -50px; right: -50px; background: radial-gradient(circle, hsla(175, 80%, 50%, 0.15) 0%, transparent 70%); }
+
+  .content {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column; align-items: center;
+    height: 100%; padding: 70px 80px 60px;
+  }
+  .tag {
+    background: linear-gradient(135deg, hsl(220, 85%, 55%), hsl(265, 70%, 55%));
+    padding: 14px 44px; border-radius: 50px;
+    font-size: 28px; font-weight: 700; color: white;
+    margin-bottom: 50px; letter-spacing: 1px;
+  }
+  .title {
+    font-size: 72px; font-weight: 900; text-align: center;
+    line-height: 1.3; margin-bottom: 55px; color: white;
+  }
+  .title span {
+    background: linear-gradient(135deg, hsl(175, 80%, 50%), hsl(220, 85%, 70%));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .reasons { display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: 880px; }
+  .reason {
+    display: flex; align-items: center; gap: 28px;
+    background: hsla(230, 30%, 15%, 0.6);
+    border: 1.5px solid hsla(220, 70%, 55%, 0.15);
+    border-radius: 22px; padding: 32px 40px;
+    backdrop-filter: blur(10px);
+  }
+  .reason-icon {
+    width: 64px; height: 64px; border-radius: 16px; flex-shrink: 0;
+    background: linear-gradient(135deg, hsl(265, 70%, 55%), hsl(175, 70%, 45%));
+    display: flex; align-items: center; justify-content: center; font-size: 32px;
+    box-shadow: 0 8px 24px hsla(260, 60%, 40%, 0.3);
+  }
+  .reason-text {
+    font-size: 34px; font-weight: 500; line-height: 1.4; color: hsla(0, 0%, 100%, 0.92);
+  }
+  .footer-row {
+    margin-top: auto; display: flex; align-items: center; gap: 14px;
+    padding-top: 40px;
+  }
+  .footer-text {
+    font-size: 26px; font-weight: 500;
+    background: linear-gradient(135deg, hsl(220, 80%, 65%), hsl(260, 70%, 60%), hsl(175, 80%, 55%));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+</style>
+</head>
+<body>
+  <div class="mesh"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="content">
+    <div class="tag">טיפ לעסקים</div>
+    <div class="title">למה העסק שלך <span>חייב</span> אתר?</div>
+    <div class="reasons">
+      <div class="reason">
+        <div class="reason-icon">🔍</div>
+        <div class="reason-text">לקוחות מחפשים אותך בגוגל — תהיה שם</div>
+      </div>
+      <div class="reason">
+        <div class="reason-icon">🕐</div>
+        <div class="reason-text">האתר עובד בשבילך 24/7 — גם כשאתה ישן</div>
+      </div>
+      <div class="reason">
+        <div class="reason-icon">💎</div>
+        <div class="reason-text">אמינות ומקצועיות — הרושם הראשוני קובע</div>
+      </div>
+    </div>
+    <div class="footer-row">
+      <svg viewBox="0 0 120 120" width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="hsl(220,85%,62%)"/><stop offset="45%" stop-color="hsl(265,75%,60%)"/><stop offset="100%" stop-color="hsl(175,80%,50%)"/></linearGradient>
+          <linearGradient id="g2" x1="10" y1="35" x2="110" y2="85" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="hsl(225,85%,65%)"/><stop offset="50%" stop-color="hsl(260,78%,62%)"/><stop offset="100%" stop-color="hsl(180,75%,52%)"/></linearGradient>
+        </defs>
+        <rect x="8" y="8" width="104" height="104" rx="26" stroke="url(#g1)" stroke-width="3.5" fill="none"/>
+        <path d="M22 38 L14 60 L22 82" stroke="url(#g2)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.5"/>
+        <path d="M98 38 L106 60 L98 82" stroke="url(#g2)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.5"/>
+        <path d="M28 42 L40 78 L52 54 L64 78 L76 42" stroke="url(#g2)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M80 52 Q88 46 92 52 Q96 58 88 62 Q80 66 84 72 Q88 78 96 72" stroke="url(#g2)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="100" cy="28" r="4.5" fill="hsl(175,80%,50%)"/>
+      </svg>
+      <div class="footer-text">WebSuite</div>
+    </div>
+  </div>
+</body>
+</html>
