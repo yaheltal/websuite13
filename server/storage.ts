@@ -10,6 +10,7 @@ export interface IStorage {
   getAdminByUsername(username: string): Promise<AdminUser | undefined>;
   getAdminById(id: number): Promise<AdminUser | undefined>;
   createAdmin(data: InsertAdminUser): Promise<AdminUser>;
+  updateAdminPassword(id: number, hashedPassword: string): Promise<void>;
 }
 
 class MemoryStorage implements IStorage {
@@ -88,6 +89,11 @@ class MemoryStorage implements IStorage {
     this.admins.push(entry);
     return entry;
   }
+
+  async updateAdminPassword(id: number, hashedPassword: string): Promise<void> {
+    const admin = this.admins.find((a) => a.id === id);
+    if (admin) admin.password = hashedPassword;
+  }
 }
 
 function createStorage(): IStorage {
@@ -131,6 +137,9 @@ function createStorage(): IStorage {
       async createAdmin(data: InsertAdminUser) {
         const [result] = await db.insert(schema.adminUsers).values(data).returning();
         return result;
+      },
+      async updateAdminPassword(id: number, hashedPassword: string) {
+        await db.update(schema.adminUsers).set({ password: hashedPassword }).where(eq(schema.adminUsers.id, id));
       },
     };
     console.log("Using PostgreSQL storage");
