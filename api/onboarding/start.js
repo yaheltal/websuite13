@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { query } from "../admin/_db.js";
 
 const TO = (process.env.RECIPIENT_EMAIL || "WEBSUITE153@GMAIL.COM").trim();
 const FROM = (process.env.SENDER_EMAIL || process.env.GMAIL_USER || TO).trim();
@@ -151,6 +152,18 @@ export default async function handler(req, res) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
+  // Save to DB
+  let dbId = Date.now();
+  try {
+    const result = await query(
+      "INSERT INTO onboarding_submissions (name, email, phone, service, questionnaire_data, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING id",
+      [name.trim(), email.trim(), phone?.trim() || null, service, JSON.stringify(questionnaireData || {})]
+    );
+    dbId = result.rows[0]?.id || dbId;
+  } catch (dbErr) {
+    console.error("DB save onboarding error:", dbErr.message);
+  }
+
   // מייל תוצאות נשלח רק בסיום התהליך (ב־complete), אחרי שיחת AI או דילוג
-  return res.status(201).json({ id: Date.now() });
+  return res.status(201).json({ id: dbId });
 }

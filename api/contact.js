@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { query } from "./admin/_db.js";
 
 const TO = (process.env.RECIPIENT_EMAIL || "WEBSUITE153@GMAIL.COM").trim();
 const FROM = (process.env.SENDER_EMAIL || process.env.GMAIL_USER || TO).trim();
@@ -41,6 +42,18 @@ export default async function handler(req, res) {
   }
 
   const serviceName = SERVICE_NAMES[service] || service || "לא צוין";
+
+  // Save to DB
+  let dbContact = null;
+  try {
+    const result = await query(
+      "INSERT INTO contact_submissions (name, email, phone, service, message, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *",
+      [name.trim(), email.trim(), phone?.trim() || null, service || "other", message.trim()]
+    );
+    dbContact = result.rows[0];
+  } catch (dbErr) {
+    console.error("DB save contact error:", dbErr.message);
+  }
 
   const html = `
 <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px;">
