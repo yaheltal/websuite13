@@ -11,6 +11,7 @@ export const config = {
 };
 
 import nodemailer from "nodemailer";
+import { query } from "../admin/_db.js";
 
 const TO = (process.env.RECIPIENT_EMAIL || "WEBSUITE153@GMAIL.COM").trim();
 const FROM = (process.env.SENDER_EMAIL || process.env.GMAIL_USER || TO).trim();
@@ -346,6 +347,28 @@ export default async function handler(req, res) {
     <p style="color: #888; margin: 0; font-size: 12px;">נשלח אוטומטית מ-WEB13 Onboarding System</p>
   </div>
 </div>`;
+
+    // Update onboarding record in DB with chat history, prompt, and files
+    try {
+      // Try to update existing record by email+service, or insert new one
+      const existing = await query(
+        "SELECT id FROM onboarding_submissions WHERE email = $1 ORDER BY created_at DESC LIMIT 1",
+        [email.trim()]
+      );
+      if (existing.rows.length > 0) {
+        await query(
+          "UPDATE onboarding_submissions SET chat_history = $1, generated_prompt = $2, uploaded_files = $3 WHERE id = $4",
+          [JSON.stringify(chat ? [{ role: "summary", text: chat }] : null), replitPrompt || null, files.length > 0 ? files : null, existing.rows[0].id]
+        );
+      } else {
+        await query(
+          "INSERT INTO onboarding_submissions (name, email, phone, service, questionnaire_data, chat_history, generated_prompt, uploaded_files, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())",
+          [name.trim(), email.trim(), phone?.trim() || null, service || "other", JSON.stringify(qa), JSON.stringify(chat ? [{ role: "summary", text: chat }] : null), replitPrompt || null, files.length > 0 ? files : null]
+        );
+      }
+    } catch (dbErr) {
+      console.error("DB update onboarding error:", dbErr.message);
+    }
 
     const pass = (process.env.GMAIL_APP_PASSWORD || "").trim();
     if (!pass || !name?.trim() || !email?.trim()) {

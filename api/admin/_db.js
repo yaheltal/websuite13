@@ -16,6 +16,9 @@ export function getPool() {
 
 export async function query(text, params) {
   const p = getPool();
-  if (!p) throw new Error("DATABASE_URL not configured");
+  if (!p) {
+    console.warn("[db] DATABASE_URL not configured — skipping query");
+    return { rows: [] };
+  }
   return p.query(text, params);
 }
