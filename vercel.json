@@ -37,6 +37,11 @@
     "api/onboarding/start.js": { "maxDuration": 30 },
     "api/onboarding/chat.js": { "maxDuration": 30 },
     "api/onboarding/complete.js": { "maxDuration": 60 },
-    "api/onboarding/upload.js": { "maxDuration": 30 }
+    "api/onboarding/upload.js": { "maxDuration": 30 },
+    "api/admin/login.js": { "maxDuration": 10 },
+    "api/admin/logout.js": { "maxDuration": 10 },
+    "api/admin/me.js": { "maxDuration": 10 },
+    "api/admin/contacts.js": { "maxDuration": 15 },
+    "api/admin/onboardings.js": { "maxDuration": 15 }
   }
 }
