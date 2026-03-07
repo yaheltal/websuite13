@@ -10,6 +10,8 @@ import { LiquidCursorProvider } from "@/components/liquid-cursor";
 const Home = lazy(() => import("@/pages/home"));
 const Onboarding = lazy(() => import("@/pages/onboarding"));
 const LegalPage = lazy(() => import("@/pages/legal"));
+const AdminLogin = lazy(() => import("@/pages/admin-login"));
+const AdminDashboard = lazy(() => import("@/pages/admin-dashboard"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 function PageLoader() {
@@ -51,6 +53,8 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/onboarding" component={Onboarding} />
         <Route path="/legal/:type" component={LegalPage} />
+        <Route path="/admin/login" component={AdminLogin} />
+        <Route path="/admin" component={AdminDashboard} />
         <Route component={NotFound} />
       </Switch>
     </Suspense>
