@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>WebSuite - Stats</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: 'Heebo', sans-serif;
+    background: hsl(230 25% 6%);
+    position: relative;
+  }
+
+  .mesh {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 30%, hsl(220 50% 15% / 0.8) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 80%, hsl(260 40% 12% / 0.6) 0%, transparent 50%);
+  }
+
+  .content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 80px;
+    gap: 60px;
+  }
+
+  .top {
+    text-align: center;
+  }
+
+  .top h1 {
+    font-size: 52px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  .top p {
+    font-size: 24px;
+    color: hsl(220 20% 60%);
+    font-weight: 300;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    width: 100%;
+    max-width: 780px;
+  }
+
+  .stat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 44px 36px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+
+  .stat-card:nth-child(1)::after { background: linear-gradient(90deg, #0ea5a0, #2dd4bf); }
+  .stat-card:nth-child(2)::after { background: linear-gradient(90deg, #3b82f6, #6366f1); }
+  .stat-card:nth-child(3)::after { background: linear-gradient(90deg, #8b5cf6, #a855f7); }
+  .stat-card:nth-child(4)::after { background: linear-gradient(90deg, hsl(220 80% 55%), hsl(175 80% 55%)); }
+
+  .stat-number {
+    font-size: 72px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .stat-card:nth-child(1) .stat-number { color: #2dd4bf; }
+  .stat-card:nth-child(2) .stat-number { color: #818cf8; }
+  .stat-card:nth-child(3) .stat-number { color: #a78bfa; }
+  .stat-card:nth-child(4) .stat-number {
+    background: linear-gradient(135deg, hsl(220 80% 65%), hsl(175 80% 55%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 22px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 400;
+  }
+
+  .bottom-cta {
+    text-align: center;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    padding: 18px 48px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, hsl(220 80% 55%), hsl(260 70% 55%));
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    border: none;
+    box-shadow: 0 16px 40px hsla(240, 60%, 40%, 0.35);
+  }
+
+  .cta-sub {
+    font-size: 18px;
+    color: hsl(220 20% 55%);
+    margin-top: 16px;
+    font-weight: 300;
+  }
+</style>
+</head>
+<body>
+  <div class="mesh"></div>
+  <div class="content">
+    <div class="top">
+      <h1>למה WebSuite?</h1>
+      <p>המספרים מדברים בעד עצמם</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">100+</div>
+        <div class="stat-label">פרויקטים שהושלמו</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">6+</div>
+        <div class="stat-label">שנות ניסיון</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">90%</div>
+        <div class="stat-label">שימור לקוחות</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">24h</div>
+        <div class="stat-label">עד הדמיה ראשונה</div>
+      </div>
+    </div>
+
+    <div class="bottom-cta">
+      <div class="cta-btn">ייעוץ ראשוני חינם →</div>
+      <p class="cta-sub">בלי התחייבות. בלי עלויות נסתרות.</p>
+    </div>
+  </div>
+</body>
+</html>
