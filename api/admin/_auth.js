@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import bcrypt from "bcryptjs";
 
 const ADMIN_USER = "admin";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD?.trim() || "1503";
@@ -37,14 +36,10 @@ export function verifyToken(token) {
 /**
  * Validate admin credentials. Returns { id, username } or null.
  */
-export async function validateCredentials(username, password) {
+export function validateCredentials(username, password) {
   if (username !== ADMIN_USER) return null;
-  const match = await bcrypt.compare(password, await bcrypt.hash(ADMIN_PASSWORD, 10));
-  // Direct comparison since we hash on-the-fly for serverless (no persistent DB for admin)
-  if (password === ADMIN_PASSWORD) {
-    return { id: 1, username: ADMIN_USER };
-  }
-  return null;
+  if (password !== ADMIN_PASSWORD) return null;
+  return { id: 1, username: ADMIN_USER };
 }
 
 /**

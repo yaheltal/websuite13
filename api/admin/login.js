@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ message: "Username and password required" });
   }
 
-  const admin = await validateCredentials(username, password);
+  const admin = validateCredentials(username, password);
   if (!admin) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
